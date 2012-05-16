@@ -81,7 +81,7 @@ def create_grid_figure(nrows, ncolumns, plotwidth=2.0, plotheight=2.0, pad=0.1, 
 
 	return fig, axes
 
-def profile_screenshot(fname, intervals, tracks, colors=None, scalegroups=[], scale=True, annotation=None, bgmode="color", fragmentlength=200):
+def profile_screenshot(fname, intervals, tracks, colors=None, scalegroups=[], scale=True, annotation=None, bgmode="color", fragmentsize=200):
 	# Colors
 	if not colors:
 		colors = DEFAULT_COLORS
@@ -177,7 +177,7 @@ def profile_screenshot(fname, intervals, tracks, colors=None, scalegroups=[], sc
 			plt.text((s - start) / (end - start) + 0.01, 0.5, str(int(s)), horizontalalignment='left', verticalalignment='center', transform = ax.transAxes, fontproperties=font)
 
 		# Load the actual data
-		profiles = load_profile(interval, tracks, fragmentlength=fragmentlength)
+		profiles = load_profile(interval, tracks, fragmentsize=fragmentsize)
 
 		# Plot the profiles
 		color_index = 0

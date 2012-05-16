@@ -46,7 +46,7 @@ parser.add_option("-a", "--annotation", dest="annotation", help="Annotation in B
 parser.add_option("-t", "--trackgroups", dest="trackgroups", help="Track groups", metavar="GROUPS")
 parser.add_option("-s", "--scalegroups", dest="scalegroups", help="Scale groups", metavar="GROUPS")
 parser.add_option("-b", "--bgcolor", dest="background", help="Background color: white | color | stripes", default="white")
-parser.add_option("-f", "--fragmentlength", dest="fragmentlength", help="Fragment length (default: %s)" % FRAGMENTLENGTH,type="int",  default=FRAGMENTLENGTH)
+parser.add_option("-f", "--fragmentsize", dest="fragmentsize", help="Fragment length (default: %s)" % FRAGMENTLENGTH,type="int",  default=FRAGMENTLENGTH)
 
 
 (options, args) = parser.parse_args()
@@ -87,4 +87,4 @@ for group in trackgroups:
 intervals = [split_interval(x) for x in intervals]
 
 # Create the image
-profile_screenshot(outfile, intervals, tracks, annotation=annotation, scalegroups=scalegroups, colors=colors, bgmode=options.background, fragmentlength=options.fragmentlength)
+profile_screenshot(outfile, intervals, tracks, annotation=annotation, scalegroups=scalegroups, colors=colors, bgmode=options.background, fragmentsize=options.fragmentsize)
