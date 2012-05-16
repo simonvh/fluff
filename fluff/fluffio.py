@@ -51,6 +51,9 @@ def load_annotation(interval, fname):
 					sys.stderr.write("Adding %s\n" % vals[3])
 					genes.append(vals)
 	
+	if len(genes) == 0:
+		return []
+
 	min_start = min([gene[1] for gene in genes])
 	max_end = max([gene[2] for gene in genes])
 	overlap = []
