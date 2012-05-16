@@ -17,6 +17,8 @@ from fluff.plot import profile_screenshot
 
 VERSION = 1.0
 DEFAULT_COLORS = ["#e41a1c","#4daf4a","#377eb8"]
+BACKGROUNDS = ["white", "stripes", "color"]
+FRAGMENTLENGTH = 200
 
 def process_groups(groups):
 	if not groups:
@@ -43,6 +45,9 @@ parser.add_option("-l", "--colors", dest="colors", help="Colors", metavar="NAME(
 parser.add_option("-a", "--annotation", dest="annotation", help="Annotation in BED12 format", metavar="FILE")
 parser.add_option("-t", "--trackgroups", dest="trackgroups", help="Track groups", metavar="GROUPS")
 parser.add_option("-s", "--scalegroups", dest="scalegroups", help="Scale groups", metavar="GROUPS")
+parser.add_option("-b", "--bgcolor", dest="background", help="Background color: white | color | stripes", default="white")
+parser.add_option("-f", "--fragmentlength", dest="fragmentlength", help="Fragment length (default: %s)" % FRAGMENTLENGTH,type="int",  default=FRAGMENTLENGTH)
+
 
 (options, args) = parser.parse_args()
 
@@ -50,6 +55,11 @@ for opt in [options.intervals, options.datafiles, options.outfile]:
 	if not opt:
 		parser.print_help()
 		sys.exit()
+
+if not options.background in BACKGROUNDS:
+	print "Please specify a correct background!"
+	sys.exit(1)
+
 
 intervals = [x.strip() for x in options.intervals.split(",")]
 datafiles = [x.strip() for x in options.datafiles.split(",")]
@@ -77,4 +87,4 @@ for group in trackgroups:
 intervals = [split_interval(x) for x in intervals]
 
 # Create the image
-profile_screenshot(outfile, intervals, tracks, annotation=annotation, scalegroups=scalegroups, colors=colors, bgmode="white")
+profile_screenshot(outfile, intervals, tracks, annotation=annotation, scalegroups=scalegroups, colors=colors, bgmode=options.background, fragmentlength=options.fragmentlength)

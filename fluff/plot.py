@@ -81,7 +81,7 @@ def create_grid_figure(nrows, ncolumns, plotwidth=2.0, plotheight=2.0, pad=0.1, 
 
 	return fig, axes
 
-def profile_screenshot(fname, intervals, tracks, colors=None, scalegroups=[], scale=True, annotation=None, bgmode="color"):
+def profile_screenshot(fname, intervals, tracks, colors=None, scalegroups=[], scale=True, annotation=None, bgmode="color", fragmentlength=200):
 	# Colors
 	if not colors:
 		colors = DEFAULT_COLORS
@@ -106,9 +106,11 @@ def profile_screenshot(fname, intervals, tracks, colors=None, scalegroups=[], sc
 	if annotation:
 		for interval in intervals:
 			gene_tracks.append(load_annotation(interval, annotation))
-		max_tracks =  max([len(x.keys()) for x in gene_tracks])
-		annotation_height = 0.2 * max_tracks
-
+		if gene_tracks[0]:
+			max_tracks =  max([len(x.keys()) for x in gene_tracks])
+			annotation_height = 0.2 * max_tracks
+		else:
+			annotation = False
 	#
 	ncolumns = len(intervals)
 	nrows = len(tracks)
@@ -175,7 +177,7 @@ def profile_screenshot(fname, intervals, tracks, colors=None, scalegroups=[], sc
 			plt.text((s - start) / (end - start) + 0.01, 0.5, str(int(s)), horizontalalignment='left', verticalalignment='center', transform = ax.transAxes, fontproperties=font)
 
 		# Load the actual data
-		profiles = load_profile(interval, tracks)
+		profiles = load_profile(interval, tracks, fragmentlength=fragmentlength)
 
 		# Plot the profiles
 		color_index = 0
@@ -224,15 +226,14 @@ def profile_screenshot(fname, intervals, tracks, colors=None, scalegroups=[], sc
 		
 					ax.axhline(h_gene, (genestart - start)/float(end - start), (geneend - start)/ float(end - start), color="black")
 					step = plotwidth/ 400.0
-					for i in arange((genestart -start)/ float(end-start) + step, (geneend - start)/ float(end-start) - step, step):
-						if genestrand == "+":
-							arr = FancyArrowPatch((i,h_gene),(i + step,h_gene),arrowstyle='->',mutation_scale=5)
-						else:
-							arr = FancyArrowPatch((i + step,h_gene),(i,h_gene),arrowstyle='->',mutation_scale=5)
-						ax.add_patch(arr)
-				
 					for exonstart,exonsize in zip(exonstarts, exonsizes):
 						ax.axhspan(h_gene - 0.6, h_gene + 0.6, (genestart + exonstart - start)/float(end - start), (genestart + exonstart + exonsize - start)/ float(end - start), color="black")
+					for i in arange((genestart -start)/ float(end-start) + step, (geneend - start)/ float(end-start) - step, step):
+						if genestrand == "+":
+							arr = FancyArrowPatch((i,h_gene),(i + step,h_gene),arrowstyle='->', mutation_scale=15)
+						else:
+							arr = FancyArrowPatch((i + step,h_gene),(i,h_gene),arrowstyle='->', mutation_scale=15)
+						ax.add_patch(arr)
 
 	
 	
