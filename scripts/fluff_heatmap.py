@@ -26,7 +26,7 @@ import pp
 from solexatools.track import SimpleTrack
 from solexatools.peak_stats import bin_formatter, bam_binned_peak_stats, peak_stats
 
-from kmeans import kmeanssample, Lqmetric
+#from kmeans import kmeanssample, Lqmetric
 
 BINS = 100
 RPKM = False

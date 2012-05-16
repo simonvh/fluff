@@ -15,9 +15,9 @@ setup (name = 'fluff',
 			'fluff'
 		],
 		scripts=[
-			"scripts/profile_screenshot.py"
-			"scripts/heatmap.py"
-			"scripts/cluster_graph.py"
+			"scripts/fluff_bandplot.py",
+			"scripts/fluff_profile.py",
+			"scripts/fluff_heatmap.py",
 		],
 		data_files=[]
 )

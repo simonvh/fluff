@@ -68,9 +68,9 @@ def load_clusters(clust_file):
 	return cluster_data
 
 parser = OptionParser(version="%prog " + str(VERSION))
-parser.add_option("-c", "--cluster_file", dest="clust_file", help="File containing clusters", metavar="FILE")
+parser.add_option("-c", "--clusterfile", dest="clust_file", help="File containing clusters", metavar="FILE")
 parser.add_option("-d", "--datafiles", dest="datafiles", help="Data files (reads in BED/BAM format)", metavar="FILE(S)")
-parser.add_option("-k", "--colors", dest="colors", help="Colors", metavar="NAME(S)", default=DEFAULT_COLORS)
+parser.add_option("-l", "--colors", dest="colors", help="Colors", metavar="NAME(S)", default=DEFAULT_COLORS)
 parser.add_option("-o", "--outfile", dest="outfile", help="Output file (type determined by extension)", metavar="FILE")
 
 (options, args) = parser.parse_args()
