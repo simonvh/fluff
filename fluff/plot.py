@@ -5,7 +5,7 @@ from matplotlib.font_manager import fontManager, FontProperties
 from matplotlib.patches import FancyArrowPatch
 from fluffio import *
 import sys
-#from scipy.stats import scoreatpercentile
+from scipy.stats import scoreatpercentile
 
 DEFAULT_COLORS = ["#e41a1c","#4daf4a","#377eb8"]
 FONTSIZE = 8

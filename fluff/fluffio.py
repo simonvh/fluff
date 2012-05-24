@@ -52,7 +52,7 @@ def load_annotation(interval, fname):
 					genes.append(vals)
 	
 	if len(genes) == 0:
-		return []
+		return {}
 
 	min_start = min([gene[1] for gene in genes])
 	max_end = max([gene[2] for gene in genes])

@@ -16,7 +16,7 @@ from numpy import array
 from fluff.plot import profile_screenshot
 
 VERSION = 1.0
-DEFAULT_COLORS = ["#e41a1c","#4daf4a","#377eb8"]
+DEFAULT_COLORS = "#e41a1c,#4daf4a,#377eb8"
 BACKGROUNDS = ["white", "stripes", "color"]
 FRAGMENTLENGTH = 200
 

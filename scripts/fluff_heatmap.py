@@ -20,6 +20,7 @@ import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 from matplotlib.colors import colorConverter, LinearSegmentedColormap
 from matplotlib.ticker import NullFormatter,NullLocator
+from matplotlib.font_manager import fontManager, FontProperties
 import pp
 
 ### Other imports ###
@@ -32,9 +33,10 @@ BINS = 100
 RPKM = False
 REMOVE_DUP = True
 VERSION = "1.0"
-DEFAULT_COLORS = "red,blue,green,orange,brown,purple,yellow"
+COLOR_MAP = {"red":"#e41a1c","blue":"#377eb8","green":"#4daf4a","orange":"#ff7f00","brown":"#a65628","purple":"#984ea3","yellow":"#ffff33"}
 DEFAULT_COLORS = "#e41a1c,#377eb8,#4daf4a,#984ea3,#ff7f00,#ffff33,#a65628"
 METRIC = "e"		# Euclidian, PyCluster
+FONTSIZE = 8
 
 def load_data(featurefile, datafile, bins=100, up=5000, down=5000, remove_dup=True, rpkm=False):
 	tmp = tempfile.NamedTemporaryFile(delete=False)
@@ -109,6 +111,10 @@ featurefile = options.featurefile
 datafiles = [x.strip() for x in options.datafiles.split(",")]
 tracks = [os.path.basename(x) for x in datafiles]
 colors = [x.strip() for x in options.colors.split(",")]
+for i,color in enumerate(colors):
+	if COLOR_MAP.has_key(color):
+		colors[i] = COLOR_MAP[color]
+
 outfile = options.outfile
 extend_up = 5000
 extend_down = 5000
@@ -141,6 +147,8 @@ labels, error, nfound = Pycluster.kcluster(clus, options.numclusters, dist=METRI
 #tree = Pycluster.treecluster(clus, method="m", dist=METRIC)
 #labels = tree.cut(options.numclusters)
 
+font = FontProperties(size=FONTSIZE / 1.25, family=["Nimbus Sans L", "Helvetica", "sans-serif"])
+
 f = open("%s_clusters.bed" % outfile, "w")
 for (chrom,start,end,strand), cluster in zip(regions, labels):
 	f.write("%s\t%s\t%s\t%s\t0\t%s\n" % (chrom, start, end, cluster, strand))
@@ -149,11 +157,13 @@ f.close()
 ind = labels.argsort()
 fig = plt.figure(figsize=(10,5))
 
+axes = []
 for i, track in enumerate(tracks):
 	c = create_colormap('white', colors[i])
 	ax = fig.add_subplot(1,len(tracks),i + 1)
+	ax.set_title(track.replace(".bam",""),  fontproperties=font)
+	axes.append(ax)
 	ax.pcolormesh(data[track][ind], cmap=c, vmin=0, vmax=15)
-	ax.set_title("bla")
 	for x in [ax.xaxis, ax.yaxis]:
 		x.set_major_formatter(NullFormatter())
 		x.set_major_locator(NullLocator())
@@ -161,5 +171,14 @@ for i, track in enumerate(tracks):
 		spine.set_color('none')
 fig.subplots_adjust(wspace=0, hspace=0)
 
+i#for i, track in enumerate(tracks):
+	#axes[i].set_title(track.replace(".bam",""), verticalalignment={0:"top",1:"bottom"}[i % 2], zorder=100000)
+
+ext = outfile.split(".")[-1]
+if not ext in ["png", "svg", "ps", "eps", "pdf"]:
+	outfile += ".png"
 print "Saving image"
-plt.savefig("%s.png" % (outfile))
+if outfile.endswith("png"):
+	plt.savefig(outfile, dpi=300)
+else:
+	plt.savefig(outfile)
