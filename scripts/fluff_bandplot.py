@@ -21,7 +21,10 @@ from scipy.stats import scoreatpercentile
 ### Other imports ###
 from solexatools.track import SimpleTrack
 from solexatools.peak_stats import bin_formatter, bam_binned_peak_stats, peak_stats
+
+### My imports ###
 from fluff.plot import *
+from fluff.util import *
 
 ######## EDIT CONSTANTS TO CHANGE BEHAVIOUR OF THE SCRIPT #############
 # Sizes of the plots (in inches)
@@ -71,6 +74,7 @@ parser = OptionParser(version="%prog " + str(VERSION))
 parser.add_option("-c", "--clusterfile", dest="clust_file", help="File containing clusters", metavar="FILE")
 parser.add_option("-d", "--datafiles", dest="datafiles", help="Data files (reads in BED/BAM format)", metavar="FILE(S)")
 parser.add_option("-l", "--colors", dest="colors", help="Colors", metavar="NAME(S)", default=DEFAULT_COLORS)
+parser.add_option("-s", "--scalegroups", dest="scalegroups", help="Scale groups", metavar="GROUPS")
 parser.add_option("-o", "--outfile", dest="outfile", help="Output file (type determined by extension)", metavar="FILE")
 
 (options, args) = parser.parse_args()
@@ -84,6 +88,7 @@ clust_file = options.clust_file
 datafiles = [x.strip() for x in options.datafiles.split(",")]
 tracks = [os.path.basename(x) for x in datafiles]
 colors = [x.strip() for x in options.colors.split(",")]
+scalegroups = process_groups(options.scalegroups)
 
 # Calculate the profile data
 data = load_data(clust_file, datafiles)
@@ -97,9 +102,12 @@ t = arange(BINS)
 # Get a figure with a lot of subplots
 fig, axes = create_grid_figure(len(tracks), len(clusters), plotwidth=PLOTWIDTH, plotheight=PLOTHEIGHT, padleft=PADLEFT, padtop=PADTOP, pad=PAD, padright=PADRIGHT, padbottom=PADBOTTOM) 
 
+track_max = []
 for track_num, track in enumerate(tracks):
 	percentiles = [scoreatpercentile([data[track][x] for x in cluster_data[cluster]], 90) for cluster in clusters]
-	track_max = max(percentiles)
+	track_max.append(max(percentiles))
+	
+for track_num, track in enumerate(tracks):
 	for i,cluster in enumerate(clusters):
 		# Retrieve axes
 		ax = axes[track_num][i]
@@ -110,8 +118,16 @@ for track_num, track in enumerate(tracks):
 		# Make the plot
 		coverage_plot(ax, t, vals, colors[track_num % len(colors)])
 		
+		# Get scale max
+		maxscale = track_max[track_num]
+		if scalegroups and len(scalegroups) > 0:
+			for group in scalegroups:
+				if (track_num + 1) in group:
+					maxscale = max([track_max[j - 1] for j in group])
+					break
+
 		# Set scale	
-		ax.set_ylim(0, track_max)
+		ax.set_ylim(0, maxscale)
 		ax.set_xlim(0, BINS - 1)	
 		
 		# Cluster titles
@@ -120,11 +136,12 @@ for track_num, track in enumerate(tracks):
 		
 		# Track title and scale
 		if i == 0:
+			
 			pos = axes[track_num][0].get_position().get_points()
 			text_y = (pos[1][1] + pos[0][1]) / 2
 			text_x = pos[0][0] - (PAD / fig.get_figwidth())
 			plt.figtext(text_x, text_y, track, clip_on=False, horizontalalignment="right", verticalalignment="center", font_properties=font)
-			plt.figtext(text_x,  pos[1][1], track_max, clip_on=False, horizontalalignment="right", verticalalignment="top", font_properties=font)
+			plt.figtext(text_x,  pos[1][1], maxscale, clip_on=False, horizontalalignment="right", verticalalignment="top", font_properties=font)
 			plt.figtext(text_x,  pos[0][1], 0, clip_on=False, horizontalalignment="right", verticalalignment="bottom", font_properties=font)
 
 print "Saving figure"

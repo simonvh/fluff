@@ -8,8 +8,9 @@ def get_profile(interval, track, fragmentsize=200):
 	bamfile = HTSeq.BAM_Reader(track)
 	profile = zeros(end - start, dtype="i")
 	for almnt in bamfile[window]:
-		almnt.iv.length = fragmentsize
-		profile[almnt.iv.start - start:almnt.iv.end - start] += 1
+		if almnt:
+			almnt.iv.length = fragmentsize
+			profile[almnt.iv.start - start:almnt.iv.end - start] += 1
 	return profile
 
 def load_profile(interval, tracks, fragmentsize=200):

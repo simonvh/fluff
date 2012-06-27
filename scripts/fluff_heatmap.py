@@ -31,12 +31,15 @@ from solexatools.peak_stats import bin_formatter, bam_binned_peak_stats, peak_st
 
 BINS = 100
 RPKM = False
-REMOVE_DUP = True
+REMOVE_DUP = False 
 VERSION = "1.0"
 COLOR_MAP = {"red":"#e41a1c","blue":"#377eb8","green":"#4daf4a","orange":"#ff7f00","brown":"#a65628","purple":"#984ea3","yellow":"#ffff33"}
 DEFAULT_COLORS = "#e41a1c,#377eb8,#4daf4a,#984ea3,#ff7f00,#ffff33,#a65628"
 METRIC = "e"		# Euclidian, PyCluster
 FONTSIZE = 8
+DEFAULT_SCALE = 15
+DEFAULT_EXTEND = 5000
+DEFAULT_PERCENTILE = 99
 
 def load_data(featurefile, datafile, bins=100, up=5000, down=5000, remove_dup=True, rpkm=False):
 	tmp = tempfile.NamedTemporaryFile(delete=False)
@@ -75,7 +78,12 @@ def load_data(featurefile, datafile, bins=100, up=5000, down=5000, remove_dup=Tr
 def normalize_data(data, percentile=75):
 	norm_data = {}
 	for track,ar in data.items():
-		x =  ar / scoreatpercentile(ar.flatten(), percentile)
+		s = scoreatpercentile(ar.flatten(), percentile)
+		if s == 0:
+			sys.stderr.write("Error normalizing track %s as score at percentile %s is 0, normalizing to maximum value instead\n" % (track, percentile))
+			x =  ar / max(ar.flatten())
+		else:
+			x =  ar / scoreatpercentile(ar.flatten(), percentile)
 		#x[x <= 0.5] = 0
 		x[x >= 1.0] = 1
 		norm_data[track] = x
@@ -99,6 +107,8 @@ parser.add_option("-d", "--datafiles", dest="datafiles", help="Data files (reads
 parser.add_option("-k", "--numclusters", dest="numclusters", help="Number of clusters", metavar="INT", type="int")
 parser.add_option("-l", "--colors", dest="colors", help="Colors", metavar="NAME(S)", default=DEFAULT_COLORS)
 parser.add_option("-o", "--outfile", dest="outfile", help="Output file name", metavar="FILE")
+parser.add_option("-s", "--scale", dest="scale", help="Scale", metavar="INT", type="int", default=DEFAULT_SCALE)
+parser.add_option("-e", "--extend", dest="extend", help="Extend", metavar="INT", type="int", default=DEFAULT_EXTEND)
 
 (options, args) = parser.parse_args()
 
@@ -116,13 +126,13 @@ for i,color in enumerate(colors):
 		colors[i] = COLOR_MAP[color]
 
 outfile = options.outfile
-extend_up = 5000
-extend_down = 5000
+extend_up = options.extend
+extend_down = options.extend
 
 # Calculate the profile data
 # Load data in parallel
 print "Loading data"
-job_server = pp.Server()
+job_server = pp.Server(ncpus=4)
 jobs = []
 for datafile in datafiles:
 	jobs.append(job_server.submit(load_data, (featurefile, datafile, BINS, extend_up, extend_down, REMOVE_DUP, RPKM), (), ("tempfile","sys","os","solexatools.peak_stats","solexatools.track","numpy")))
@@ -134,7 +144,7 @@ for job in jobs:
 	data[track] = profile
 
 # Normalize
-norm_data = normalize_data(data, 75)
+norm_data = normalize_data(data, DEFAULT_PERCENTILE)
 clus = hstack([norm_data[t] for t in tracks])
 
 print "Clustering"
@@ -159,11 +169,11 @@ fig = plt.figure(figsize=(10,5))
 
 axes = []
 for i, track in enumerate(tracks):
-	c = create_colormap('white', colors[i])
+	c = create_colormap('white', colors[i % len(colors)])
 	ax = fig.add_subplot(1,len(tracks),i + 1)
 	ax.set_title(track.replace(".bam",""),  fontproperties=font)
 	axes.append(ax)
-	ax.pcolormesh(data[track][ind], cmap=c, vmin=0, vmax=15)
+	ax.pcolormesh(data[track][ind], cmap=c, vmin=0, vmax=options.scale)
 	for x in [ax.xaxis, ax.yaxis]:
 		x.set_major_formatter(NullFormatter())
 		x.set_major_locator(NullLocator())

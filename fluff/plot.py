@@ -204,11 +204,19 @@ def profile_screenshot(fname, intervals, tracks, colors=None, scalegroups=[], sc
 				color_index += 1
 				track_maxes.append(max(profile) * 1.1)
 				ax.set_ylim(0, max(profile) * 1.1)
-		
-		if scalegroups and len(scalegroups) > 0:
-			for group in scalegroups:
-				for ax_id in group:
-					all_axes[ax_id].set_ylim(0, max([track_maxes[i - 1] for i in group]))
+			
+		for i, profile_group in enumerate(profiles):
+			# Get maximum for this track based on scalegroups
+			if scalegroups and len(scalegroups) > 0:
+				for group in scalegroups:
+					if (i + 1) in group:
+						ylim_max = max([track_maxes[g - 1] for g in group]) * 1.1
+						break
+
+			# Set maximum
+			all_axes[i + 1].set_ylim(0, ylim_max)
+			# Label scale
+			all_axes[i + 1].text(0.005,0.90, int(ylim_max + 0.5), horizontalalignment='left', verticalalignment="top", transform = all_axes[i + 1].transAxes, clip_on=False, fontproperties=font)
 
 		# Plot the gene annotation
 		if annotation:
@@ -276,8 +284,8 @@ if __name__ == "__main__":
 	]
 	intervals = [
 		["scaffold_3", 112047153, 112091309],
-		["scaffold_1", 20081849, 20104636],	
-		["scaffold_1", 126564001, 126606826],
+#		["scaffold_1", 20081849, 20104636],	
+#		["scaffold_1", 126564001, 126606826],
 #		["scaffold_9", 20687459, 20911523],
 	]
 

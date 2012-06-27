@@ -14,28 +14,12 @@ from numpy import array
 
 ### My imports ###
 from fluff.plot import profile_screenshot
+from fluff.util import *
 
 VERSION = 1.0
 DEFAULT_COLORS = "#e41a1c,#4daf4a,#377eb8"
 BACKGROUNDS = ["white", "stripes", "color"]
 FRAGMENTLENGTH = 200
-
-def process_groups(groups):
-	if not groups:
-		return None
-	pg = []
-	for group in groups.split(","):
-		ids = [int(x) for x in group.split(":")]
-		if len(ids) == 2:
-			pg.append(range(ids[0], ids[1] + 1))
-		else:
-			pg.append(ids)
-	return pg
-
-def split_interval(interval):
-	chrom,coords = interval.split(":")
-	start,end = [int(x) for x in coords.replace(",","").split("-")]
-	return chrom,start,end
 
 parser = OptionParser(version="%prog " + str(VERSION))
 parser.add_option("-i", "--intervals", dest="intervals", help="Intervals (chrom:start-end)")
@@ -47,7 +31,6 @@ parser.add_option("-t", "--trackgroups", dest="trackgroups", help="Track groups"
 parser.add_option("-s", "--scalegroups", dest="scalegroups", help="Scale groups", metavar="GROUPS")
 parser.add_option("-b", "--bgcolor", dest="background", help="Background color: white | color | stripes", default="white")
 parser.add_option("-f", "--fragmentsize", dest="fragmentsize", help="Fragment length (default: %s)" % FRAGMENTLENGTH,type="int",  default=FRAGMENTLENGTH)
-
 
 (options, args) = parser.parse_args()
 
