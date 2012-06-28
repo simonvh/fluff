@@ -29,6 +29,7 @@ parser.add_option("-l", "--colors", dest="colors", help="Colors", metavar="NAME(
 parser.add_option("-a", "--annotation", dest="annotation", help="Annotation in BED12 format", metavar="FILE")
 parser.add_option("-t", "--trackgroups", dest="trackgroups", help="Track groups", metavar="GROUPS")
 parser.add_option("-s", "--scalegroups", dest="scalegroups", help="Scale groups", metavar="GROUPS")
+parser.add_option("--setscale", dest="scale", help="Scale: 'auto' (default), 'off' or int for each track", metavar="SCALE", default="auto")
 parser.add_option("-b", "--bgcolor", dest="background", help="Background color: white | color | stripes", default="white")
 parser.add_option("-f", "--fragmentsize", dest="fragmentsize", help="Fragment length (default: %s)" % FRAGMENTLENGTH,type="int",  default=FRAGMENTLENGTH)
 
@@ -55,6 +56,17 @@ if not trackgroups:
 	trackgroups = [[x] for x in range(1, len(datafiles) + 1)]
 
 scalegroups = process_groups(options.scalegroups)	
+scale = options.scale
+if scale == "auto":
+	scale = True
+elif scale == "off":
+	scale = False
+elif scale:
+	try:
+		scale = [int(x) for x in scale.split(",")]
+	except:
+		print "Error in scale argument"
+		sys.exit(1)
 
 if trackgroups and scalegroups:
 	if len(trackgroups) != sum([len(x) for x in scalegroups]):
@@ -70,4 +82,4 @@ for group in trackgroups:
 intervals = [split_interval(x) for x in intervals]
 
 # Create the image
-profile_screenshot(outfile, intervals, tracks, annotation=annotation, scalegroups=scalegroups, colors=colors, bgmode=options.background, fragmentsize=options.fragmentsize)
+profile_screenshot(outfile, intervals, tracks, annotation=annotation, scalegroups=scalegroups, colors=colors, bgmode=options.background, fragmentsize=options.fragmentsize, scale=scale)

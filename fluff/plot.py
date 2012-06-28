@@ -9,6 +9,7 @@ from scipy.stats import scoreatpercentile
 
 DEFAULT_COLORS = ["#e41a1c","#4daf4a","#377eb8"]
 FONTSIZE = 8
+PROFILE_MIN_Y = 75
 
 def coverage_plot(ax, x, data, color="red"):
 	"""
@@ -81,7 +82,7 @@ def create_grid_figure(nrows, ncolumns, plotwidth=2.0, plotheight=2.0, pad=0.1, 
 
 	return fig, axes
 
-def profile_screenshot(fname, intervals, tracks, colors=None, scalegroups=[], scale=True, annotation=None, bgmode="color", fragmentsize=200):
+def profile_screenshot(fname, intervals, tracks, colors=None, scalegroups=[], annotation=None, bgmode="color", fragmentsize=200, scale=False):
 	# Colors
 	if not colors:
 		colors = DEFAULT_COLORS
@@ -212,11 +213,18 @@ def profile_screenshot(fname, intervals, tracks, colors=None, scalegroups=[], sc
 					if (i + 1) in group:
 						ylim_max = max([track_maxes[g - 1] for g in group]) * 1.1
 						break
+			
+			if ylim_max < PROFILE_MIN_Y:
+				ylim_max = PROFILE_MIN_Y
 
+			if type(scale) == type([]):
+				ylim_max = scale[i]
 			# Set maximum
 			all_axes[i + 1].set_ylim(0, ylim_max)
-			# Label scale
-			all_axes[i + 1].text(0.005,0.90, int(ylim_max + 0.5), horizontalalignment='left', verticalalignment="top", transform = all_axes[i + 1].transAxes, clip_on=False, fontproperties=font)
+		
+		# Label scale
+			if scale:
+				all_axes[i + 1].text(0.005,0.90, int(ylim_max + 0.5), horizontalalignment='left', verticalalignment="top", transform = all_axes[i + 1].transAxes, clip_on=False, fontproperties=font)
 
 		# Plot the gene annotation
 		if annotation:

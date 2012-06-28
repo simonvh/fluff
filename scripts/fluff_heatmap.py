@@ -10,7 +10,7 @@ from tempfile import NamedTemporaryFile
 import sys
 import os
 
-from numpy import array,hstack
+from numpy import array,hstack,arange,median,mean
 #import numpy
 from scipy.stats import scoreatpercentile
 from scipy.stats.mstats import rankdata
@@ -27,6 +27,9 @@ import pp
 from solexatools.track import SimpleTrack
 from solexatools.peak_stats import bin_formatter, bam_binned_peak_stats, peak_stats
 
+### My imports ###
+from fluff.util import *
+
 #from kmeans import kmeanssample, Lqmetric
 
 BINS = 100
@@ -37,11 +40,12 @@ COLOR_MAP = {"red":"#e41a1c","blue":"#377eb8","green":"#4daf4a","orange":"#ff7f0
 DEFAULT_COLORS = "#e41a1c,#377eb8,#4daf4a,#984ea3,#ff7f00,#ffff33,#a65628"
 METRIC = "e"		# Euclidian, PyCluster
 FONTSIZE = 8
-DEFAULT_SCALE = 15
+DEFAULT_SCALE = 15 
 DEFAULT_EXTEND = 5000
 DEFAULT_PERCENTILE = 99
+DEFAULT_CLUSTERING = "kmeans"
 
-def load_data(featurefile, datafile, bins=100, up=5000, down=5000, remove_dup=True, rpkm=False):
+def load_data(featurefile, datafile, bins=100, up=5000, down=5000, remove_dup=True, rpkm=False, unique=True):
 	tmp = tempfile.NamedTemporaryFile(delete=False)
 	t = solexatools.track.SimpleTrack(featurefile)
 	f = t.get_next_feature()
@@ -70,7 +74,7 @@ def load_data(featurefile, datafile, bins=100, up=5000, down=5000, remove_dup=Tr
 		if not os.path.exists(datafile + ".bai"):
 			print "Please provide indexed bam file(s) %s" % (datafile + ".bai")
 			sys.exit()
-		result = solexatools.peak_stats.bam_binned_peak_stats(solexatools.track.SimpleTrack(tmp.name), datafile, bins, rpkm, remove_dup)
+		result = solexatools.peak_stats.bam_binned_peak_stats(solexatools.track.SimpleTrack(tmp.name), datafile, bins, rpkm, remove_dup, unique)
 	else:
 		result = solexatools.peak_stats.peak_stats(solexatools.track.SimpleTrack(tmp.name), solexatools.track.SimpleTrack(datafile), solexatools.peak_stats.bin_formatter, {"bins": bins}, )
 	return os.path.basename(datafile), regions, numpy.array([[float(x) for x in row.split("\t")[3:]] for row in result])
@@ -104,6 +108,7 @@ def create_colormap(col1, col2):
 parser = OptionParser(version="%prog " + str(VERSION))
 parser.add_option("-f", "--featurefile", dest="featurefile", help="File containing features", metavar="FILE")
 parser.add_option("-d", "--datafiles", dest="datafiles", help="Data files (reads in BED/BAM format)", metavar="FILE(S)")
+parser.add_option("-c", "--clustering", dest="clustering", help="kmeans or hierarchical", default=DEFAULT_CLUSTERING)
 parser.add_option("-k", "--numclusters", dest="numclusters", help="Number of clusters", metavar="INT", type="int")
 parser.add_option("-l", "--colors", dest="colors", help="Colors", metavar="NAME(S)", default=DEFAULT_COLORS)
 parser.add_option("-o", "--outfile", dest="outfile", help="Output file name", metavar="FILE")
@@ -128,6 +133,17 @@ for i,color in enumerate(colors):
 outfile = options.outfile
 extend_up = options.extend
 extend_down = options.extend
+cluster_type = options.clustering[0].lower()
+
+if not cluster_type in ["k", "h"]:
+	sys.stderr.write("Unknown clustering type!\n")
+	sys.exit(1)
+
+
+## Get scale for each track
+#numreads = [bam2numreads(track) for track in datafiles]
+#med = float(median(numreads))
+#scale = [n/med for n in numreads]
 
 # Calculate the profile data
 # Load data in parallel
@@ -143,19 +159,30 @@ for job in jobs:
 	track,regions,profile = job()
 	data[track] = profile
 
+s = BINS/5
+bg = []
+for track in tracks:
+	bg.append(min([mean(data[track][:,i:i + s]) for i in range(0, BINS, s)]))
+m = median(bg)
+scale = [x / m for x in bg]
+
 # Normalize
 norm_data = normalize_data(data, DEFAULT_PERCENTILE)
 clus = hstack([norm_data[t] for t in tracks])
 
-print "Clustering"
-## K-means clustering
-# PyCluster
-labels, error, nfound = Pycluster.kcluster(clus, options.numclusters, dist=METRIC)
-# Other cluster implementation
-#	centres, labels, dist = kmeanssample(clus, options.numclusters, len(clus) / 10,  metric=cl, maxiter=200, verbose=1, delta=0.00001)
-## Hierarchical clusterling
-#tree = Pycluster.treecluster(clus, method="m", dist=METRIC)
-#labels = tree.cut(options.numclusters)
+if cluster_type == "k":
+	print "K-means clustering"
+	## K-means clustering
+	# PyCluster
+	labels, error, nfound = Pycluster.kcluster(clus, options.numclusters, dist=METRIC)
+	ind = labels.argsort()
+	# Other cluster implementation
+	#	centres, labels, dist = kmeanssample(clus, options.numclusters, len(clus) / 10,  metric=cl, maxiter=200, verbose=1, delta=0.00001)
+elif cluster_type == "h":
+	print "Hierarchical clustering"
+	tree = Pycluster.treecluster(clus, method="m", dist=METRIC)
+	labels = tree.cut(options.numclusters)
+	ind = sort_tree(tree, arange(len(regions)))
 
 font = FontProperties(size=FONTSIZE / 1.25, family=["Nimbus Sans L", "Helvetica", "sans-serif"])
 
@@ -164,7 +191,6 @@ for (chrom,start,end,strand), cluster in zip(regions, labels):
 	f.write("%s\t%s\t%s\t%s\t0\t%s\n" % (chrom, start, end, cluster, strand))
 f.close()
 
-ind = labels.argsort()
 fig = plt.figure(figsize=(10,5))
 
 axes = []
@@ -173,7 +199,8 @@ for i, track in enumerate(tracks):
 	ax = fig.add_subplot(1,len(tracks),i + 1)
 	ax.set_title(track.replace(".bam",""),  fontproperties=font)
 	axes.append(ax)
-	ax.pcolormesh(data[track][ind], cmap=c, vmin=0, vmax=options.scale)
+	ax.pcolormesh(data[track][ind], cmap=c, vmin=0, vmax=options.scale * scale[i])
+	#print "%s\t%s\t%s\t%s" % (track, scale[i] * options.scale, mean(data[track][ind][:,0:20]), median(data[track][ind]))
 	for x in [ax.xaxis, ax.yaxis]:
 		x.set_major_formatter(NullFormatter())
 		x.set_major_locator(NullLocator())
@@ -181,7 +208,7 @@ for i, track in enumerate(tracks):
 		spine.set_color('none')
 fig.subplots_adjust(wspace=0, hspace=0)
 
-i#for i, track in enumerate(tracks):
+#for i, track in enumerate(tracks):
 	#axes[i].set_title(track.replace(".bam",""), verticalalignment={0:"top",1:"bottom"}[i % 2], zorder=100000)
 
 ext = outfile.split(".")[-1]
@@ -189,6 +216,6 @@ if not ext in ["png", "svg", "ps", "eps", "pdf"]:
 	outfile += ".png"
 print "Saving image"
 if outfile.endswith("png"):
-	plt.savefig(outfile, dpi=300)
+	plt.savefig(outfile, dpi=600)
 else:
 	plt.savefig(outfile)
