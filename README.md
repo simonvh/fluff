@@ -39,7 +39,7 @@ Produce a heatmap like [this example](add link). Features can be shown "as is", 
 
 fluff_profile.py
 ----------------
-Produces output like a Genome Browser screenshot. Currently only BAM profiles and gene annotation (in [BED12](http://genome.ucsc.edu/FAQ/FAQformat.html#format1) can be visualized.
+Produces output like a Genome Browser screenshot. Currently only BAM profiles and gene annotation (in [BED12](http://genome.ucsc.edu/FAQ/FAQformat.html#format1)) can be visualized.
 
 fluff_bandplot.py
 -----------------
