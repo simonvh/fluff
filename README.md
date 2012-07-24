@@ -8,7 +8,7 @@ It currently contains three scripts:
 * fluff_profile.py
 * fluff_bandplot.py
 
-Plotting is handled by the excellent [matplotlib](matplotlib.sourceforge.net/) library, several image formats are supported (SVG, Postscript, PDF, PNG).
+Plotting is handled by the excellent [matplotlib](http://matplotlib.sourceforge.net/) library, several image formats are supported (SVG, Postscript, PDF, PNG).
 
 fluff_heatmap.py
 ----------------
