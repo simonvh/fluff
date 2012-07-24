@@ -15,7 +15,7 @@ It currently contains three scripts:
 
 Plotting is handled by the excellent [matplotlib](http://matplotlib.sourceforge.net/) library, several image formats are supported (SVG, Postscript, PDF, PNG).
 
-Fluff makes heavy use of [HTseq](http://www-huber.embl.de/users/anders/HTSeq/) and indexed [BAM files](http://samtools.sourceforge.net/) for speed and easy of use. Due to the indexing, the fluff scripts can be quick, even when working with large files. While [BED](http://genome.ucsc.edu/FAQ/FAQformat.html#format1) files can also be used, this will be much slower.
+Fluff makes heavy use of [HTseq](http://www-huber.embl.de/users/anders/HTSeq/) and indexed [BAM files](http://samtools.sourceforge.net/) for speed and easy of use. Due to the indexing, the fluff scripts can be quick, even when working with large files. Currently, [BED](http://genome.ucsc.edu/FAQ/FAQformat.html#format1) files are not supported.
 
 Prerequisites
 -------------
@@ -39,7 +39,7 @@ Produce a heatmap like [this example](add link). Features can be shown "as is", 
 
 fluff_profile.py
 ----------------
-Produces output like a Genome Browser screenshot. Currently only BAM profiles and gene annotation can be visualized.
+Produces output like a Genome Browser screenshot. Currently only BAM profiles and gene annotation (in [BED12](http://genome.ucsc.edu/FAQ/FAQformat.html#format1) can be visualized.
 
 fluff_bandplot.py
 -----------------
