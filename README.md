@@ -19,6 +19,8 @@ Prerequisites
 * numpy - http://numpy.scipy.org/
 * scipy - http://www.scipy.org/
 
+I'd recommend installing matplotlib, numpy and scipy using your preferred package manager. Ubuntu, Debian, Fedora, Gentoo, etc. all have packages providing these libraries.
+
 Colors
 ------
 One important feature of fluff is the use of color, as this is part of making your figures look good. I use the Set1 palette from the [ColorBrewer](http://colorbrewer2.org/) colors by default, however, all colors can be specified either by name, by R,G,B values or by Hex code.
