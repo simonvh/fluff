@@ -25,6 +25,7 @@ import pp
 
 ### My imports ###
 from fluff.util import *
+from fluff.fluffio import *
 
 #from kmeans import kmeanssample, Lqmetric
 
@@ -74,7 +75,7 @@ def load_data(featurefile, datafile, bins=100, up=5000, down=5000, rmdup=True, r
 #		if not os.path.exists(datafile + ".bai"):
 #			print "Please provide indexed bam file(s) %s" % (datafile + ".bai")
 #			sys.exit()
-	result = get_binned_stats(tmp.name, datafile, bins, rpkm, rmdup, rmrepeats)
+	result = fluff.fluffio.get_binned_stats(tmp.name, datafile, bins, rpkm, rmdup, rmrepeats)
 #	else:
 #		result = solexatools.peak_stats.peak_stats(solexatools.track.SimpleTrack(tmp.name), solexatools.track.SimpleTrack(datafile), solexatools.peak_stats.bin_formatter, {"bins": bins}, )
 
@@ -157,7 +158,7 @@ print "Loading data"
 job_server = pp.Server(ncpus=4)
 jobs = []
 for datafile in datafiles:
-	jobs.append(job_server.submit(load_data, (featurefile, datafile, BINS, extend_up, extend_down, REMOVE_DUP, RPKM), (), ("tempfile","sys","os","solexatools.peak_stats","solexatools.track","numpy")))
+	jobs.append(job_server.submit(load_data, (featurefile, datafile, BINS, extend_up, extend_down, REMOVE_DUP, RPKM), (), ("tempfile","sys","os","fluff.fluffio","numpy")))
 
 data = {}
 regions = []
