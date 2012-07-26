@@ -69,16 +69,8 @@ def load_data(featurefile, datafile, bins=100, up=5000, down=5000, rmdup=True, r
 			tmp.write("%s\t%s\t%s\t0\t0\t%s\n" % (vals[0], start, end, strand))
 	tmp.flush()
 	
-	data = {}
-	result = []
-#	if datafile.endswith("bam"):
-#		if not os.path.exists(datafile + ".bai"):
-#			print "Please provide indexed bam file(s) %s" % (datafile + ".bai")
-#			sys.exit()
-	result = fluff.fluffio.get_binned_stats(tmp.name, datafile, bins, rpkm, rmdup, rmrepeats)
-#	else:
-#		result = solexatools.peak_stats.peak_stats(solexatools.track.SimpleTrack(tmp.name), solexatools.track.SimpleTrack(datafile), solexatools.peak_stats.bin_formatter, {"bins": bins}, )
-
+	result = fluff.fluffio.get_binned_stats(tmp.name, datafile, bins, rpkm=rpkm, rmdup=rmdup, rmrepeats=rmrepeats)
+	
 	# Retrieve orginal order
 	r_regions = ["{}:{}-{}".format(*row.split("\t")[:3]) for row in result]
 	r_order = numpy.array([order[region] for region in r_regions]).argsort()[::-1]
@@ -174,18 +166,18 @@ bg = []
 for track in tracks:
 	#bg.append(min([mean(data[track][:,i:i + s]) for i in range(0, BINS, s)]))
 	cutoff = scoreatpercentile(data[track].flatten(), 75)
-	print  scoreatpercentile(data[track].flatten(), 10)
-	print  scoreatpercentile(data[track].flatten(), 25)
-	print  scoreatpercentile(data[track].flatten(), 50)
-	print  scoreatpercentile(data[track].flatten(), 75)
-	print  scoreatpercentile(data[track].flatten(), 90)
-	print	"median: %s" % median(data[track].flatten())
+	#print  scoreatpercentile(data[track].flatten(), 10)
+	#print  scoreatpercentile(data[track].flatten(), 25)
+	#print  scoreatpercentile(data[track].flatten(), 50)
+	#print  scoreatpercentile(data[track].flatten(), 75)
+	#print  scoreatpercentile(data[track].flatten(), 90)
+	#print	"median: %s" % median(data[track].flatten())
 	bg.append(mean(data[track][data[track] < cutoff]))
 m = median(bg)
-print bg
-print m
+#print bg
+#print m
 scale = [1.0 for x in bg]
-print scale
+#print scale
 
 # Normalize
 norm_data = normalize_data(data, DEFAULT_PERCENTILE)
