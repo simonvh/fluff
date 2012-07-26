@@ -15,10 +15,12 @@ It currently contains three scripts:
 
 Plotting is handled by the excellent [matplotlib](http://matplotlib.sourceforge.net/) library, several image formats are supported (SVG, Postscript, PDF, PNG).
 
-Fluff makes heavy use of [HTseq](http://www-huber.embl.de/users/anders/HTSeq/) and indexed [BAM files](http://samtools.sourceforge.net/) for speed and easy of use. Due to the indexing, the fluff scripts can be quick, even when working with large files. Currently, [BED](http://genome.ucsc.edu/FAQ/FAQformat.html#format1) files are not supported.
+Fluff makes heavy use of [pysam](http://code.google.com/p/pysam/), [pybedtools](http://packages.python.org/pybedtools/), [HTseq](http://www-huber.embl.de/users/anders/HTSeq/) and indexed [BAM files](http://samtools.sourceforge.net/) for speed and easy of use. Due to the indexing, the fluff scripts can be quick, even when working with large files. Currently, [BED](http://genome.ucsc.edu/FAQ/FAQformat.html#format1) files are also supported, but performance will suffer.
 
 Prerequisites
 -------------
+* pysam - http://code.google.com/p/pysam/
+* pybedtools - http://packages.python.org/pybedtools/
 * HTSeq - http://www-huber.embl.de/users/anders/HTSeq/
 * matplotlib - http://matplotlib.sourceforge.net/
 * numpy - http://numpy.scipy.org/
