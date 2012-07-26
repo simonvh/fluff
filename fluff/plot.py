@@ -82,7 +82,7 @@ def create_grid_figure(nrows, ncolumns, plotwidth=2.0, plotheight=2.0, pad=0.1, 
 
 	return fig, axes
 
-def profile_screenshot(fname, intervals, tracks, colors=None, scalegroups=[], annotation=None, bgmode="color", fragmentsize=200, scale=False):
+def profile_screenshot(fname, intervals, tracks, colors=None, scalegroups=[], annotation=None, bgmode="color", fragmentsize=200, scale=False, dpi=300):
 	# Colors
 	if not colors:
 		colors = DEFAULT_COLORS
@@ -253,7 +253,7 @@ def profile_screenshot(fname, intervals, tracks, colors=None, scalegroups=[], an
 
 	
 	
-	plt.savefig(fname, dpi=300)
+	plt.savefig(fname, dpi=dpi)
 
 if __name__ == "__main__":
 	

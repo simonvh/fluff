@@ -10,7 +10,7 @@ from tempfile import NamedTemporaryFile
 import sys
 import os
 
-from numpy import array,hstack,arange,median,mean
+from numpy import array,hstack,arange,median,mean,zeros
 #import numpy
 from scipy.stats import scoreatpercentile
 from scipy.stats.mstats import rankdata
@@ -22,10 +22,6 @@ from matplotlib.colors import colorConverter, LinearSegmentedColormap
 from matplotlib.ticker import NullFormatter,NullLocator
 from matplotlib.font_manager import fontManager, FontProperties
 import pp
-
-### Other imports ###
-from solexatools.track import SimpleTrack
-from solexatools.peak_stats import bin_formatter, bam_binned_peak_stats, peak_stats
 
 ### My imports ###
 from fluff.util import *
@@ -45,16 +41,19 @@ DEFAULT_EXTEND = 5000
 DEFAULT_PERCENTILE = 99
 DEFAULT_CLUSTERING = "kmeans"
 
-def load_data(featurefile, datafile, bins=100, up=5000, down=5000, remove_dup=True, rpkm=False, unique=True):
+def load_data(featurefile, datafile, bins=100, up=5000, down=5000, rmdup=True, rpkm=False, rmrepeats=True):
 	tmp = tempfile.NamedTemporaryFile(delete=False)
-	t = solexatools.track.SimpleTrack(featurefile)
-	f = t.get_next_feature()
 	regions = []
-	while f:
-		strand = f[4]
-		if not strand:
-			strand = "+"
-		middle = (f[2] + f[1]) / 2
+	order = {}
+	count = 0
+	for line in open(featurefile):
+		if line.startswith("#") or line[:5] == "track":
+			continue
+		vals = line.strip().split("\t")
+		strand = "+"
+		if len(vals) >= 6:
+			strand = vals[5]
+		middle = (int(vals[2]) + int(vals[1])) / 2
 		start,end = middle, middle
 		if strand == "+":
 			start -= up
@@ -63,21 +62,28 @@ def load_data(featurefile, datafile, bins=100, up=5000, down=5000, remove_dup=Tr
 			start -= down
 			end += up
 		if start >= 0:
-			regions.append([f[0], start, end, strand])
-			tmp.write("%s\t%s\t%s\t0\t0\t%s\n" % (f[0], start, end, strand))
-		f = t.get_next_feature()
+			regions.append([vals[0], start, end, strand])
+			order["%s:%s-%s" % (vals[0], start, end)] = count
+			count += 1
+			tmp.write("%s\t%s\t%s\t0\t0\t%s\n" % (vals[0], start, end, strand))
 	tmp.flush()
 	
 	data = {}
 	result = []
-	if datafile.endswith("bam"):
-		if not os.path.exists(datafile + ".bai"):
-			print "Please provide indexed bam file(s) %s" % (datafile + ".bai")
-			sys.exit()
-		result = solexatools.peak_stats.bam_binned_peak_stats(solexatools.track.SimpleTrack(tmp.name), datafile, bins, rpkm, remove_dup, unique)
-	else:
-		result = solexatools.peak_stats.peak_stats(solexatools.track.SimpleTrack(tmp.name), solexatools.track.SimpleTrack(datafile), solexatools.peak_stats.bin_formatter, {"bins": bins}, )
-	return os.path.basename(datafile), regions, numpy.array([[float(x) for x in row.split("\t")[3:]] for row in result])
+#	if datafile.endswith("bam"):
+#		if not os.path.exists(datafile + ".bai"):
+#			print "Please provide indexed bam file(s) %s" % (datafile + ".bai")
+#			sys.exit()
+	result = get_binned_stats(tmp.name, datafile, bins, rpkm, rmdup, rmrepeats)
+#	else:
+#		result = solexatools.peak_stats.peak_stats(solexatools.track.SimpleTrack(tmp.name), solexatools.track.SimpleTrack(datafile), solexatools.peak_stats.bin_formatter, {"bins": bins}, )
+
+	# Retrieve orginal order
+	r_regions = ["{}:{}-{}".format(*row.split("\t")[:3]) for row in result]
+	r_order = numpy.array([order[region] for region in r_regions]).argsort()[::-1]
+	r_data = numpy.array([[float(x) for x in row.split("\t")[3:]] for row in result])
+
+	return os.path.basename(datafile), regions, r_data[r_order]
 
 def normalize_data(data, percentile=75):
 	norm_data = {}
@@ -108,7 +114,7 @@ def create_colormap(col1, col2):
 parser = OptionParser(version="%prog " + str(VERSION))
 parser.add_option("-f", "--featurefile", dest="featurefile", help="File containing features", metavar="FILE")
 parser.add_option("-d", "--datafiles", dest="datafiles", help="Data files (reads in BED/BAM format)", metavar="FILE(S)")
-parser.add_option("-c", "--clustering", dest="clustering", help="kmeans or hierarchical", default=DEFAULT_CLUSTERING)
+parser.add_option("-c", "--clustering", dest="clustering", help="kmeans, hierarchical or none", default=DEFAULT_CLUSTERING)
 parser.add_option("-k", "--numclusters", dest="numclusters", help="Number of clusters", metavar="INT", type="int")
 parser.add_option("-l", "--colors", dest="colors", help="Colors", metavar="NAME(S)", default=DEFAULT_COLORS)
 parser.add_option("-o", "--outfile", dest="outfile", help="Output file name", metavar="FILE")
@@ -135,7 +141,7 @@ extend_up = options.extend
 extend_down = options.extend
 cluster_type = options.clustering[0].lower()
 
-if not cluster_type in ["k", "h"]:
+if not cluster_type in ["k", "h", "n"]:
 	sys.stderr.write("Unknown clustering type!\n")
 	sys.exit(1)
 
@@ -157,18 +163,34 @@ data = {}
 regions = []
 for job in jobs:
 	track,regions,profile = job()
+	#print "##### %s " % track
+	#for row in profile:
+	#	print row
 	data[track] = profile
 
 s = BINS/5
 bg = []
 for track in tracks:
-	bg.append(min([mean(data[track][:,i:i + s]) for i in range(0, BINS, s)]))
+	#bg.append(min([mean(data[track][:,i:i + s]) for i in range(0, BINS, s)]))
+	cutoff = scoreatpercentile(data[track].flatten(), 75)
+	print  scoreatpercentile(data[track].flatten(), 10)
+	print  scoreatpercentile(data[track].flatten(), 25)
+	print  scoreatpercentile(data[track].flatten(), 50)
+	print  scoreatpercentile(data[track].flatten(), 75)
+	print  scoreatpercentile(data[track].flatten(), 90)
+	print	"median: %s" % median(data[track].flatten())
+	bg.append(mean(data[track][data[track] < cutoff]))
 m = median(bg)
-scale = [x / m for x in bg]
+print bg
+print m
+scale = [1.0 for x in bg]
+print scale
 
 # Normalize
 norm_data = normalize_data(data, DEFAULT_PERCENTILE)
 clus = hstack([norm_data[t] for t in tracks])
+
+#print regions
 
 if cluster_type == "k":
 	print "K-means clustering"
@@ -183,6 +205,10 @@ elif cluster_type == "h":
 	tree = Pycluster.treecluster(clus, method="m", dist=METRIC)
 	labels = tree.cut(options.numclusters)
 	ind = sort_tree(tree, arange(len(regions)))
+else:
+	ind = arange(len(regions))
+	#print ind
+	labels = zeros(len(regions))
 
 font = FontProperties(size=FONTSIZE / 1.25, family=["Nimbus Sans L", "Helvetica", "sans-serif"])
 

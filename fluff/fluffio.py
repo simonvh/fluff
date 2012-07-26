@@ -1,4 +1,6 @@
 import HTSeq
+import pysam
+import pybedtools
 import sys
 from numpy import zeros,min,max
 
@@ -66,3 +68,125 @@ def load_annotation(interval, fname):
 		else:
 			gene_tracks[i] = [gene]
 	return gene_tracks
+
+
+class TrackWrapper():
+	def __init__(self, fname):
+		if fname.endswith("bam"):
+			self.track = pysam.Samfile(fname, "rb")
+			self.ftype = "sam"
+		else:
+			self.track = pybedtools.BedTool(fname)
+			self.ftype = "bed"
+
+	def count(self, rmdup=False, rmrepeats=False):
+		if self.ftype == "sam":
+			if (not rmdup and not rmrepeats):
+				return self.track.mapped
+			c = 0
+			for read in self.track:
+				if (not rmdup or not read.flag & 0x0400):
+					if (not rmrepeats or ('X0', 1) in read.tags):
+						c += 1
+			return c
+		if self.ftype == "bed":
+			if rmrepeats:
+				sys.stderr.write("Warning: rmrepeats has no result on BED files!")
+			if rmdup:
+				sys.stderr.write("Warning: rmdup has no result on BED files! (yet...;))")
+
+	def read_length(self):
+		if self.ftype == "sam":
+			for read in self.track.fetch():
+				if read.alen:
+					return read.alen
+		if self.ftype == "bed":
+			for read in self.track:
+				return read.end - read.start
+	
+	def _add_read_to_list(self, read, min_strand, plus_strand, rmrepeats=False):
+		if (not rmrepeats) or (('X0',1) in read.tags):
+			if read.is_reverse:
+				min_strand.append(read.pos)
+			else:
+				plus_strand.append(read.pos)
+
+	def fetch_to_counts(self, chrom, start, end, rmdup=False, rmrepeats=False):
+		min_strand = []
+		plus_strand = []
+		if self.ftype == "sam":
+			self.track.fetch(chrom, start, end, callback=lambda x: self._add_read_to_list(x, min_strand, plus_strand, rmrepeats))
+		elif self.ftype == "bed":
+			if rmrepeats:
+				sys.stderr.write("Warning: rmrepeats has no result on BED files!")
+			feature = pybedtools.BedTool("%s %s %s" % (chrom, start, end), from_string=True)
+			for read in self.track.intersect(feature, u=True, stream=True):
+				if read.strand == "+":
+					plus_strand.append(read.start)
+				else:
+					min_strand.append(read.start)
+		
+		if rmdup:
+			min_strand = sorted(set(min_strand))
+			plus_strand = sorted(set(plus_strand))
+		else:
+			min_strand = sorted(min_strand)
+			plus_strand = sorted(plus_strand)
+		
+		return min_strand, plus_strand
+
+		
+def get_binned_stats(in_fname, data_fname, nbins, rpkm=False, rmdup=False, rmrepeats=False):
+	track = TrackWrapper(data_fname)
+	
+	read_length = track.read_length()
+	sys.stderr.write("Using read length %s\n" % read_length)
+
+	total_reads = 1
+	if rpkm:
+		sys.stderr.write("Counting reads...\n")
+		total_reads = track.count(rmdup, rmrepeats) / 1000000.0
+		sys.stderr.write("Done.\n")
+
+	ret = []
+	count = 1	
+	in_track = pybedtools.BedTool(in_fname)
+	for feature in in_track:
+		binsize = (feature.end - feature.start) / float(nbins)
+		row = []
+		overlap = []
+
+		min_strand, plus_strand = track.fetch_to_counts(feature.chrom, feature.start, feature.end, rmdup, rmrepeats)
+
+		bin_start = feature.start
+
+		while int(bin_start + 0.5) < feature.end:
+			num_reads = 0
+			i = 0
+			while i < len(min_strand) and min_strand[i] <= int(bin_start + binsize + 0.5):
+				num_reads += 1
+				i += 1
+			while len(min_strand) > 0 and min_strand[0] + read_length <= int(bin_start + binsize + 0.5):
+				min_strand.pop(0)
+			i = 0
+			while i < len(plus_strand) and plus_strand[i] <= int(bin_start + binsize + 0.5):
+				num_reads += 1
+				i += 1
+			while len(plus_strand) > 0 and plus_strand[0] + read_length <= int(bin_start + binsize + 0.5):
+				plus_strand.pop(0)
+		
+			if rpkm:
+				per_kb = num_reads * (1000.0 / binsize)
+				row.append(per_kb / total_reads)
+			else:
+				row.append(num_reads)
+
+			bin_start += binsize
+
+		if feature.strand == "-":
+			row = row[::-1]
+		ret.append( [feature.chrom, feature.start, feature.end] + row)
+		count += 1
+		if count % 1000 == 0:
+			sys.stderr.write("%s processed\n" % count)
+	return ["\t".join([str(x) for x in row]) for row in ret]
