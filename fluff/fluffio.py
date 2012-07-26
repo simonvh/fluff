@@ -86,7 +86,7 @@ class TrackWrapper():
 			c = 0
 			for read in self.track:
 				if (not rmdup or not read.flag & 0x0400):
-					if (not rmrepeats or ('X0', 1) in read.tags):
+					if (not rmrepeats or ('X0', 1) in read.tags or not 'X0' in [x[0] for x in read.tags]):
 						c += 1
 			return c
 		if self.ftype == "bed":
@@ -105,7 +105,7 @@ class TrackWrapper():
 				return read.end - read.start
 	
 	def _add_read_to_list(self, read, min_strand, plus_strand, rmrepeats=False):
-		if (not rmrepeats) or (('X0',1) in read.tags):
+		if (not rmrepeats) or (('X0',1) in read.tags or not 'X0' in [x[0] for x in read.tags]):
 			if read.is_reverse:
 				min_strand.append(read.pos)
 			else:
