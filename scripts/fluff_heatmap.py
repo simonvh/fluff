@@ -22,6 +22,7 @@ from matplotlib.colors import colorConverter, LinearSegmentedColormap
 from matplotlib.ticker import NullFormatter,NullLocator
 from matplotlib.font_manager import fontManager, FontProperties
 import pp
+from math import sqrt,log
 
 ### My imports ###
 from fluff.util import *
@@ -31,7 +32,8 @@ from fluff.fluffio import *
 
 BINS = 100
 RPKM = False
-REMOVE_DUP = False 
+RMDUP = True
+RMREPEATS = True
 VERSION = "1.0"
 COLOR_MAP = {"red":"#e41a1c","blue":"#377eb8","green":"#4daf4a","orange":"#ff7f00","brown":"#a65628","purple":"#984ea3","yellow":"#ffff33"}
 DEFAULT_COLORS = "#e41a1c,#377eb8,#4daf4a,#984ea3,#ff7f00,#ffff33,#a65628"
@@ -71,12 +73,12 @@ def load_data(featurefile, datafile, bins=100, up=5000, down=5000, rmdup=True, r
 	
 	result = fluff.fluffio.get_binned_stats(tmp.name, datafile, bins, rpkm=rpkm, rmdup=rmdup, rmrepeats=rmrepeats)
 	
-	# Retrieve orginal order
-	r_regions = ["{}:{}-{}".format(*row.split("\t")[:3]) for row in result]
-	r_order = numpy.array([order[region] for region in r_regions]).argsort()[::-1]
+	# Retrieve original order
+	#r_regions = ["{}:{}-{}".format(*row.split("\t")[:3]) for row in result]
+	#r_order = numpy.array([order[region] for region in r_regions]).argsort()[::-1]
 	r_data = numpy.array([[float(x) for x in row.split("\t")[3:]] for row in result])
 
-	return os.path.basename(datafile), regions, r_data[r_order]
+	return os.path.basename(datafile), regions, r_data#[r_order]
 
 def normalize_data(data, percentile=75):
 	norm_data = {}
@@ -138,11 +140,8 @@ if not cluster_type in ["k", "h", "n"]:
 	sys.stderr.write("Unknown clustering type!\n")
 	sys.exit(1)
 
-
 ## Get scale for each track
-#numreads = [bam2numreads(track) for track in datafiles]
-#med = float(median(numreads))
-#scale = [n/med for n in numreads]
+scale = [1.0 for track in datafiles]
 
 # Calculate the profile data
 # Load data in parallel
@@ -150,7 +149,7 @@ print "Loading data"
 job_server = pp.Server(ncpus=4)
 jobs = []
 for datafile in datafiles:
-	jobs.append(job_server.submit(load_data, (featurefile, datafile, BINS, extend_up, extend_down, REMOVE_DUP, RPKM), (), ("tempfile","sys","os","fluff.fluffio","numpy")))
+	jobs.append(job_server.submit(load_data, (featurefile, datafile, BINS, extend_up, extend_down, RMDUP, RPKM, RMREPEATS),  (), ("tempfile","sys","os","fluff.fluffio","numpy")))
 
 data = {}
 regions = []
@@ -161,29 +160,9 @@ for job in jobs:
 	#	print row
 	data[track] = profile
 
-s = BINS/5
-bg = []
-for track in tracks:
-	#bg.append(min([mean(data[track][:,i:i + s]) for i in range(0, BINS, s)]))
-	cutoff = scoreatpercentile(data[track].flatten(), 75)
-	#print  scoreatpercentile(data[track].flatten(), 10)
-	#print  scoreatpercentile(data[track].flatten(), 25)
-	#print  scoreatpercentile(data[track].flatten(), 50)
-	#print  scoreatpercentile(data[track].flatten(), 75)
-	#print  scoreatpercentile(data[track].flatten(), 90)
-	#print	"median: %s" % median(data[track].flatten())
-	bg.append(mean(data[track][data[track] < cutoff]))
-m = median(bg)
-#print bg
-#print m
-scale = [1.0 for x in bg]
-#print scale
-
 # Normalize
 norm_data = normalize_data(data, DEFAULT_PERCENTILE)
 clus = hstack([norm_data[t] for t in tracks])
-
-#print regions
 
 if cluster_type == "k":
 	print "K-means clustering"
