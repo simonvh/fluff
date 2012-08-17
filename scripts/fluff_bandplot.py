@@ -17,10 +17,7 @@ from matplotlib.font_manager import fontManager, FontProperties
 from numpy import array,mean,amax,max,std,median,arange
 from scipy.interpolate import splprep, splev
 from scipy.stats import scoreatpercentile
-
-### Other imports ###
-from solexatools.track import SimpleTrack
-from solexatools.peak_stats import bin_formatter, bam_binned_peak_stats, peak_stats
+import pybedtools
 
 ### My imports ###
 from fluff.plot import *
@@ -38,7 +35,8 @@ PADRIGHT = 0.05
 FONTSIZE = 8
 BINS = 21								# Number of bins for profile
 RPKM = False						# If False, use absolute count
-REMOVE_DUP = True				# Remove duplicate reads, if present
+RMDUP = True				# Remove duplicate reads, if present
+RMREPEATS = True				# Remove reads mapping to repeats, if mapped with bwa
 DEFAULT_COLORS = "red,blue,green,orange,brown,purple,yellow" 
 #########################################################################
 font = FontProperties(size=FONTSIZE / 1.25, family=["Nimbus Sans L", "Helvetica", "sans-serif"])
@@ -49,25 +47,16 @@ def load_data(clust_file, datafiles):
 	data = {}
 	for datafile in datafiles:
 		result = []
-		clust_track = SimpleTrack(clust_file)
-		if datafile.endswith("bam"):
-			if not os.path.exists(datafile + ".bai"):
-				print "Please provide indexed bam file(s) %s" % (datafile + ".bai")
-				sys.exit()
-			result = bam_binned_peak_stats(clust_track, datafile, BINS, RPKM, REMOVE_DUP)
-		else:
-			result = peak_stats(clust_track, SimpleTrack(datafile), bin_formatter, {"bins": BINS})
+		result = get_binned_stats(clust_file, datafile, BINS, RPKM, RMDUP, RMREPEATS)
 		result =  [row.split("\t") for row in result]
 		data[os.path.basename(datafile)] = dict([["%s:%s-%s" % (vals[0], vals[1], vals[2]), [float(x) for x in vals[3:]]] for vals in result])
 	return data
 
 def load_clusters(clust_file):
 	cluster_data = {}
-	clust_track = SimpleTrack(clust_file)
-	f = clust_track.get_next_feature()
-	while f:
-		cluster_data.setdefault(f[3], []).append("%s:%s-%s" % (f[0], f[1], f[2]))
-		f = clust_track.get_next_feature()
+	track = pybedtools.BedTool(clust_file)
+	for f in track:
+		cluster_data.setdefault(int(f.name), []).append("%s:%s-%s" % (f.chrom, f.start, f.end))
 	return cluster_data
 
 parser = OptionParser(version="%prog " + str(VERSION))
