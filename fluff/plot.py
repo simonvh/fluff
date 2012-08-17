@@ -208,12 +208,14 @@ def profile_screenshot(fname, intervals, tracks, colors=None, scalegroups=[], an
 			
 		for i, profile_group in enumerate(profiles):
 			# Get maximum for this track based on scalegroups
+			ylim_max = track_maxes[i]
+			
 			if scalegroups and len(scalegroups) > 0:
 				for group in scalegroups:
 					if (i + 1) in group:
 						ylim_max = max([track_maxes[g - 1] for g in group]) * 1.1
 						break
-			
+
 			if ylim_max < PROFILE_MIN_Y:
 				ylim_max = PROFILE_MIN_Y
 
