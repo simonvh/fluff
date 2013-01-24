@@ -5,7 +5,7 @@
 # the terms of the MIT License
 
 ### Standard imports ###
-from optparse import OptionParser
+from optparse import OptionParser,OptionGroup
 import sys
 import os
 
@@ -44,13 +44,17 @@ font = FontProperties(size=FONTSIZE / 1.25, family=["Nimbus Sans L", "Helvetica"
 
 VERSION = "1.0"
 
-parser = OptionParser(version="%prog " + str(VERSION))
-parser.add_option("-c", "--clusterfile", dest="clust_file", help="File containing clusters", metavar="FILE")
-parser.add_option("-d", "--datafiles", dest="datafiles", help="Data files (reads in BAM or BED format)", metavar="FILE(S)")
-parser.add_option("-l", "--colors", dest="colors", help="Colors", metavar="NAME(S)", default=DEFAULT_COLORS)
-parser.add_option("-s", "--scalegroups", dest="scalegroups", help="Scale groups", metavar="GROUPS")
-parser.add_option("-o", "--outfile", dest="outfile", help="Output file (type determined by extension)", metavar="FILE")
+usage = "Usage: %prog -c <bedfile> -d <file1>[,<file2>,...] -o <out> [options]"
+version = "%prog " + str(VERSION)
+parser = OptionParser(version=version, usage=usage)
+group1 = OptionGroup(parser, 'Optional')
+parser.add_option("-c", dest="clust_file", help="BED file with cluster in 4th column", metavar="FILE")
+parser.add_option("-d", dest="datafiles", help="Data files (reads in BAM or BED format)", metavar="FILE(S)")
+parser.add_option("-o", dest="outfile", help="Output file (type determined by extension)", metavar="FILE")
+group1.add_option("-l", dest="colors", help="Colors", metavar="NAME(S)", default=DEFAULT_COLORS)
+group1.add_option("-s", dest="scalegroups", help="Scale groups", metavar="GROUPS")
 
+parser.add_option_group(group1)
 (options, args) = parser.parse_args()
 
 for opt in [options.clust_file, options.datafiles, options.outfile]:

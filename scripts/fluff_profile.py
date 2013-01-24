@@ -5,7 +5,7 @@
 # the terms of the MIT License
 
 ### Standard imports ###
-from optparse import OptionParser
+from optparse import OptionParser,OptionGroup
 import sys
 import os
 
@@ -16,23 +16,27 @@ from numpy import array
 from fluff.plot import profile_screenshot
 from fluff.util import *
 
-VERSION = 1.0
+VERSION = 1.1
 DEFAULT_COLORS = "#e41a1c,#4daf4a,#377eb8"
 BACKGROUNDS = ["white", "stripes", "color"]
 FRAGMENTLENGTH = 200
 
-parser = OptionParser(version="%prog " + str(VERSION))
-parser.add_option("-i", "--intervals", dest="intervals", help="Intervals (chrom:start-end)")
-parser.add_option("-d", "--datafiles", dest="datafiles", help="Data files (reads in BAM or BED format)", metavar="FILE(S)")
-parser.add_option("-o", "--outfile", dest="outfile", help="Output file name (type determined by extension)", metavar="FILE")
-parser.add_option("-l", "--colors", dest="colors", help="Colors", metavar="NAME(S)", default=DEFAULT_COLORS)
-parser.add_option("-a", "--annotation", dest="annotation", help="Annotation in BED12 format", metavar="FILE")
-parser.add_option("-t", "--trackgroups", dest="trackgroups", help="Track groups", metavar="GROUPS")
-parser.add_option("-s", "--scalegroups", dest="scalegroups", help="Scale groups", metavar="GROUPS")
-parser.add_option("--setscale", dest="scale", help="Scale: 'auto' (default), 'off' or int for each track", metavar="SCALE", default="auto")
-parser.add_option("-b", "--bgcolor", dest="background", help="Background color: white | color | stripes", default="white")
-parser.add_option("-f", "--fragmentsize", dest="fragmentsize", help="Fragment length (default: %s)" % FRAGMENTLENGTH,type="int",  default=FRAGMENTLENGTH)
+usage = "Usage: %prog -i <loc1>[,<loc2>,...] -d <file1>[,<file2>,...] -o <out> [options]"
+version = "%prog " + str(VERSION)
+parser = OptionParser(version=version, usage=usage)
+group1 = OptionGroup(parser, 'Optional')
+parser.add_option("-i", dest="intervals", help="One or more genomic intervals (chrom:start-end)", metavar="INTERVAL(S)")
+parser.add_option("-d", dest="datafiles", help="Data files (reads in BAM or BED format)", metavar="FILE(S)")
+parser.add_option("-o", dest="outfile", help="Output file name (type determined by extension)", metavar="FILE")
+group1.add_option("-a", dest="annotation", help="Annotation in BED12 format", metavar="FILE")
+group1.add_option("-l", dest="colors", help="Colors", metavar="NAME(S)", default=DEFAULT_COLORS)
+group1.add_option("-t", dest="trackgroups", help="Track groups", metavar="GROUPS")
+group1.add_option("-s", dest="scalegroups", help="Scale groups", metavar="GROUPS")
+group1.add_option("--setscale", dest="scale", help="Scale: 'auto' (default), 'off' or int for each track", metavar="SCALE", default="auto")
+group1.add_option("-b", dest="background", help="Background color: white | color | stripes", default="white")
+group1.add_option("-f", dest="fragmentsize", help="Fragment length (default: %s)" % FRAGMENTLENGTH,type="int",  default=FRAGMENTLENGTH)
 
+parser.add_option_group(group1)
 (options, args) = parser.parse_args()
 
 for opt in [options.intervals, options.datafiles, options.outfile]:

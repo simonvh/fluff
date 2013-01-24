@@ -5,7 +5,7 @@
 # the terms of the MIT License
 
 ### Standard imports ###
-from optparse import OptionParser
+from optparse import OptionParser,OptionGroup
 from tempfile import NamedTemporaryFile
 import sys
 import os
@@ -105,19 +105,26 @@ def create_colormap(col1, col2):
 	return LinearSegmentedColormap('custom', cdict, 256)
 
 
-parser = OptionParser(version="%prog " + str(VERSION))
-parser.add_option("-f", "--featurefile", dest="featurefile", help="File containing features", metavar="FILE")
-parser.add_option("-d", "--datafiles", dest="datafiles", help="Data files (reads in BAM or BED format)", metavar="FILE(S)")
-parser.add_option("-c", "--clustering", dest="clustering", help="kmeans, hierarchical or none", default=DEFAULT_CLUSTERING)
-parser.add_option("-k", "--numclusters", dest="numclusters", help="Number of clusters", metavar="INT", type="int")
-parser.add_option("-l", "--colors", dest="colors", help="Colors", metavar="NAME(S)", default=DEFAULT_COLORS)
-parser.add_option("-o", "--outfile", dest="outfile", help="Output file name", metavar="FILE")
-parser.add_option("-s", "--scale", dest="scale", help="Scale", metavar="INT", type="int", default=DEFAULT_SCALE)
-parser.add_option("-e", "--extend", dest="extend", help="Extend", metavar="INT", type="int", default=DEFAULT_EXTEND)
+usage = "Usage: %prog -f <bedfile> -d <file1>[,<file2>,...] -o <out> [options]"
+version = "%prog " + str(VERSION)
+parser = OptionParser(version=version, usage=usage)
+group1 = OptionGroup(parser, 'Optional')
 
+parser.add_option("-f", dest="featurefile", help="BED file containing features", metavar="FILE")
+parser.add_option("-d", dest="datafiles", help="Data files (reads in BAM or BED format)", metavar="FILE(S)")
+parser.add_option("-o", dest="outfile", help="Output file (type determined by extension)", metavar="FILE")
+
+# Optional arguments
+group1.add_option("-c", dest="clustering", help="kmeans, hierarchical or none", default=DEFAULT_CLUSTERING, metavar="METHOD")
+group1.add_option("-k", dest="numclusters", help="Number of clusters", metavar="INT", type="int")
+group1.add_option("-l", dest="colors", help="Colors", metavar="NAME(S)", default=DEFAULT_COLORS)
+group1.add_option("-s", dest="scale", help="Scale", metavar="INT", type="int", default=DEFAULT_SCALE)
+group1.add_option("-e", dest="extend", help="Extend", metavar="INT", type="int", default=DEFAULT_EXTEND)
+
+parser.add_option_group(group1)
 (options, args) = parser.parse_args()
 
-for opt in [options.featurefile, options.datafiles, options.outfile, options.numclusters]:
+for opt in [options.featurefile, options.datafiles, options.outfile]:
 	if not opt:
 		parser.print_help()
 		sys.exit()
@@ -138,6 +145,10 @@ cluster_type = options.clustering[0].lower()
 if not cluster_type in ["k", "h", "n"]:
 	sys.stderr.write("Unknown clustering type!\n")
 	sys.exit(1)
+if cluster_type == "k" and not options.numcluster:
+	sys.stderr.write("Please provide number of clusters!\n")
+	sys.exit(1)
+	
 
 ## Get scale for each track
 scale = [1.0 for track in datafiles]
