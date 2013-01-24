@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# Copyright (c) 2012 Simon van Heeringen <s.vanheeringen@ncmls.ru.nl>
+# Copyright (c) 2012-2013 Simon van Heeringen <s.vanheeringen@ncmls.ru.nl>
 #
 # This script is free software. You can redistribute it and/or modify it under 
 # the terms of the MIT License
@@ -10,11 +10,10 @@ from tempfile import NamedTemporaryFile
 import sys
 import os
 
+### External imports ###
 from numpy import array,hstack,arange,median,mean,zeros
-#import numpy
 from scipy.stats import scoreatpercentile
 from scipy.stats.mstats import rankdata
-#from scipy.cluster.vq import kmeans2
 import Pycluster
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
@@ -185,7 +184,7 @@ else:
 font = FontProperties(size=FONTSIZE / 1.25, family=["Nimbus Sans L", "Helvetica", "sans-serif"])
 
 f = open("%s_clusters.bed" % outfile, "w")
-for (chrom,start,end,strand), cluster in zip(regions, labels):
+for (chrom,start,end,strand), cluster in zip(array(regions)[ind], array(labels)[ind]):
 	f.write("%s\t%s\t%s\t%s\t0\t%s\n" % (chrom, start, end, cluster, strand))
 f.close()
 

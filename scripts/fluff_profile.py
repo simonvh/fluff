@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# Copyright (c) 2012 Simon van Heeringen <s.vanheeringen@ncmls.ru.nl>
+# Copyright (c) 2012-2013 Simon van Heeringen <s.vanheeringen@ncmls.ru.nl>
 #
 # This script is free software. You can redistribute it and/or modify it under 
 # the terms of the MIT License
