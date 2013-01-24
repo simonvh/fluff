@@ -20,6 +20,7 @@ from scipy.stats import scoreatpercentile
 import pybedtools
 
 ### My imports ###
+from fluff.fluffio import *
 from fluff.plot import *
 from fluff.util import *
 
@@ -43,22 +44,6 @@ font = FontProperties(size=FONTSIZE / 1.25, family=["Nimbus Sans L", "Helvetica"
 
 VERSION = "1.0"
 
-def load_data(clust_file, datafiles):
-	data = {}
-	for datafile in datafiles:
-		result = []
-		result = get_binned_stats(clust_file, datafile, BINS, RPKM, RMDUP, RMREPEATS)
-		result =  [row.split("\t") for row in result]
-		data[os.path.basename(datafile)] = dict([["%s:%s-%s" % (vals[0], vals[1], vals[2]), [float(x) for x in vals[3:]]] for vals in result])
-	return data
-
-def load_clusters(clust_file):
-	cluster_data = {}
-	track = pybedtools.BedTool(clust_file)
-	for f in track:
-		cluster_data.setdefault(int(f.name), []).append("%s:%s-%s" % (f.chrom, f.start, f.end))
-	return cluster_data
-
 parser = OptionParser(version="%prog " + str(VERSION))
 parser.add_option("-c", "--clusterfile", dest="clust_file", help="File containing clusters", metavar="FILE")
 parser.add_option("-d", "--datafiles", dest="datafiles", help="Data files (reads in BAM or BED format)", metavar="FILE(S)")
@@ -80,9 +65,9 @@ colors = [x.strip() for x in options.colors.split(",")]
 scalegroups = process_groups(options.scalegroups)
 
 # Calculate the profile data
-data = load_data(clust_file, datafiles)
+data = load_cluster_data(clust_file, datafiles, BINS, RPKM, RMDUP, RMREPEATS)
 # Get cluster information
-cluster_data = load_clusters(clust_file)
+cluster_data = load_bed_clusters(clust_file)
 clusters = [int(x) for x in cluster_data.keys()]
 
 #Init x-axis
