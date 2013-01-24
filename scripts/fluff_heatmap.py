@@ -107,7 +107,7 @@ def create_colormap(col1, col2):
 
 parser = OptionParser(version="%prog " + str(VERSION))
 parser.add_option("-f", "--featurefile", dest="featurefile", help="File containing features", metavar="FILE")
-parser.add_option("-d", "--datafiles", dest="datafiles", help="Data files (reads in BED/BAM format)", metavar="FILE(S)")
+parser.add_option("-d", "--datafiles", dest="datafiles", help="Data files (reads in BAM or BED format)", metavar="FILE(S)")
 parser.add_option("-c", "--clustering", dest="clustering", help="kmeans, hierarchical or none", default=DEFAULT_CLUSTERING)
 parser.add_option("-k", "--numclusters", dest="numclusters", help="Number of clusters", metavar="INT", type="int")
 parser.add_option("-l", "--colors", dest="colors", help="Colors", metavar="NAME(S)", default=DEFAULT_COLORS)

@@ -23,7 +23,7 @@ FRAGMENTLENGTH = 200
 
 parser = OptionParser(version="%prog " + str(VERSION))
 parser.add_option("-i", "--intervals", dest="intervals", help="Intervals (chrom:start-end)")
-parser.add_option("-d", "--datafiles", dest="datafiles", help="Data files (reads in BAM format)", metavar="FILE(S)")
+parser.add_option("-d", "--datafiles", dest="datafiles", help="Data files (reads in BAM or BED format)", metavar="FILE(S)")
 parser.add_option("-o", "--outfile", dest="outfile", help="Output file name (type determined by extension)", metavar="FILE")
 parser.add_option("-l", "--colors", dest="colors", help="Colors", metavar="NAME(S)", default=DEFAULT_COLORS)
 parser.add_option("-a", "--annotation", dest="annotation", help="Annotation in BED12 format", metavar="FILE")
