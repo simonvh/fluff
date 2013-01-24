@@ -1,3 +1,4 @@
+
 import HTSeq
 import pysam
 import pybedtools
@@ -6,13 +7,10 @@ from numpy import zeros,min,max
 
 def get_profile(interval, track, fragmentsize=200):
 	chrom,start,end = interval
-	window = HTSeq.GenomicInterval(chrom, start, end, "+")
-	bamfile = HTSeq.BAM_Reader(track)
 	profile = zeros(end - start, dtype="i")
-	for almnt in bamfile[window]:
-		if almnt:
-			almnt.iv.length = fragmentsize
-			profile[almnt.iv.start - start:almnt.iv.end - start] += 1
+	t = TrackWrapper(track)
+	for iv in t[(chrom, start, end, ".")]:
+		profile[iv.start - start:iv.end - start] += 1
 	return profile
 
 def load_profile(interval, tracks, fragmentsize=200):
@@ -74,13 +72,48 @@ class TrackWrapper():
 	def __init__(self, fname):
 		if fname.endswith("bam"):
 			self.track = pysam.Samfile(fname, "rb")
-			self.ftype = "sam"
+			self.htseq_track = HTSeq.BAM_Reader(fname)
+			self.ftype = "bam"
 		else:
 			self.track = pybedtools.BedTool(fname)
 			self.ftype = "bed"
+		
 
+	def __getitem__(self, window):
+		""" 
+		Retrieve all reads within a given window
+
+		Arguments: window - a list or tuple containing chromosome, start, end and strand
+		
+		Returns a list of GenomicIntervals
+		"""
+
+		chrom, start, end, strand = window
+		if strand == None:
+			strand = "."
+
+		intervals = []
+		if self.ftype == "bam":
+			window = HTSeq.GenomicInterval(chrom, start, end, strand)
+			for almnt in self.htseq_track[window]:
+				if almnt and almnt.iv:
+					#ailmnt.iv.length = almn.iv
+					if strand == "." or strand == almnt.iv.strand:
+						intervals.append(almnt.iv)
+		elif self.ftype == "bed":
+			if strand == ".":
+				feature = pybedtools.BedTool("%s %s %s" % (chrom, start, end), from_string=True)
+				s = False
+			else:
+				feature = pybedtools.BedTool("%s %s %s 0 0 %s" % (chrom, start, end, strand), from_string=True)
+				s = True
+			for read in self.track.intersect(feature, u=True, stream=True, s=s):
+				intervals.append(HTSeq.GenomicInterval(chrom, read.start, read.end, read.strand))
+		
+		return intervals			
+	
 	def count(self, rmdup=False, rmrepeats=False):
-		if self.ftype == "sam":
+		if self.ftype == "bam":
 			if (not rmdup and not rmrepeats):
 				return self.track.mapped
 			c = 0
@@ -96,7 +129,7 @@ class TrackWrapper():
 				sys.stderr.write("Warning: rmdup has no result on BED files! (yet...;))")
 
 	def read_length(self):
-		if self.ftype == "sam":
+		if self.ftype == "bam":
 			for read in self.track.fetch():
 				if read.alen:
 					return read.alen
@@ -114,7 +147,7 @@ class TrackWrapper():
 	def fetch_to_counts(self, chrom, start, end, rmdup=False, rmrepeats=False):
 		min_strand = []
 		plus_strand = []
-		if self.ftype == "sam":
+		if self.ftype == "bam":
 			self.track.fetch(chrom, start, end, callback=lambda x: self._add_read_to_list(x, min_strand, plus_strand, rmrepeats))
 		elif self.ftype == "bed":
 			if rmrepeats:
