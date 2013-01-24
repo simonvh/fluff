@@ -108,4 +108,17 @@ def sort_tree(tree, order):
 	index = _treesort(order, nodeorder, nodecounts, tree)
 	return index
 
+def normalize_data(data, percentile=75):
+	norm_data = {}
+	for track,ar in data.items():
+		s = scoreatpercentile(ar.flatten(), percentile)
+		if s == 0:
+			sys.stderr.write("Error normalizing track %s as score at percentile %s is 0, normalizing to maximum value instead\n" % (track, percentile))
+			x =  ar / max(ar.flatten())
+		else:
+			x =  ar / scoreatpercentile(ar.flatten(), percentile)
+			#x[x <= 0.5] = 0
+			x[x >= 1.0] = 1
+			norm_data[track] = x
+	return norm_data
 

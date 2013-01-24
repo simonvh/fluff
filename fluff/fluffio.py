@@ -8,11 +8,12 @@ import pysam
 import pybedtools
 import sys
 from numpy import zeros,min,max
+import tempfile
 
 class TrackWrapper():
 	def __init__(self, fname):
 		if fname.endswith("bam"):
-			#self.track = pysam.Samfile(fname, "rb")
+			self.track = pysam.Samfile(fname, "rb")
 			self.htseq_track = HTSeq.BAM_Reader(fname)
 			self.ftype = "bam"
 		else:
@@ -250,3 +251,54 @@ def get_binned_stats(in_fname, data_fname, nbins, rpkm=False, rmdup=False, rmrep
 		if count % 1000 == 0:
 			sys.stderr.write("%s processed\n" % count)
 	return ["\t".join([str(x) for x in row]) for row in ret]
+
+def load_heatmap_data(featurefile, datafile, bins=100, up=5000, down=5000, rmdup=True, rpkm=False, rmrepeats=True):
+	tmp = tempfile.NamedTemporaryFile(delete=False)
+	regions = []
+	order = {}
+	count = 0
+	for line in open(featurefile):
+		if line.startswith("#") or line[:5] == "track":
+			continue
+		vals = line.strip().split("\t")
+		strand = "+"
+		if len(vals) >= 6:
+			strand = vals[5]
+		middle = (int(vals[2]) + int(vals[1])) / 2
+		start,end = middle, middle
+		if strand == "+":
+			start -= up
+			end += down
+		else:
+			start -= down
+			end += up
+		if start >= 0:
+			regions.append([vals[0], start, end, strand])
+			order["%s:%s-%s" % (vals[0], start, end)] = count
+			count += 1
+			tmp.write("%s\t%s\t%s\t0\t0\t%s\n" % (vals[0], start, end, strand))
+	tmp.flush()
+	
+	result = fluff.fluffio.get_binned_stats(tmp.name, datafile, bins, rpkm=rpkm, rmdup=rmdup, rmrepeats=rmrepeats)
+	
+	# Retrieve original order
+	#r_regions = ["{}:{}-{}".format(*row.split("\t")[:3]) for row in result]
+	#r_order = numpy.array([order[region] for region in r_regions]).argsort()[::-1]
+	r_data = numpy.array([[float(x) for x in row.split("\t")[3:]] for row in result])
+
+	return os.path.basename(datafile), regions, r_data#[r_order]
+
+def normalize_data(data, percentile=75):
+	norm_data = {}
+	for track,ar in data.items():
+		s = scoreatpercentile(ar.flatten(), percentile)
+		if s == 0:
+			sys.stderr.write("Error normalizing track %s as score at percentile %s is 0, normalizing to maximum value instead\n" % (track, percentile))
+			x =  ar / max(ar.flatten())
+		else:
+			x =  ar / scoreatpercentile(ar.flatten(), percentile)
+		#x[x <= 0.5] = 0
+		x[x >= 1.0] = 1
+		norm_data[track] = x
+	return norm_data
+

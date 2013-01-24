@@ -26,7 +26,7 @@ from math import sqrt,log
 ### My imports ###
 from fluff.util import *
 from fluff.fluffio import *
-
+from fluff.color import create_colormap, COLOR_MAP, DEFAULT_COLORS
 #from kmeans import kmeanssample, Lqmetric
 
 BINS = 100
@@ -34,76 +34,12 @@ RPKM = False
 RMDUP = True
 RMREPEATS = True
 VERSION = "1.0"
-COLOR_MAP = {"red":"#e41a1c","blue":"#377eb8","green":"#4daf4a","orange":"#ff7f00","brown":"#a65628","purple":"#984ea3","yellow":"#ffff33"}
-DEFAULT_COLORS = "#e41a1c,#377eb8,#4daf4a,#984ea3,#ff7f00,#ffff33,#a65628"
 METRIC = "e"		# Euclidian, PyCluster
 FONTSIZE = 8
 DEFAULT_SCALE = 15 
 DEFAULT_EXTEND = 5000
 DEFAULT_PERCENTILE = 99
 DEFAULT_CLUSTERING = "kmeans"
-
-def load_data(featurefile, datafile, bins=100, up=5000, down=5000, rmdup=True, rpkm=False, rmrepeats=True):
-	tmp = tempfile.NamedTemporaryFile(delete=False)
-	regions = []
-	order = {}
-	count = 0
-	for line in open(featurefile):
-		if line.startswith("#") or line[:5] == "track":
-			continue
-		vals = line.strip().split("\t")
-		strand = "+"
-		if len(vals) >= 6:
-			strand = vals[5]
-		middle = (int(vals[2]) + int(vals[1])) / 2
-		start,end = middle, middle
-		if strand == "+":
-			start -= up
-			end += down
-		else:
-			start -= down
-			end += up
-		if start >= 0:
-			regions.append([vals[0], start, end, strand])
-			order["%s:%s-%s" % (vals[0], start, end)] = count
-			count += 1
-			tmp.write("%s\t%s\t%s\t0\t0\t%s\n" % (vals[0], start, end, strand))
-	tmp.flush()
-	
-	result = fluff.fluffio.get_binned_stats(tmp.name, datafile, bins, rpkm=rpkm, rmdup=rmdup, rmrepeats=rmrepeats)
-	
-	# Retrieve original order
-	#r_regions = ["{}:{}-{}".format(*row.split("\t")[:3]) for row in result]
-	#r_order = numpy.array([order[region] for region in r_regions]).argsort()[::-1]
-	r_data = numpy.array([[float(x) for x in row.split("\t")[3:]] for row in result])
-
-	return os.path.basename(datafile), regions, r_data#[r_order]
-
-def normalize_data(data, percentile=75):
-	norm_data = {}
-	for track,ar in data.items():
-		s = scoreatpercentile(ar.flatten(), percentile)
-		if s == 0:
-			sys.stderr.write("Error normalizing track %s as score at percentile %s is 0, normalizing to maximum value instead\n" % (track, percentile))
-			x =  ar / max(ar.flatten())
-		else:
-			x =  ar / scoreatpercentile(ar.flatten(), percentile)
-		#x[x <= 0.5] = 0
-		x[x >= 1.0] = 1
-		norm_data[track] = x
-	return norm_data
-
-def create_colormap(col1, col2):
-	c1 = colorConverter.to_rgb(col1)
-	c2 = colorConverter.to_rgb(col2)
-
-	cdict = {
-		'red': ((0.,c1[0], c1[0]),(1.,c2[0], c2[0])),
-		'green': ((0.,c1[1], c1[1]),(1.,c2[1], c2[1])),
-		'blue': ((0.,c1[2], c1[2]),(1.,c2[2], c2[2]))
-	}
-	return LinearSegmentedColormap('custom', cdict, 256)
-
 
 usage = "Usage: %prog -f <bedfile> -d <file1>[,<file2>,...] -o <out> [options]"
 version = "%prog " + str(VERSION)
@@ -116,11 +52,10 @@ parser.add_option("-o", dest="outfile", help="Output file (type determined by ex
 
 # Optional arguments
 group1.add_option("-c", dest="clustering", help="kmeans, hierarchical or none", default=DEFAULT_CLUSTERING, metavar="METHOD")
-group1.add_option("-k", dest="numclusters", help="Number of clusters", metavar="INT", type="int")
+group1.add_option("-k", dest="numclusters", help="Number of clusters", metavar="INT", type="int", default=1)
 group1.add_option("-l", dest="colors", help="Colors", metavar="NAME(S)", default=DEFAULT_COLORS)
 group1.add_option("-s", dest="scale", help="Scale", metavar="INT", type="int", default=DEFAULT_SCALE)
 group1.add_option("-e", dest="extend", help="Extend", metavar="INT", type="int", default=DEFAULT_EXTEND)
-
 parser.add_option_group(group1)
 (options, args) = parser.parse_args()
 
@@ -145,7 +80,8 @@ cluster_type = options.clustering[0].lower()
 if not cluster_type in ["k", "h", "n"]:
 	sys.stderr.write("Unknown clustering type!\n")
 	sys.exit(1)
-if cluster_type == "k" and not options.numcluster:
+
+if cluster_type == "k" and not options.numclusters >= 2:
 	sys.stderr.write("Please provide number of clusters!\n")
 	sys.exit(1)
 	
@@ -159,7 +95,7 @@ print "Loading data"
 job_server = pp.Server(ncpus=4)
 jobs = []
 for datafile in datafiles:
-	jobs.append(job_server.submit(load_data, (featurefile, datafile, BINS, extend_up, extend_down, RMDUP, RPKM, RMREPEATS),  (), ("tempfile","sys","os","fluff.fluffio","numpy")))
+	jobs.append(job_server.submit(load_heatmap_data, (featurefile, datafile, BINS, extend_up, extend_down, RMDUP, RPKM, RMREPEATS),  (), ("tempfile","sys","os","fluff.fluffio","numpy")))
 
 data = {}
 regions = []
