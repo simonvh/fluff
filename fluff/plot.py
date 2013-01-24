@@ -2,7 +2,7 @@ from numpy import *
 import matplotlib.pyplot as plt
 from matplotlib.ticker import NullFormatter,NullLocator
 from matplotlib.font_manager import fontManager, FontProperties
-from matplotlib.patches import FancyArrowPatch
+from matplotlib.patches import FancyArrowPatch,ArrowStyle
 from fluffio import *
 import sys
 from scipy.stats import scoreatpercentile
@@ -10,6 +10,7 @@ from scipy.stats import scoreatpercentile
 DEFAULT_COLORS = ["#e41a1c","#4daf4a","#377eb8"]
 FONTSIZE = 8
 PROFILE_MIN_Y = 75
+GENE_ARROW="-|>"
 
 def coverage_plot(ax, x, data, color="red"):
 	"""
@@ -248,14 +249,15 @@ def profile_screenshot(fname, intervals, tracks, colors=None, scalegroups=[], an
 						ax.axhspan(h_gene - 0.6, h_gene + 0.6, (genestart + exonstart - start)/float(end - start), (genestart + exonstart + exonsize - start)/ float(end - start), color="black")
 					for i in arange((genestart -start)/ float(end-start) + step, (geneend - start)/ float(end-start) - step, step):
 						if genestrand == "+":
-							arr = FancyArrowPatch((i,h_gene),(i + step,h_gene),arrowstyle='->', mutation_scale=15)
+							arr = FancyArrowPatch((i,h_gene),(i + step,h_gene),arrowstyle=GENE_ARROW)
 						else:
-							arr = FancyArrowPatch((i + step,h_gene),(i,h_gene),arrowstyle='->', mutation_scale=15)
+							arr = FancyArrowPatch((i + step,h_gene),(i,h_gene),arrowstyle=GENE_ARROW)
 						ax.add_patch(arr)
 
 	
 	
 	plt.savefig(fname, dpi=dpi)
+	plt.close()
 
 if __name__ == "__main__":
 	
