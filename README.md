@@ -74,7 +74,8 @@ Options:
   Optional:
     -C METHOD   kmeans, hierarchical or none
     -k INT      number of clusters
-    -c NAME(S)  colors (name, colorbrewer profile or hex code)
+    -c NAME(S)  color(s) (name, colorbrewer profile or hex code)
+    -B NAME(S)  background color(s) (name, colorbrewer profile or hex code)
     -e INT      extend (in bp)
     -b INT      bin size (default 100)
     -s SCALE    scale (absolute or percentage)
@@ -92,6 +93,9 @@ The *center* of all features will be selected from the input BED file. A total r
 The bin size is 100 bp, this can be controlled with the `-b` parameter.
 
 The color scale of the heatmap profile can be adjusted with the `-s` parameter. It is difficult to set a generally applicable threshold, as this value might depend on what you'd like to highlight or analyze in your data. The `-s` argument can either be absolute (`-s 15` means a bin that contains 15 or more reads will have the darkest color) or a percentage (`-s 90%` sets the threshold at the 90th percentile of the values in all bins over all tracks and features).
+
+### Background color ###
+The default background color is white. This can be changed with the `-B` parameter, which works the same as the color specification.
 
 fluff_profile.py
 ----------------
