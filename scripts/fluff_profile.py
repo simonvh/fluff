@@ -15,7 +15,7 @@ from numpy import array
 ### My imports ###
 from fluff.plot import profile_screenshot
 from fluff.util import *
-from fluff.color import DEFAULT_COLORfrom fluff.color import DEFAULT_COLORSS
+from fluff.color import DEFAULT_COLORS, parse_colors
 
 VERSION = 1.1
 BACKGROUNDS = ["white", "stripes", "color"]
@@ -53,7 +53,7 @@ intervals = [x.strip() for x in options.intervals.split(",")]
 datafiles = [x.strip() for x in options.datafiles.split(",")]
 annotation = options.annotation
 outfile = options.outfile
-colors = [x.strip() for x in options.colors.split(",")]
+colors = parse_colors(options.colors)
 
 trackgroups = process_groups(options.trackgroups)	
 if not trackgroups:
