@@ -1,7 +1,7 @@
 Disclaimer
 ==========
 
-Fluff is still under heavy development, mainly for personal use. No guarantees are given ;). However, if you find it useful and encounter problems, let me know and I'll try to help.
+Fluff is still under heavy development, mainly for personal use. No guarantees are given ;). However, if you find it useful and encounter problems, let me know and I'll try to help. The gene annotation track that fluff_profile.py produces is still pretty ugly too.
 
 fluff
 =====
@@ -17,7 +17,7 @@ It currently contains three scripts:
 
 Plotting is handled by the excellent [matplotlib](http://matplotlib.sourceforge.net/) library, several image formats are supported (SVG, Postscript, PDF, PNG).
 
-Fluff makes heavy use of [pysam](http://code.google.com/p/pysam/), [pybedtools](http://packages.python.org/pybedtools/), [HTseq](http://www-huber.embl.de/users/anders/HTSeq/) and indexed [BAM files](http://samtools.sourceforge.net/) for speed and easy of use. Due to the indexing, the fluff scripts can be quick, even when working with large files. Currently, [BED](http://genome.ucsc.edu/FAQ/FAQformat.html#format1) files are also supported, but performance will suffer.
+Fluff makes heavy use of [pysam](http://code.google.com/p/pysam/), [pybedtools](http://packages.python.org/pybedtools/), [HTseq](http://www-huber.embl.de/users/anders/HTSeq/) and indexed [BAM files](http://samtools.sourceforge.net/) for speed and ease of use. Due to the indexing, the fluff scripts can be quick, even when working with large files. Currently, [BED](http://genome.ucsc.edu/FAQ/FAQformat.html#format1) files are also supported, but performance will suffer.
 
 Prerequisites
 -------------
@@ -27,6 +27,7 @@ Prerequisites
 * matplotlib - http://matplotlib.sourceforge.net/
 * numpy - http://numpy.scipy.org/
 * scipy - http://www.scipy.org/
+* colorbrewer - http://pypi.python.org/pypi/colorbrewer/
 
 I'd recommend installing matplotlib, numpy and scipy using your preferred package manager. Ubuntu, Debian, Fedora, Gentoo, etc. all have packages providing these libraries.
 
@@ -54,7 +55,7 @@ Produce a heatmap like [this example](add link). Features can be shown "as is", 
 
 fluff_profile.py
 ----------------
-Produces output like a Genome Browser screenshot. Currently only BAM profiles and gene annotation (in [BED12](http://genome.ucsc.edu/FAQ/FAQformat.html#format1)) can be visualized.
+Produces output like a Genome Browser screenshot. Currently only 1) profiles based on reads in BAM or BED format and 2) gene annotation (in [BED12](http://genome.ucsc.edu/FAQ/FAQformat.html#format1)) can be visualized.
 
 fluff_bandplot.py
 -----------------
