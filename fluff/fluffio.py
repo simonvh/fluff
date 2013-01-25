@@ -117,6 +117,7 @@ def get_profile(interval, track, fragmentsize=200):
 	profile = zeros(end - start, dtype="i")
 	t = TrackWrapper(track)
 	for iv in t[(chrom, start, end, ".")]:
+		iv.length = fragmentsize
 		profile[iv.start - start:iv.end - start] += 1
 	return profile
 
