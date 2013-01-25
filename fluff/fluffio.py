@@ -7,6 +7,7 @@ import HTSeq
 import pysam
 import pybedtools
 import sys
+import os
 from numpy import zeros,min,max
 import tempfile
 
@@ -129,12 +130,12 @@ def load_bed_clusters(bedfile):
 	"""
 
 	cluster_data = {}
-	track = pybedtools.BedTool(clust_file)
+	track = pybedtools.BedTool(bedfile)
 	for f in track:
 		cluster_data.setdefault(int(f.name), []).append("%s:%s-%s" % (f.chrom, f.start, f.end))
 	return cluster_data
 
-def load_cluster_data(clust_file, datafiles):
+def load_cluster_data(clust_file, datafiles, bins, rpkm, rmdup, rmrepeats):
 	data = {}
 	for datafile in datafiles:
 		result = []
