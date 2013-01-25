@@ -53,6 +53,38 @@ fluff_heatmap.py
 ----------------
 Produce a heatmap like [this example](add link). Features can be shown "as is", preserving the order in the input file, or can be clustered using hierarchical or k-means clustering. 
 
+```
+Usage: fluff_heatmap.py -f <bedfile> -d <file1>[,<file2>,...] -o <out> [options]
+
+Options:
+  --version     show program's version number and exit
+  -h, --help    show this help message and exit
+  -f FILE       BED file containing features
+  -d FILE(S)    data files (reads in BAM or BED format)
+  -o FILE       output file (type determined by extension)
+
+  Optional:
+    -C METHOD   kmeans, hierarchical or none
+    -k INT      number of clusters
+    -c NAME(S)  colors
+    -r          use RPKM instead of read counts
+    -s SCALE    scale
+    -e INT      extend
+    -b INT      bin size (default 100)
+    -D          keep duplicate reads (removed by default)
+    -R          keep repeats (removed by default, bwa only)
+```
+
+### Clustering ###
+By default, fluff_heatmap.py will preserve the order of the features in the input BED file. This is equivalent to specifying `-C none`. Alternatively, one of two basic clustering methods can be specified using the `-C` parameter: `hierarchical` and `kmeans`. If `kmeans` is selected the number of clusters (`-k`) is mandatory. The profiles will be clustered using the Euclidian distance metric, based on normalized data (although the heatmap still shows the raw data).
+
+
+
+
+
+
+
+
 fluff_profile.py
 ----------------
 Produces output like a Genome Browser screenshot. Currently only 1) profiles based on reads in BAM or BED format and 2) gene annotation (in [BED12](http://genome.ucsc.edu/FAQ/FAQformat.html#format1)) can be visualized.
