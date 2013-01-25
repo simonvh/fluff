@@ -6,7 +6,7 @@ Fluff is still under heavy development, mainly for personal use. No guarantees a
 fluff
 =====
 
-Fluff is a Python package contains several scripts to produce pretty, publication-quality figures for next-generation sequencing experiments. I've tried to make sure the default settings produce figures that are ready to use.
+Fluff is a Python package containing several scripts with the aim to produce pretty, publication-quality figures for next-generation sequencing experiments. I've tried to make sure the default settings produce figures that are ready to use.
 
 It currently contains three scripts:
 * fluff_heatmap.py
