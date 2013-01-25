@@ -6,7 +6,7 @@ Fluff is still under heavy development, mainly for personal use. No guarantees a
 fluff
 =====
 
-![heatmap](https://raw.github.com/simonvh/fluff/master/examples/heatmap.png) ![bandplot](https://raw.github.com/simonvh/fluff/master/examples/bandplot.png) 
+![heatmap](https://raw.github.com/simonvh/fluff/master/examples/heatmap.png) ![bandplot](https://raw.github.com/simonvh/fluff/master/examples/bandplot.png) ![profile](https://raw.github.com/simonvh/fluff/master/examples/profile.png) 
 
 Fluff is a Python package containing several scripts with the aim to produce pretty, publication-quality figures for next-generation sequencing experiments. I've tried to make sure the default settings produce figures that are ready to use.
 
