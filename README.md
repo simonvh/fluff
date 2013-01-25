@@ -30,7 +30,18 @@ I'd recommend installing matplotlib, numpy and scipy using your preferred packag
 
 Colors
 ------
-One important feature of fluff is the use of color, as this is part of making your figures look good. I use the Set1 palette from the [ColorBrewer](http://colorbrewer2.org/) colors by default, however, all colors can be specified either by name, by R,G,B values or by Hex code.
+One important feature of fluff is the use of color, as this is part of making your figures look good. There are three ways to specify colors: by name, palette or hex code. You can specify as few or as many colors as you want, seperated by commas. If fluff runs out of colors it will start at the beginning.
+
+1. **Color names.**
+Fluff knowns nine color names: red, blue, green, purple, orange, yellow, pink and grey. These are the colors from the Set1 palette (see below).
+
+2. **Palettes.**
+The palettes with all the [ColorBrewer](http://colorbrewer2.org/) colors can be specified (thanks to the Python [colorbrewer](http://pypi.python.org/pypi/colorbrewer/) package supplied by Michael Hoffman). If you specify the palette name only, the maximum number of colors will be used. Alternatively specify the number of colors with a colon. For example: *Set1:5,Set2:4* is a valid argument.
+
+3. **Hex code.**
+Finally, colors can be specified using a hex code. For instance, *ff0000,00FF00,00000FF* will give you red, blue and green. Indeed, case-insensitive.
+
+All different color specification can be mixed and matched for extra fun.
 
 The scripts
 ===========
