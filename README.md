@@ -51,7 +51,7 @@ General options
 
 There are three options shared amongst all scripts:
 * `-r` Enable this option to use RPKM values (read per kb per million reads) instead of read counts.
-* `-R` When bam files are produced by bwa reads mapping to non-duplicate regions of the genome are maked. By default fluff removes all these reads. When this option is used these reads will be kept.
+* `-R` When bam files are produced by bwa, reads mapping to non-duplicate regions of the genome are marked. By default fluff removes all these reads. When this option is used these reads will be kept.
 * `-D` By default fluff removes all duplicate reads (when marked in the bam file). Enable the `-D` option to keep duplicates.
 
 The scripts
