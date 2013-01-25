@@ -23,7 +23,7 @@ import pybedtools
 from fluff.fluffio import *
 from fluff.plot import *
 from fluff.util import *
-from fluff.color import DEFAULT_COLORS
+from fluff.color import DEFAULT_COLORS,parse_colors
 
 ######## EDIT CONSTANTS TO CHANGE BEHAVIOUR OF THE SCRIPT #############
 # Sizes of the plots (in inches)
@@ -69,9 +69,7 @@ clust_file = options.clust_file
 datafiles = [x.strip() for x in options.datafiles.split(",")]
 tracks = [os.path.basename(x) for x in datafiles]
 titles = [os.path.splitext(x)[0] for x in tracks]
-print tracks
-print titles
-colors = [x.strip() for x in options.colors.split(",")]
+colors = parse_colors(options.colors)
 scalegroups = process_groups(options.scalegroups)
 percs = [int(x) for x in options.percs.split(",")]
 rmdup = options.rmdup
