@@ -59,7 +59,8 @@ The scripts
 
 fluff_heatmap.py
 ----------------
-Produce a heatmap like [this example](add link). Features can be shown "as is", preserving the order in the input file, or can be clustered using hierarchical or k-means clustering. This scripts creates two output files. One is an image that contains the heatmap (png by default), the other one contains the features in the same order as the heatmap including cluster number. This file can be used as input for `fluff_bandplot.py`.
+Produce a heatmap like [this example](add link). Features can be shown "as is", preserving the order in the input file, or can be clustered using hierarchical or k-means clustering. This scripts creates two output files. One is an image that contains the heatmap (png by default), the other one contains the features in the same order as the heatmap including cluster number. This file can be used as input for `fluff_bandplot.py`. 
+It is worth mentioning that the heatmap can be save in a vector-based format, however, the file quickly becomes prohibitively large and unwieldy. Be warned ;).
 
 ```
 Usage: fluff_heatmap.py -f <bedfile> -d <file1>[,<file2>,...] -o <out> [options]
