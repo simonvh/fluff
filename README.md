@@ -8,7 +8,7 @@ fluff
 
 ![fluff examples](https://raw.github.com/simonvh/fluff/master/examples/test.png) 
 
-Fluff is a Python package containing several scripts with the aim to produce pretty, publication-quality figures for next-generation sequencing experiments. I've tried to make sure the default settings produce figures that are ready-to-use (resolution, font size, colors etc.)
+Fluff is a Python package containing several scripts with the aim to produce pretty, publication-quality figures for next-generation sequencing experiments. The goal is to provide default settings which produce figures that are ready-to-use (resolution, font size, colors etc.)
 
 It currently contains three scripts:
 * fluff_heatmap.py
