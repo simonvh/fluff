@@ -1,5 +1,7 @@
 import numpy
 import pysam
+from scipy.stats import scoreatpercentile
+
 
 def process_groups(groups):
 	if not groups:
@@ -121,4 +123,30 @@ def normalize_data(data, percentile=75):
 			x[x >= 1.0] = 1
 			norm_data[track] = x
 	return norm_data
+
+def get_absolute_scale(scale, data, per_track=False):
+	try:
+		scale = float(scale)
+		return scale
+	except:
+		if type(scale) == type("") and scale.endswith("%"):
+			rel_scale = float(scale[:-1])
+			
+			if per_track:
+				print "Hoe"
+				s = [scoreatpercentile(d, rel_scale) for d in data]
+				print s
+				return s	
+			else:
+				d = numpy.array(data).flatten()
+				s = scoreatpercentile(d, rel_scale)
+				# Set the scale to the minimum non-zero value, otherwise
+				# the plot will show nothing
+				if s == 0:
+					s = min(d[d > 0])
+				return s
+
+
+
+	
 
