@@ -29,7 +29,7 @@ parser.add_option("-i", dest="intervals", help="One or more genomic intervals (c
 parser.add_option("-d", dest="datafiles", help="Data files (reads in BAM or BED format)", metavar="FILE(S)")
 parser.add_option("-o", dest="outfile", help="Output file name (type determined by extension)", metavar="FILE")
 group1.add_option("-a", dest="annotation", help="Annotation in BED12 format", metavar="FILE")
-group1.add_option("-l", dest="colors", help="Colors", metavar="NAME(S)", default=DEFAULT_COLORS)
+group1.add_option("-c", dest="colors", help="Colors", metavar="NAME(S)", default=DEFAULT_COLORS)
 group1.add_option("-t", dest="trackgroups", help="Track groups", metavar="GROUPS")
 group1.add_option("-s", dest="scalegroups", help="Scale groups", metavar="GROUPS")
 group1.add_option("--setscale", dest="scale", help="Scale: 'auto' (default), 'off' or int for each track", metavar="SCALE", default="auto")
