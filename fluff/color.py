@@ -18,6 +18,8 @@ COLOR_MAP = {
 	"brown":"#a65628",
 	"pink": "#f781bf", 
 	"grey": "#999999",
+	"white": "#ffffff",
+	"black": "#000000",
 }
 
 def is_pal(name):

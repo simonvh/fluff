@@ -25,8 +25,6 @@ from math import sqrt,log
 from fluff.util import *
 from fluff.fluffio import *
 from fluff.color import create_colormap, COLOR_MAP, DEFAULT_COLORS, parse_colors
-#from kmeans import kmeanssample, Lqmetric
-
 
 VERSION = "1.1"
 
@@ -36,7 +34,8 @@ FONTSIZE = 8
 DEFAULT_SCALE = 15 
 DEFAULT_EXTEND = 5000
 DEFAULT_PERCENTILE = 99
-DEFAULT_CLUSTERING = "kmeans"
+DEFAULT_CLUSTERING = "none"
+DEFAULT_BG = "white"
 
 usage = "Usage: %prog -f <bedfile> -d <file1>[,<file2>,...] -o <out> [options]"
 version = "%prog " + str(VERSION)
@@ -50,12 +49,12 @@ parser.add_option("-o", dest="outfile", help="output file (type determined by ex
 # Optional arguments
 group1.add_option("-C", dest="clustering", help="kmeans, hierarchical or none", default=DEFAULT_CLUSTERING, metavar="METHOD")
 group1.add_option("-k", dest="numclusters", help="number of clusters", metavar="INT", type="int", default=1)
-group1.add_option("-c", dest="colors", help="colors", metavar="NAME(S)", default=DEFAULT_COLORS)
-group1.add_option("-r", dest="rpkm", help="use RPKM instead of read counts", metavar="", action="store_true", default=False)
-group1.add_option("-s", dest="scale", help="scale", metavar="", type="string", default=DEFAULT_SCALE)
-group1.add_option("-e", dest="extend", help="extend", metavar="INT", type="int", default=DEFAULT_EXTEND)
+group1.add_option("-c", dest="colors", help="color(s) (name, colorbrewer profile or hex code)", metavar="NAME(S)", default=DEFAULT_COLORS)
+group1.add_option("-B", dest="bgcolors", help="background color(s) (name, colorbrewer profile or hex code)", metavar="NAME(S)", default=DEFAULT_BG)
+group1.add_option("-e", dest="extend", help="extend (in bp)", metavar="INT", type="int", default=DEFAULT_EXTEND)
 group1.add_option("-b", dest="binsize", help="bin size (default %s)" % DEFAULT_BINSIZE, metavar="INT", type="int", default=DEFAULT_BINSIZE)
-
+group1.add_option("-s", dest="scale", help="scale (absolute or percentage)", metavar="", type="string", default=DEFAULT_SCALE)
+group1.add_option("-r", dest="rpkm", help="use RPKM instead of read counts", metavar="", action="store_true", default=False)
 group1.add_option("-D", dest="rmdup", help="keep duplicate reads (removed by default)", metavar="", default=True, action="store_false")
 group1.add_option("-R", dest="rmrepeats", help="keep repeats (removed by default, bwa only) ", metavar="", action="store_false", default=True)
 
@@ -73,6 +72,7 @@ datafiles = [x.strip() for x in options.datafiles.split(",")]
 tracks = [os.path.basename(x) for x in datafiles]
 titles = [os.path.splitext(x)[0] for x in tracks]
 colors = parse_colors(options.colors)
+bgcolors = parse_colors(options.bgcolors)
 
 outfile = options.outfile
 extend_up = options.extend
@@ -138,7 +138,7 @@ else:
 font = FontProperties(size=FONTSIZE / 1.25, family=["Nimbus Sans L", "Helvetica", "sans-serif"])
 
 f = open("%s_clusters.bed" % outfile, "w")
-for (chrom,start,end,strand), cluster in zip(array(regions)[ind], array(labels)[ind]):
+for (chrom,start,end,strand), cluster in zip(array(regions, dtype="object")[ind], array(labels)[ind]):
 	f.write("%s\t%s\t%s\t%s\t0\t%s\n" % (chrom, start, end, cluster, strand))
 f.close()
 
@@ -146,7 +146,7 @@ fig = plt.figure(figsize=(10,5))
 
 axes = []
 for i, track in enumerate(tracks):
-	c = create_colormap('white', colors[i % len(colors)])
+	c = create_colormap(bgcolors[i % len(bgcolors)], colors[i % len(colors)])
 	ax = fig.add_subplot(1,len(tracks),i + 1)
 	ax.set_title(titles[i],  fontproperties=font)
 	axes.append(ax)
