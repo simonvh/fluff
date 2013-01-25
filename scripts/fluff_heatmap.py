@@ -24,7 +24,7 @@ from math import sqrt,log
 ### My imports ###
 from fluff.util import *
 from fluff.fluffio import *
-from fluff.color import create_colormap, COLOR_MAP, DEFAULT_COLORS
+from fluff.color import create_colormap, COLOR_MAP, DEFAULT_COLORS, parse_colors
 #from kmeans import kmeanssample, Lqmetric
 
 
@@ -71,10 +71,7 @@ for opt in [options.featurefile, options.datafiles, options.outfile]:
 featurefile = options.featurefile
 datafiles = [x.strip() for x in options.datafiles.split(",")]
 tracks = [os.path.basename(x) for x in datafiles]
-colors = [x.strip() for x in options.colors.split(",")]
-for i,color in enumerate(colors):
-	if COLOR_MAP.has_key(color):
-		colors[i] = COLOR_MAP[color]
+colors = parse_colors(options.colors)
 
 outfile = options.outfile
 extend_up = options.extend
