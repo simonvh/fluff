@@ -8,12 +8,12 @@ fluff
 
 ![heatmap](https://raw.github.com/simonvh/fluff/master/examples/heatmap.png) ![bandplot](https://raw.github.com/simonvh/fluff/master/examples/bandplot.png) ![profile](https://raw.github.com/simonvh/fluff/master/examples/profile.png) 
 
-Fluff is a Python package containing several scripts with the aim to produce pretty, publication-quality figures for next-generation sequencing experiments. I've tried to make sure the default settings produce figures that are ready to use.
+Fluff is a Python package containing several scripts with the aim to produce pretty, publication-quality figures for next-generation sequencing experiments. I've tried to make sure the default settings produce figures that are ready-to-use (resolution, font size, colors etc.)
 
 It currently contains three scripts:
 * fluff_heatmap.py
-* fluff_profile.py
 * fluff_bandplot.py
+* fluff_profile.py
 
 Plotting is handled by the excellent [matplotlib](http://matplotlib.sourceforge.net/) library, several image formats are supported (SVG, Postscript, PDF, PNG).
 
