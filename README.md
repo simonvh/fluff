@@ -98,10 +98,38 @@ The color scale of the heatmap profile can be adjusted with the `-s` parameter. 
 ### Background color ###
 The default background color is white. This can be changed with the `-B` parameter, which works the same as the color specification.
 
+fluff_bandplot.py
+-----------------
+While heatmaps can be very informative, sometimes you want to show the average profile. However, by just plotting the mean, you lose quite some information. This is my attempt to kind of combine a boxplot with an average profile. The mean enrichment is shown using a black line. The 50th and 90th percentile are also visualized using a dark and light color respectively.
+
+```
+Usage: fluff_bandplot.py -c <bedfile> -d <file1>[,<file2>,...] -o <out> [options]
+
+Options:
+  --version     show program's version number and exit
+  -h, --help    show this help message and exit
+  -i FILE       BED file with cluster in 4th column
+  -d FILE(S)    data files (reads in BAM or BED format)
+  -o FILE       output file (type determined by extension)
+
+  Optional:
+    -c NAME(S)  colors
+    -s GROUPS   scale groups
+    -p INT,INT  Range of percentiles (default 50,90)
+    -r          use RPKM instead of read counts
+    -D          keep duplicate reads (removed by default)
+    -R          keep repeats (removed by default, bwa only)
+```
+
+The input file should contain a cluster identifier in the fourth column. Any string or number can be used; all features with the same identifier will be grouped.
+
+### Scales and percentiles ###
+To compare different datasets (for instance same antibody in a timeline or different conditions) the maximum of the Y-axis can be linked between tracks. As an example, `-s 1:3,4,5:7` will ensure that the first three rows share the same scale, the fourth track will be scaled to the maximum of only this single track and the last three rows will once again share a similar scale.
+
+The `-p` parameter controls the percentile range. By default, the profile that contains 50% of the data will be shaded in a dark color and the profile that contains 90% of the data will be shaded in a lighter color. 
+
 fluff_profile.py
 ----------------
 Produces output like a Genome Browser screenshot. Currently only 1) profiles based on reads in BAM or BED format and 2) gene annotation (in [BED12](http://genome.ucsc.edu/FAQ/FAQformat.html#format1)) can be visualized.
 
-fluff_bandplot.py
------------------
-While heatmaps can be very informative, sometimes you want to show the average profile. However, by just plotting the mean, you lose quite some information. This is my attempt to combine a boxplot with an average profile. The mean enrichment is shown using a black line. The 50th and 90th percentile are also visualized using a dark and light color respectively.
+
