@@ -36,9 +36,6 @@ PADBOTTOM = 0.05
 PADRIGHT = 0.05
 FONTSIZE = 8
 BINS = 21								# Number of bins for profile
-RPKM = False						# If False, use absolute count
-RMDUP = True				# Remove duplicate reads, if present
-RMREPEATS = True				# Remove reads mapping to repeats, if mapped with bwa
 #########################################################################
 font = FontProperties(size=FONTSIZE / 1.25, family=["Nimbus Sans L", "Helvetica", "sans-serif"])
 
@@ -53,6 +50,12 @@ parser.add_option("-d", dest="datafiles", help="data files (reads in BAM or BED 
 parser.add_option("-o", dest="outfile", help="output file (type determined by extension)", metavar="FILE")
 group1.add_option("-c", dest="colors", help="colors", metavar="NAME(S)", default=DEFAULT_COLORS)
 group1.add_option("-s", dest="scalegroups", help="scale groups", metavar="GROUPS")
+group1.add_option("-p", dest="percs", help="Range of percentiles (default 50,90)", metavar="INT,INT", default="50,90")
+
+group1.add_option("-r", dest="rpkm", help="use RPKM instead of read counts", metavar="", action="store_true", default=False)
+group1.add_option("-D", dest="rmdup", help="keep duplicate reads (removed by default)", metavar="", default=True, action="store_false")
+group1.add_option("-R", dest="rmrepeats", help="keep repeats (removed by default, bwa only) ", metavar="", action="store_false", default=True)
+
 
 parser.add_option_group(group1)
 (options, args) = parser.parse_args()
@@ -65,11 +68,18 @@ for opt in [options.clust_file, options.datafiles, options.outfile]:
 clust_file = options.clust_file
 datafiles = [x.strip() for x in options.datafiles.split(",")]
 tracks = [os.path.basename(x) for x in datafiles]
+titles = [os.path.splitext(x)[0] for x in tracks]
+print tracks
+print titles
 colors = [x.strip() for x in options.colors.split(",")]
 scalegroups = process_groups(options.scalegroups)
+percs = [int(x) for x in options.percs.split(",")]
+rmdup = options.rmdup
+rpkm = options.rpkm
+rmrepeats = options.rmrepeats
 
 # Calculate the profile data
-data = load_cluster_data(clust_file, datafiles, BINS, RPKM, RMDUP, RMREPEATS)
+data = load_cluster_data(clust_file, datafiles, BINS, rpkm, rmdup, rmrepeats)
 # Get cluster information
 cluster_data = load_bed_clusters(clust_file)
 clusters = [int(x) for x in cluster_data.keys()]
@@ -94,7 +104,7 @@ for track_num, track in enumerate(tracks):
 		vals = array([data[track][x] for x in cluster_data[cluster]])
 		
 		# Make the plot
-		coverage_plot(ax, t, vals, colors[track_num % len(colors)])
+		coverage_plot(ax, t, vals, colors[track_num % len(colors)], percs)
 		
 		# Get scale max
 		maxscale = track_max[track_num]
@@ -118,9 +128,10 @@ for track_num, track in enumerate(tracks):
 			pos = axes[track_num][0].get_position().get_points()
 			text_y = (pos[1][1] + pos[0][1]) / 2
 			text_x = pos[0][0] - (PAD / fig.get_figwidth())
-			plt.figtext(text_x, text_y, track, clip_on=False, horizontalalignment="right", verticalalignment="center", font_properties=font)
-			plt.figtext(text_x,  pos[1][1], maxscale, clip_on=False, horizontalalignment="right", verticalalignment="top", font_properties=font)
+			plt.figtext(text_x, text_y, titles[track_num], clip_on=False, horizontalalignment="right", verticalalignment="center", font_properties=font)
+			
+			plt.figtext(text_x,  pos[1][1], "%.4g" % maxscale, clip_on=False, horizontalalignment="right", verticalalignment="top", font_properties=font)
 			plt.figtext(text_x,  pos[0][1], 0, clip_on=False, horizontalalignment="right", verticalalignment="bottom", font_properties=font)
 
 print "Saving figure"
-savefig(options.outfile)
+savefig(options.outfile, dpi=600)

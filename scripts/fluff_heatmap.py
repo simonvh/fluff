@@ -71,6 +71,7 @@ for opt in [options.featurefile, options.datafiles, options.outfile]:
 featurefile = options.featurefile
 datafiles = [x.strip() for x in options.datafiles.split(",")]
 tracks = [os.path.basename(x) for x in datafiles]
+titles = [os.path.splitext(x)[0] for x in tracks]
 colors = parse_colors(options.colors)
 
 outfile = options.outfile
@@ -147,7 +148,7 @@ axes = []
 for i, track in enumerate(tracks):
 	c = create_colormap('white', colors[i % len(colors)])
 	ax = fig.add_subplot(1,len(tracks),i + 1)
-	ax.set_title(track.replace(".bam",""),  fontproperties=font)
+	ax.set_title(titles[i],  fontproperties=font)
 	axes.append(ax)
 	ax.pcolormesh(data[track][ind], cmap=c, vmin=0, vmax=scale * tscale[i])
 	print "%s\t%s\t%s\t%s" % (track, tscale[i] * scale, mean(data[track][ind][:,0:20]), median(data[track][ind]))

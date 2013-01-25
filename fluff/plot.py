@@ -12,7 +12,7 @@ FONTSIZE = 8
 PROFILE_MIN_Y = 75
 GENE_ARROW="-|>"
 
-def coverage_plot(ax, x, data, color="red"):
+def coverage_plot(ax, x, data, color="red", percs=[50,90]):
 	"""
 	ax = matplotlib axes instance
 	x = x-axis coordinates
@@ -21,7 +21,7 @@ def coverage_plot(ax, x, data, color="red"):
 	"""
 	
 	# Might change this into an argument for the function
-	percs = [10, 25]
+	percs = [(100 - float(p)) / 2 for p in percs[::-1]]
 	alphas = [0.1, 0.4]
 
 	# Convert to numpy array
