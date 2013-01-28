@@ -121,7 +121,7 @@ Options:
     -R          keep repeats (removed by default, bwa only)
 ```
 
-The input file should contain a cluster identifier in the fourth column. Any string or number can be used; all features with the same identifier will be grouped. The `*_clusters.bed` file from `fluff_heatmap.py` can directly be used in this script.
+The input file should contain a cluster identifier in the fourth column. Any string or number can be used; all features with the same identifier will be grouped. The size of the regions is determined by the coordinates in the BED file, ie if you want to plot a region of 10kb all the entries in the BED file should span a region of 10kb. The `*_clusters.bed` file from `fluff_heatmap.py` can directly be used in this script.
 
 ### Scales and percentiles ###
 To compare different datasets (for instance same antibody in a timeline or different conditions) the maximum of the Y-axis can be linked between tracks. As an example, `-s 1:3,4,5:7` will ensure that the first three rows share the same scale, the fourth track will be scaled to the maximum of only this single track and the last three rows will once again share a similar scale.
