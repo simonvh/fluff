@@ -100,7 +100,7 @@ The default background color is white. This can be changed with the `-B` paramet
 
 fluff_bandplot.py
 -----------------
-While heatmaps can be very informative, sometimes you want to show the average profile. However, by just plotting the mean, you lose quite some information. This is my attempt to kind of combine a boxplot with an average profile. The mean enrichment is shown using a black line. The 50th and 90th percentile are also visualized using a dark and light color respectively.
+While heatmaps can be very informative, sometimes you want to show the average profile. However, by just plotting the mean, you lose quite some information. This is my attempt to combine a boxplot with an average profile. The mean enrichment is shown using a black line. The 50th and 90th percentile are also visualized using a dark and light color respectively.
 
 ```
 Usage: fluff_bandplot.py -c <bedfile> -d <file1>[,<file2>,...] -o <out> [options]
@@ -113,7 +113,7 @@ Options:
   -o FILE       output file (type determined by extension)
 
   Optional:
-    -c NAME(S)  colors
+    -c NAME(S)  color(s) (name, colorbrewer profile or hex code)
     -s GROUPS   scale groups
     -p INT,INT  Range of percentiles (default 50,90)
     -r          use RPKM instead of read counts
@@ -131,5 +131,36 @@ The `-p` parameter controls the percentile range. By default, the profile that c
 fluff_profile.py
 ----------------
 Produces output like a Genome Browser screenshot. Currently only 1) profiles based on reads in BAM or BED format and 2) gene annotation (in [BED12](http://genome.ucsc.edu/FAQ/FAQformat.html#format1)) can be visualized.
+```
+Usage: fluff_profile.py -i <loc1>[,<loc2>,...] -d <file1>[,<file2>,...] -o <out> [options]
+
+Options:
+  --version           show program's version number and exit
+  -h, --help          show this help message and exit
+  -i INTERVAL(S)      one or more genomic intervals (chrom:start-end)
+  -d FILE(S)          data files (reads in BAM or BED format)
+  -o FILE             output file name (type determined by extension)
+
+  Optional:
+    -a FILE           annotation in BED12 format
+    -c NAME(S)        color(s) (name, colorbrewer profile or hex code)
+    -t GROUPS         track groups
+    -s GROUPS         scale groups
+    -S SCALE          scale: 'auto' (default), 'off' or int for each track
+    -b BACKGROUND     background color: white | color | stripes
+    -f FRAGMENTSIZE   fragment length (default: 200)
+```
+
+===Scale and track groups===
+Just as with `fluff_bandplot.py`, identical Y-axis scale can be used to compare tracks. In addition, different datasets can be overlayed on the same track wit the `-t` option. Use the `-S` option to manually set a the Y-axis upper limit, or to turn the label off (with the `off` argument).
+
+===Colors===
+The background color can be one of three different choices. The default is `white`. Specifying `color` will set the background of each track to a lighter version of the track color. The last option is `stripes` which will show an alternating pattern of white and light grey bands.
+
+===Fragment length===
+By default, all reads will be extended to 200bp before creating the profiles. Set an alternative fragment size with the `-f` option. Paired-end profiles are not yet supported, paired reads will be independently processed.
+
+
+
 
 
