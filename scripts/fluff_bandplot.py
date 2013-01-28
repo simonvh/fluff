@@ -48,7 +48,7 @@ group1 = OptionGroup(parser, 'Optional')
 parser.add_option("-i", dest="clust_file", help="BED file with cluster in 4th column", metavar="FILE")
 parser.add_option("-d", dest="datafiles", help="data files (reads in BAM or BED format)", metavar="FILE(S)")
 parser.add_option("-o", dest="outfile", help="output file (type determined by extension)", metavar="FILE")
-group1.add_option("-c", dest="colors", help="colors", metavar="NAME(S)", default=DEFAULT_COLORS)
+group1.add_option("-c", dest="colors", help="color(s) (name, colorbrewer profile or hex code)", metavar="NAME(S)", default=DEFAULT_COLORS)
 group1.add_option("-s", dest="scalegroups", help="scale groups", metavar="GROUPS")
 group1.add_option("-p", dest="percs", help="Range of percentiles (default 50,90)", metavar="INT,INT", default="50,90")
 

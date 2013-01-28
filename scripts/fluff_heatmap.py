@@ -31,7 +31,7 @@ VERSION = "1.1"
 DEFAULT_BINSIZE = 100
 METRIC = "e"		# Euclidian, PyCluster
 FONTSIZE = 8
-DEFAULT_SCALE = 15 
+DEFAULT_SCALE = "90%" 
 DEFAULT_EXTEND = 5000
 DEFAULT_PERCENTILE = 99
 DEFAULT_CLUSTERING = "none"
@@ -142,7 +142,7 @@ for (chrom,start,end,strand), cluster in zip(array(regions, dtype="object")[ind]
 	f.write("%s\t%s\t%s\t%s\t0\t%s\n" % (chrom, start, end, cluster, strand))
 f.close()
 
-fig = plt.figure(figsize=(10,5))
+fig = plt.figure(figsize=(3,1 * len(tracks)))
 
 axes = []
 for i, track in enumerate(tracks):
@@ -167,6 +167,6 @@ if not ext in ["png", "svg", "ps", "eps", "pdf"]:
 	outfile += ".png"
 print "Saving image"
 if outfile.endswith("png"):
-	plt.savefig(outfile, dpi=600)
+	plt.savefig(outfile, dpi=300, bbox_inches='tight')
 else:
 	plt.savefig(outfile)
