@@ -151,13 +151,13 @@ Options:
     -f FRAGMENTSIZE   fragment length (default: 200)
 ```
 
-===Scale and track groups===
+###Scale and track groups###
 Just as with `fluff_bandplot.py`, identical Y-axis scale can be used to compare tracks. In addition, different datasets can be overlayed on the same track wit the `-t` option. Use the `-S` option to manually set a the Y-axis upper limit, or to turn the label off (with the `off` argument).
 
-===Colors===
+###Colors###
 The background color can be one of three different choices. The default is `white`. Specifying `color` will set the background of each track to a lighter version of the track color. The last option is `stripes` which will show an alternating pattern of white and light grey bands.
 
-===Fragment length===
+###Fragment length###
 By default, all reads will be extended to 200bp before creating the profiles. Set an alternative fragment size with the `-f` option. Paired-end profiles are not yet supported, paired reads will be independently processed.
 
 
