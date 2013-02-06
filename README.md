@@ -1,7 +1,7 @@
 Disclaimer
 ==========
 
-Fluff is still under heavy development, mainly for personal use. No guarantees are given ;). However, if you find it useful and encounter problems, let me know and I'll try to help. The gene annotation track that fluff_profile.py produces is still pretty ugly too.
+Fluff is still under heavy development. No guarantees are given ;). However, if you find it useful and encounter problems, let me know and I'll try to help. The gene annotation track that fluff_profile.py produces is still pretty ugly too.
 
 fluff
 =====
@@ -33,7 +33,7 @@ I'd recommend installing matplotlib, numpy and scipy using your preferred packag
 
 Colors
 ------
-One important feature of fluff is the use of color, as this is part of making your figures look good. There are three ways to specify colors: by name, palette or hex code. You can specify as few or as many colors as you want, seperated by commas. If fluff runs out of colors it will start at the beginning.
+One important feature of fluff is the use of color. There are three ways to specify colors: by name, palette or hex code. You can specify as few or as many colors as you want, seperated by commas. If fluff runs out of colors it will start at the beginning.
 
 1. **Color names.**
 Fluff knowns nine color names: red, blue, green, purple, orange, yellow, pink and grey. These are the colors from the Set1 palette (see below).
