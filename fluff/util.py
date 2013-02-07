@@ -1,7 +1,6 @@
 import numpy
 import pysam
-from scipy.stats import scoreatpercentile
-
+from scipy.stats import scoreatpercentile,chisquare
 
 def process_groups(groups):
 	if not groups:
@@ -146,7 +145,39 @@ def get_absolute_scale(scale, data, per_track=False):
 					s = min(d[d > 0])
 				return s
 
+def mirror_clusters(data, labels, cutoff=0.01):
+	"""
+	Merge mirrored profiles based on a chi2 test of the mean profiles 
+	Only if the profile is mirrored over all data tracks
+	Returns the labels of the two matched mirrored tracks, if there is at least one match with a p-value
+	greater than the cutoff.
+	If not, return (None, None)
+	"""
+	n = len(set(labels))
+	if n == 1:
+		return (None,None)	
 
+	mirror = dict([(i,{}) for i in range(n)])
+	for track in data.keys():
+		profiles = []
+		for i in range(n):
+		  profiles.append(numpy.mean(data[track][labels == i], 0) + 1e-10)
+		for i in range(n - 1):
+			for j in range(i + 1, n):
+				p = chisquare(profiles[i], profiles[j][::-1])[1]
+				mirror[i].setdefault(j, []).append(p)
+	result = []
 
+	for i in mirror.keys():
+		for j in mirror[i].keys():
+			result.append([(i,j), mirror[i][j]])
 	
+	#print ">>>>"
+	#for row in sorted(result, cmp=lambda a,b: cmp(numpy.mean(a[1]), numpy.mean(b[1])))[::-1]:
+	#	print row
+	#print "<<<<"
 
+	for (i,j), ps in sorted(result, cmp=lambda a,b: cmp(numpy.mean(a[1]), numpy.mean(b[1])))[::-1]:
+		if (numpy.array(ps) >= cutoff).all():
+			return (i,j)
+	return (None,None)	

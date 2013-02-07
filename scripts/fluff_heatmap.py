@@ -49,6 +49,7 @@ parser.add_option("-o", dest="outfile", help="output file (type determined by ex
 # Optional arguments
 group1.add_option("-C", dest="clustering", help="kmeans, hierarchical or none", default=DEFAULT_CLUSTERING, metavar="METHOD")
 group1.add_option("-k", dest="numclusters", help="number of clusters", metavar="INT", type="int", default=1)
+group1.add_option("-m", dest="merge_mirrored", help="merge mirrored clusters (only with kmeans)", metavar="", default=False, action="store_true")
 group1.add_option("-c", dest="colors", help="color(s) (name, colorbrewer profile or hex code)", metavar="NAME(S)", default=DEFAULT_COLORS)
 group1.add_option("-B", dest="bgcolors", help="background color(s) (name, colorbrewer profile or hex code)", metavar="NAME(S)", default=DEFAULT_BG)
 group1.add_option("-e", dest="extend", help="extend (in bp)", metavar="INT", type="int", default=DEFAULT_EXTEND)
@@ -78,6 +79,7 @@ outfile = options.outfile
 extend_up = options.extend
 extend_down = options.extend
 cluster_type = options.clustering[0].lower()
+merge_mirrored = options.merge_mirrored
 bins = (extend_up + extend_down) / options.binsize
 rmdup = options.rmdup
 rpkm = options.rpkm
@@ -122,6 +124,26 @@ if cluster_type == "k":
 	## K-means clustering
 	# PyCluster
 	labels, error, nfound = Pycluster.kcluster(clus, options.numclusters, dist=METRIC)
+	
+	if merge_mirrored:
+		(i,j) = mirror_clusters(data, labels)
+		while j:
+			for track in data.keys():
+				data[track][labels == j] = [row[::-1] for row in data[track][labels == j]]
+			for k in range(len(regions)):
+				if labels[k] == j:
+					(chrom,start,end,strand) = regions[k]
+					if strand == "+":
+						strand = "-"
+					else:
+						strand = "+"
+					regions[k] = (chrom, start, end, strand)
+			n = len(set(labels))
+			labels[labels == j] = i
+			for k in range(j + 1, n):
+				labels[labels == k] = k - 1
+			(i,j) = mirror_clusters(data, labels)
+			
 	ind = labels.argsort()
 	# Other cluster implementation
 	#	centres, labels, dist = kmeanssample(clus, options.numclusters, len(clus) / 10,  metric=cl, maxiter=200, verbose=1, delta=0.00001)
