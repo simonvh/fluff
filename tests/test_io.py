@@ -3,11 +3,11 @@ import pytest
 
 @pytest.fixture
 def bamfile():
-	return "data/H3K4me3.bam"
+	return "tests/data/H3K4me3.bam"
 
 @pytest.fixture
 def bedfile():
-	return "data/H3K4me3.bed"
+	return "tests/data/H3K4me3.bed"
 
 def test_import_trackwrapper():
 	from fluff.fluffio import TrackWrapper

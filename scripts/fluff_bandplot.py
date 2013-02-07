@@ -41,7 +41,7 @@ font = FontProperties(size=FONTSIZE / 1.25, family=["Nimbus Sans L", "Helvetica"
 
 VERSION = "1.0"
 
-usage = "Usage: %prog -c <bedfile> -d <file1>[,<file2>,...] -o <out> [options]"
+usage = "Usage: %prog -i <bedfile> -d <file1>[,<file2>,...] -o <out> [options]"
 version = "%prog " + str(VERSION)
 parser = OptionParser(version=version, usage=usage)
 group1 = OptionGroup(parser, 'Optional')
