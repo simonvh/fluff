@@ -75,6 +75,7 @@ Options:
   Optional:
     -C METHOD   kmeans, hierarchical or none
     -k INT      number of clusters
+    -m          merge mirrored clusters (only with kmeans)
     -c NAME(S)  color(s) (name, colorbrewer profile or hex code)
     -B NAME(S)  background color(s) (name, colorbrewer profile or hex code)
     -e INT      extend (in bp)
@@ -86,7 +87,7 @@ Options:
 ```
 
 ### Clustering ###
-By default, fluff_heatmap.py will preserve the order of the features in the input BED file. This is equivalent to specifying `-C none`. Alternatively, one of two basic clustering methods can be specified using the `-C` parameter: `hierarchical` and `kmeans`. If `kmeans` is selected the number of clusters (`-k`) is mandatory. The profiles will be clustered using the Euclidian distance metric, based on normalized data (although the heatmap still shows the raw data).
+By default, fluff_heatmap.py will preserve the order of the features in the input BED file. This is equivalent to specifying `-C none`. Alternatively, one of two basic clustering methods can be specified using the `-C` parameter: `hierarchical` and `kmeans`. If `kmeans` is selected the number of clusters (`-k`) is mandatory. The profiles will be clustered using the Euclidian distance metric, based on normalized data (although the heatmap still shows the raw data). If the regions in the input BED file are not strand-specific (peaks, for instance), different clusters might describe the same strand-specific profile in two different orientations. In this case you can select the `-m` parameter to merge clusters which are similar, but mirrored around the center coordinate. Similarity is based on the chi-squared p-value of the mean profile per cluster. **All** tracks have to pass this similarity test for two clusters to be merged! Merging follows a iterative, greedy procedure where the two most similar clusters are merged after which the process is repeated.
 
 ### Region, bin size and scaling ###
 The *center* of all features will be selected from the input BED file. A total region of 10kb will be centered at this coordinate (5kb up- and downstream). To change this, specify the `-e` parameter that controls the extension up- and downstream. For example,  `-e 10000` will select regions of 20kb.
