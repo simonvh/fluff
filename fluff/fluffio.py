@@ -88,6 +88,8 @@ class TrackWrapper():
                 plus_strand.append(read.pos)
 
     def fetch_to_counts(self, chrom, start, end, rmdup=False, rmrepeats=False):
+        if start < 0:
+            start = 0
         min_strand = []
         plus_strand = []
         if self.ftype == "bam":
@@ -136,11 +138,17 @@ def load_bed_clusters(bedfile):
         cluster_data.setdefault(int(f.name), []).append("%s:%s-%s" % (f.chrom, f.start, f.end))
     return cluster_data
 
-def load_cluster_data(clust_file, datafiles, bins, rpkm, rmdup, rmrepeats):
+def load_cluster_data(clust_file, datafiles, bins, rpkm, rmdup, rmrepeats, fragmentsize=None):
     data = {}
     for datafile in datafiles:
         result = []
-        result = get_binned_stats(clust_file, datafile, bins, rpkm, rmdup, rmrepeats)
+        result = get_binned_stats(clust_file, 
+                                  datafile, 
+                                  bins=bins, 
+                                  rpkm=rpkm, 
+                                  rmdup=rmdup, 
+                                  rmrepeats=rmrepeats,
+                                  fragmentsize=fragmentsize)
         result =  [row.split("\t") for row in result]
         data[os.path.basename(datafile)] = dict([["%s:%s-%s" % (vals[0], vals[1], vals[2]), [float(x) for x in vals[3:]]] for vals in result])
     return data
@@ -199,11 +207,14 @@ def load_annotation(interval, fname):
             gene_tracks[i] = [gene]
     return gene_tracks
 
-def get_binned_stats(in_fname, data_fname, nbins, rpkm=False, rmdup=False, rmrepeats=False):
+def get_binned_stats(in_fname, data_fname, nbins, rpkm=False, rmdup=False, rmrepeats=False, fragmentsize=None):
     track = TrackWrapper(data_fname)
     
-    read_length = track.read_length()
-    sys.stderr.write("Using read length %s\n" % read_length)
+    readlength = track.read_length()
+    if not fragmentsize:
+        fragmentsize = readlength
+    
+    sys.stderr.write("Using read length %s\n" % readlength)
 
     total_reads = 1
     if rpkm:
@@ -219,9 +230,16 @@ def get_binned_stats(in_fname, data_fname, nbins, rpkm=False, rmdup=False, rmrep
         row = []
         overlap = []
 
-        min_strand, plus_strand = track.fetch_to_counts(feature.chrom, feature.start, feature.end, rmdup, rmrepeats)
+        min_strand, plus_strand = track.fetch_to_counts(
+                                        feature.chrom, 
+                                        feature.start - (fragmentsize - readlength), 
+                                        feature.end + (fragmentsize - readlength), 
+                                        rmdup, 
+                                        rmrepeats)
 
+        min_strand = [x - (fragmentsize - readlength) for x in min_strand]
         bin_start = feature.start
+
 
         while int(bin_start + 0.5) < feature.end:
             num_reads = 0
@@ -229,13 +247,13 @@ def get_binned_stats(in_fname, data_fname, nbins, rpkm=False, rmdup=False, rmrep
             while i < len(min_strand) and min_strand[i] <= int(bin_start + binsize + 0.5):
                 num_reads += 1
                 i += 1
-            while len(min_strand) > 0 and min_strand[0] + read_length <= int(bin_start + binsize + 0.5):
+            while len(min_strand) > 0 and min_strand[0] + fragmentsize <= int(bin_start + binsize + 0.5):
                 min_strand.pop(0)
             i = 0
             while i < len(plus_strand) and plus_strand[i] <= int(bin_start + binsize + 0.5):
                 num_reads += 1
                 i += 1
-            while len(plus_strand) > 0 and plus_strand[0] + read_length <= int(bin_start + binsize + 0.5):
+            while len(plus_strand) > 0 and plus_strand[0] + fragmentsize <= int(bin_start + binsize + 0.5):
                 plus_strand.pop(0)
         
             if rpkm:
@@ -254,7 +272,7 @@ def get_binned_stats(in_fname, data_fname, nbins, rpkm=False, rmdup=False, rmrep
             sys.stderr.write("%s processed\n" % count)
     return ["\t".join([str(x) for x in row]) for row in ret]
 
-def load_heatmap_data(featurefile, datafile, bins=100, up=5000, down=5000, rmdup=True, rpkm=False, rmrepeats=True):
+def load_heatmap_data(featurefile, datafile, bins=100, up=5000, down=5000, rmdup=True, rpkm=False, rmrepeats=True, fragmentsize=None):
     tmp = tempfile.NamedTemporaryFile(delete=False)
     regions = []
     order = {}
@@ -281,7 +299,7 @@ def load_heatmap_data(featurefile, datafile, bins=100, up=5000, down=5000, rmdup
             tmp.write("%s\t%s\t%s\t0\t0\t%s\n" % (vals[0], start, end, strand))
     tmp.flush()
     
-    result = fluff.fluffio.get_binned_stats(tmp.name, datafile, bins, rpkm=rpkm, rmdup=rmdup, rmrepeats=rmrepeats)
+    result = fluff.fluffio.get_binned_stats(tmp.name, datafile, bins, rpkm=rpkm, rmdup=rmdup, rmrepeats=rmrepeats, fragmentsize=fragmentsize)
     
     # Retrieve original order
     #r_regions = ["{}:{}-{}".format(*row.split("\t")[:3]) for row in result]
