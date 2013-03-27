@@ -29,7 +29,7 @@ from fluff.color import create_colormap, COLOR_MAP, DEFAULT_COLORS, parse_colors
 VERSION = "1.1"
 
 DEFAULT_BINSIZE = 100
-METRIC = "e"		# Euclidian, PyCluster
+METRIC = "e"        # Euclidian, PyCluster
 FONTSIZE = 8
 DEFAULT_SCALE = 15 
 DEFAULT_EXTEND = 5000
@@ -64,9 +64,9 @@ parser.add_option_group(group1)
 (options, args) = parser.parse_args()
 
 for opt in [options.featurefile, options.datafiles, options.outfile]:
-	if not opt:
-		parser.print_help()
-		sys.exit()
+    if not opt:
+        parser.print_help()
+        sys.exit()
 
 featurefile = options.featurefile
 datafiles = [x.strip() for x in options.datafiles.split(",")]
@@ -86,12 +86,12 @@ rpkm = options.rpkm
 rmrepeats = options.rmrepeats
 
 if not cluster_type in ["k", "h", "n"]:
-	sys.stderr.write("Unknown clustering type!\n")
-	sys.exit(1)
+    sys.stderr.write("Unknown clustering type!\n")
+    sys.exit(1)
 
 if cluster_type == "k" and not options.numclusters >= 2:
-	sys.stderr.write("Please provide number of clusters!\n")
-	sys.exit(1)
+    sys.stderr.write("Please provide number of clusters!\n")
+    sys.exit(1)
 
 ## Get scale for each track
 tscale = [1.0 for track in datafiles]
@@ -102,16 +102,16 @@ print "Loading data"
 job_server = pp.Server(ncpus=4)
 jobs = []
 for datafile in datafiles:
-	jobs.append(job_server.submit(load_heatmap_data, (featurefile, datafile, bins, extend_up, extend_down, rmdup, rpkm, rmrepeats),  (), ("tempfile","sys","os","fluff.fluffio","numpy")))
+    jobs.append(job_server.submit(load_heatmap_data, (featurefile, datafile, bins, extend_up, extend_down, rmdup, rpkm, rmrepeats),  (), ("tempfile","sys","os","fluff.fluffio","numpy")))
 
 data = {}
 regions = []
 for job in jobs:
-	track,regions,profile = job()
-	#print "##### %s " % track
-	#for row in profile:
-	#	print row
-	data[track] = profile
+    track,regions,profile = job()
+    #print "##### %s " % track
+    #for row in profile:
+    #    print row
+    data[track] = profile
 
 scale = get_absolute_scale(options.scale, [data[track] for track in tracks])
 
@@ -120,75 +120,75 @@ norm_data = normalize_data(data, DEFAULT_PERCENTILE)
 clus = hstack([norm_data[t] for t in tracks])
 
 if cluster_type == "k":
-	print "K-means clustering"
-	## K-means clustering
-	# PyCluster
-	labels, error, nfound = Pycluster.kcluster(clus, options.numclusters, dist=METRIC)
-	
-	if merge_mirrored:
-		(i,j) = mirror_clusters(data, labels)
-		while j:
-			for track in data.keys():
-				data[track][labels == j] = [row[::-1] for row in data[track][labels == j]]
-			for k in range(len(regions)):
-				if labels[k] == j:
-					(chrom,start,end,strand) = regions[k]
-					if strand == "+":
-						strand = "-"
-					else:
-						strand = "+"
-					regions[k] = (chrom, start, end, strand)
-			n = len(set(labels))
-			labels[labels == j] = i
-			for k in range(j + 1, n):
-				labels[labels == k] = k - 1
-			(i,j) = mirror_clusters(data, labels)
-			
-	ind = labels.argsort()
-	# Other cluster implementation
-	#	centres, labels, dist = kmeanssample(clus, options.numclusters, len(clus) / 10,  metric=cl, maxiter=200, verbose=1, delta=0.00001)
+    print "K-means clustering"
+    ## K-means clustering
+    # PyCluster
+    labels, error, nfound = Pycluster.kcluster(clus, options.numclusters, dist=METRIC)
+    
+    if merge_mirrored:
+        (i,j) = mirror_clusters(data, labels)
+        while j:
+            for track in data.keys():
+                data[track][labels == j] = [row[::-1] for row in data[track][labels == j]]
+            for k in range(len(regions)):
+                if labels[k] == j:
+                    (chrom,start,end,strand) = regions[k]
+                    if strand == "+":
+                        strand = "-"
+                    else:
+                        strand = "+"
+                    regions[k] = (chrom, start, end, strand)
+            n = len(set(labels))
+            labels[labels == j] = i
+            for k in range(j + 1, n):
+                labels[labels == k] = k - 1
+            (i,j) = mirror_clusters(data, labels)
+            
+    ind = labels.argsort()
+    # Other cluster implementation
+    #    centres, labels, dist = kmeanssample(clus, options.numclusters, len(clus) / 10,  metric=cl, maxiter=200, verbose=1, delta=0.00001)
 elif cluster_type == "h":
-	print "Hierarchical clustering"
-	tree = Pycluster.treecluster(clus, method="m", dist=METRIC)
-	labels = tree.cut(options.numclusters)
-	ind = sort_tree(tree, arange(len(regions)))
+    print "Hierarchical clustering"
+    tree = Pycluster.treecluster(clus, method="m", dist=METRIC)
+    labels = tree.cut(options.numclusters)
+    ind = sort_tree(tree, arange(len(regions)))
 else:
-	ind = arange(len(regions))
-	#print ind
-	labels = zeros(len(regions))
+    ind = arange(len(regions))
+    #print ind
+    labels = zeros(len(regions))
 
 font = FontProperties(size=FONTSIZE / 1.25, family=["Nimbus Sans L", "Helvetica", "sans-serif"])
 
 f = open("%s_clusters.bed" % outfile, "w")
 for (chrom,start,end,strand), cluster in zip(array(regions, dtype="object")[ind], array(labels)[ind]):
-	f.write("%s\t%s\t%s\t%s\t0\t%s\n" % (chrom, start, end, cluster, strand))
+    f.write("%s\t%s\t%s\t%s\t0\t%s\n" % (chrom, start, end, cluster, strand))
 f.close()
 
 fig = plt.figure(figsize=(10,5))
 
 axes = []
 for i, track in enumerate(tracks):
-	c = create_colormap(bgcolors[i % len(bgcolors)], colors[i % len(colors)])
-	ax = fig.add_subplot(1,len(tracks),i + 1)
-	ax.set_title(titles[i],  fontproperties=font)
-	axes.append(ax)
-	ax.pcolormesh(data[track][ind], cmap=c, vmin=0, vmax=scale * tscale[i])
-	print "%s\t%s\t%s\t%s" % (track, tscale[i] * scale, mean(data[track][ind][:,0:20]), median(data[track][ind]))
-	for x in [ax.xaxis, ax.yaxis]:
-		x.set_major_formatter(NullFormatter())
-		x.set_major_locator(NullLocator())
-	for loc,spine in ax.spines.iteritems():
-		spine.set_color('none')
+    c = create_colormap(bgcolors[i % len(bgcolors)], colors[i % len(colors)])
+    ax = fig.add_subplot(1,len(tracks),i + 1)
+    ax.set_title(titles[i],  fontproperties=font)
+    axes.append(ax)
+    ax.pcolormesh(data[track][ind], cmap=c, vmin=0, vmax=scale * tscale[i])
+    print "%s\t%s\t%s\t%s" % (track, tscale[i] * scale, mean(data[track][ind][:,0:20]), median(data[track][ind]))
+    for x in [ax.xaxis, ax.yaxis]:
+        x.set_major_formatter(NullFormatter())
+        x.set_major_locator(NullLocator())
+    for loc,spine in ax.spines.iteritems():
+        spine.set_color('none')
 fig.subplots_adjust(wspace=0, hspace=0)
 
 #for i, track in enumerate(tracks):
-	#axes[i].set_title(track.replace(".bam",""), verticalalignment={0:"top",1:"bottom"}[i % 2], zorder=100000)
+    #axes[i].set_title(track.replace(".bam",""), verticalalignment={0:"top",1:"bottom"}[i % 2], zorder=100000)
 
 ext = outfile.split(".")[-1]
 if not ext in ["png", "svg", "ps", "eps", "pdf"]:
-	outfile += ".png"
+    outfile += ".png"
 print "Saving image"
 if outfile.endswith("png"):
-	plt.savefig(outfile, dpi=600)
+    plt.savefig(outfile, dpi=600)
 else:
-	plt.savefig(outfile)
+    plt.savefig(outfile)

@@ -30,12 +30,12 @@ from fluff.color import DEFAULT_COLORS,parse_colors
 PLOTWIDTH = 0.6
 PLOTHEIGHT = 0.6
 PAD = 0.05
-PADLEFT = 1.5						# For labels
-PADTOP = 0.4 						# For labels
+PADLEFT = 1.5                        # For labels
+PADTOP = 0.4                         # For labels
 PADBOTTOM = 0.05
 PADRIGHT = 0.05
 FONTSIZE = 8
-BINS = 21								# Number of bins for profile
+BINS = 21                                # Number of bins for profile
 #########################################################################
 font = FontProperties(size=FONTSIZE / 1.25, family=["Nimbus Sans L", "Helvetica", "sans-serif"])
 
@@ -61,9 +61,9 @@ parser.add_option_group(group1)
 (options, args) = parser.parse_args()
 
 for opt in [options.clust_file, options.datafiles, options.outfile]:
-	if not opt:
-		parser.print_help()
-		sys.exit()
+    if not opt:
+        parser.print_help()
+        sys.exit()
 
 clust_file = options.clust_file
 datafiles = [x.strip() for x in options.datafiles.split(",")]
@@ -90,46 +90,46 @@ fig, axes = create_grid_figure(len(tracks), len(clusters), plotwidth=PLOTWIDTH, 
 
 track_max = []
 for track_num, track in enumerate(tracks):
-	percentiles = [scoreatpercentile([data[track][x] for x in cluster_data[cluster]], 90) for cluster in clusters]
-	track_max.append(max(percentiles))
-	
+    percentiles = [scoreatpercentile([data[track][x] for x in cluster_data[cluster]], 90) for cluster in clusters]
+    track_max.append(max(percentiles))
+    
 for track_num, track in enumerate(tracks):
-	for i,cluster in enumerate(clusters):
-		# Retrieve axes
-		ax = axes[track_num][i]
-		
-		# Get the data
-		vals = array([data[track][x] for x in cluster_data[cluster]])
-		
-		# Make the plot
-		coverage_plot(ax, t, vals, colors[track_num % len(colors)], percs)
-		
-		# Get scale max
-		maxscale = track_max[track_num]
-		if scalegroups and len(scalegroups) > 0:
-			for group in scalegroups:
-				if (track_num + 1) in group:
-					maxscale = max([track_max[j - 1] for j in group])
-					break
+    for i,cluster in enumerate(clusters):
+        # Retrieve axes
+        ax = axes[track_num][i]
+        
+        # Get the data
+        vals = array([data[track][x] for x in cluster_data[cluster]])
+        
+        # Make the plot
+        coverage_plot(ax, t, vals, colors[track_num % len(colors)], percs)
+        
+        # Get scale max
+        maxscale = track_max[track_num]
+        if scalegroups and len(scalegroups) > 0:
+            for group in scalegroups:
+                if (track_num + 1) in group:
+                    maxscale = max([track_max[j - 1] for j in group])
+                    break
 
-		# Set scale	
-		ax.set_ylim(0, maxscale)
-		ax.set_xlim(0, BINS - 1)	
-		
-		# Cluster titles
-		if track_num == 0:
-			ax.set_title("%s\nn=%s" % (cluster, len(cluster_data[cluster])), font_properties=font)
-		
-		# Track title and scale
-		if i == 0:
-			
-			pos = axes[track_num][0].get_position().get_points()
-			text_y = (pos[1][1] + pos[0][1]) / 2
-			text_x = pos[0][0] - (PAD / fig.get_figwidth())
-			plt.figtext(text_x, text_y, titles[track_num], clip_on=False, horizontalalignment="right", verticalalignment="center", font_properties=font)
-			
-			plt.figtext(text_x,  pos[1][1], "%.4g" % maxscale, clip_on=False, horizontalalignment="right", verticalalignment="top", font_properties=font)
-			plt.figtext(text_x,  pos[0][1], 0, clip_on=False, horizontalalignment="right", verticalalignment="bottom", font_properties=font)
+        # Set scale    
+        ax.set_ylim(0, maxscale)
+        ax.set_xlim(0, BINS - 1)    
+        
+        # Cluster titles
+        if track_num == 0:
+            ax.set_title("%s\nn=%s" % (cluster, len(cluster_data[cluster])), font_properties=font)
+        
+        # Track title and scale
+        if i == 0:
+            
+            pos = axes[track_num][0].get_position().get_points()
+            text_y = (pos[1][1] + pos[0][1]) / 2
+            text_x = pos[0][0] - (PAD / fig.get_figwidth())
+            plt.figtext(text_x, text_y, titles[track_num], clip_on=False, horizontalalignment="right", verticalalignment="center", font_properties=font)
+            
+            plt.figtext(text_x,  pos[1][1], "%.4g" % maxscale, clip_on=False, horizontalalignment="right", verticalalignment="top", font_properties=font)
+            plt.figtext(text_x,  pos[0][1], 0, clip_on=False, horizontalalignment="right", verticalalignment="bottom", font_properties=font)
 
 print "Saving figure"
 savefig(options.outfile, dpi=600)
