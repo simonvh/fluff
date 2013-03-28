@@ -51,7 +51,7 @@ def heatmap_plot(data, ind, outfile, tracks, titles, colors, bgcolors, scale, ts
         hide_axes(ax)
         ylim = ax.get_ylim()    
 
-    if labels:
+    if labels is not None and len(labels) == len(ind):
         ax = plt.subplot(gs[len(tracks)])
         min_y, max_y = ylim
         s = 0
