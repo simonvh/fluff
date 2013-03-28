@@ -214,7 +214,7 @@ def get_binned_stats(in_fname, data_fname, nbins, rpkm=False, rmdup=False, rmrep
     if not fragmentsize:
         fragmentsize = readlength
     
-    sys.stderr.write("Using read length %s\n" % readlength)
+    sys.stderr.write("Using fragmentsize %s\n" % fragmentsize)
 
     total_reads = 1
     if rpkm:

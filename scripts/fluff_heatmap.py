@@ -26,7 +26,7 @@ from fluff.util import *
 from fluff.fluffio import *
 from fluff.color import create_colormap, COLOR_MAP, DEFAULT_COLORS, parse_colors
 
-VERSION = "1.1"
+VERSION = "1.2"
 
 DEFAULT_BINSIZE = 100
 METRIC = "e"        # Euclidian, PyCluster
@@ -55,6 +55,7 @@ group1.add_option("-B", dest="bgcolors", help="background color(s) (name, colorb
 group1.add_option("-e", dest="extend", help="extend (in bp)", metavar="INT", type="int", default=DEFAULT_EXTEND)
 group1.add_option("-b", dest="binsize", help="bin size (default %s)" % DEFAULT_BINSIZE, metavar="INT", type="int", default=DEFAULT_BINSIZE)
 group1.add_option("-s", dest="scale", help="scale (absolute or percentage)", metavar="", type="string", default=DEFAULT_SCALE)
+group1.add_option("-F", dest="fragmentsize", help="Fragment length (default: read length)",type="int",  default=None)
 group1.add_option("-r", dest="rpkm", help="use RPKM instead of read counts", metavar="", action="store_true", default=False)
 group1.add_option("-D", dest="rmdup", help="keep duplicate reads (removed by default)", metavar="", default=True, action="store_false")
 group1.add_option("-R", dest="rmrepeats", help="keep repeats (removed by default, bwa only) ", metavar="", action="store_false", default=True)
@@ -78,6 +79,7 @@ bgcolors = parse_colors(options.bgcolors)
 outfile = options.outfile
 extend_up = options.extend
 extend_down = options.extend
+fragmentsize = options.fragmentsize
 cluster_type = options.clustering[0].lower()
 merge_mirrored = options.merge_mirrored
 bins = (extend_up + extend_down) / options.binsize
@@ -102,7 +104,7 @@ print "Loading data"
 job_server = pp.Server(ncpus=4)
 jobs = []
 for datafile in datafiles:
-    jobs.append(job_server.submit(load_heatmap_data, (featurefile, datafile, bins, extend_up, extend_down, rmdup, rpkm, rmrepeats),  (), ("tempfile","sys","os","fluff.fluffio","numpy")))
+    jobs.append(job_server.submit(load_heatmap_data, (featurefile, datafile, bins, extend_up, extend_down, rmdup, rpkm, rmrepeats, fragmentsize),  (), ("tempfile","sys","os","fluff.fluffio","numpy")))
 
 data = {}
 regions = []

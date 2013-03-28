@@ -39,7 +39,7 @@ BINS = 21                                # Number of bins for profile
 #########################################################################
 font = FontProperties(size=FONTSIZE / 1.25, family=["Nimbus Sans L", "Helvetica", "sans-serif"])
 
-VERSION = "1.0"
+VERSION = "1.2"
 
 usage = "Usage: %prog -i <bedfile> -d <file1>[,<file2>,...] -o <out> [options]"
 version = "%prog " + str(VERSION)
@@ -51,7 +51,7 @@ parser.add_option("-o", dest="outfile", help="output file (type determined by ex
 group1.add_option("-c", dest="colors", help="colors", metavar="NAME(S)", default=DEFAULT_COLORS)
 group1.add_option("-s", dest="scalegroups", help="scale groups", metavar="GROUPS")
 group1.add_option("-p", dest="percs", help="Range of percentiles (default 50,90)", metavar="INT,INT", default="50,90")
-
+group1.add_option("-F", dest="fragmentsize", help="Fragment length (default: read length)",type="int",  default=None)
 group1.add_option("-r", dest="rpkm", help="use RPKM instead of read counts", metavar="", action="store_true", default=False)
 group1.add_option("-D", dest="rmdup", help="keep duplicate reads (removed by default)", metavar="", default=True, action="store_false")
 group1.add_option("-R", dest="rmrepeats", help="keep repeats (removed by default, bwa only) ", metavar="", action="store_false", default=True)
@@ -67,6 +67,7 @@ for opt in [options.clust_file, options.datafiles, options.outfile]:
 
 clust_file = options.clust_file
 datafiles = [x.strip() for x in options.datafiles.split(",")]
+fragmentsize = options.fragmentsize
 tracks = [os.path.basename(x) for x in datafiles]
 titles = [os.path.splitext(x)[0] for x in tracks]
 colors = parse_colors(options.colors)
@@ -77,7 +78,7 @@ rpkm = options.rpkm
 rmrepeats = options.rmrepeats
 
 # Calculate the profile data
-data = load_cluster_data(clust_file, datafiles, BINS, rpkm, rmdup, rmrepeats)
+data = load_cluster_data(clust_file, datafiles, BINS, rpkm, rmdup, rmrepeats, fragmentsize=fragmentsize)
 # Get cluster information
 cluster_data = load_bed_clusters(clust_file)
 clusters = [int(x) for x in cluster_data.keys()]

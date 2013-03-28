@@ -34,7 +34,7 @@ group1.add_option("-t", dest="trackgroups", help="Track groups", metavar="GROUPS
 group1.add_option("-s", dest="scalegroups", help="Scale groups", metavar="GROUPS")
 group1.add_option("--setscale", dest="scale", help="Scale: 'auto' (default), 'off' or int for each track", metavar="SCALE", default="auto")
 group1.add_option("-b", dest="background", help="Background color: white | color | stripes", default="white")
-group1.add_option("-f", dest="fragmentsize", help="Fragment length (default: %s)" % FRAGMENTLENGTH,type="int",  default=FRAGMENTLENGTH)
+group1.add_option("-F", dest="fragmentsize", help="Fragment length (default: %s)" % FRAGMENTLENGTH,type="int",  default=FRAGMENTLENGTH)
 
 parser.add_option_group(group1)
 (options, args) = parser.parse_args()
