@@ -25,17 +25,18 @@ def hide_axes(ax):
 def heatmap_plot(data, ind, outfile, tracks, titles, colors, bgcolors, scale, tscale, labels):
     font = FontProperties(size=FONTSIZE / 1.25, family=["Nimbus Sans L", "Helvetica", "sans-serif"])
     
-    label_ratiio = 4.0
+    label_ratio = 4.0
     plot_width = 1 * len(tracks)
     width_ratios = [label_ratio] * len(tracks)
     numplots = len(tracks)
     if labels:
         plot_width += 1 / label_ratio
         numplots += 1
-        width_ratios + [1]
+        width_ratios += [1]
     
     # Create figure
-    fig = plt.figure(figsize=(3,0.25 + 1 * len(tracks)))
+    print width_ratios
+    fig = plt.figure(figsize=(3, plot_width))
     # Create subplot layout
     gs = gridspec.GridSpec(1, numplots, width_ratios=width_ratios)
 
