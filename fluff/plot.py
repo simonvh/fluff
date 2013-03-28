@@ -17,7 +17,7 @@ def heatmap_plot(data, ind, outfile, tracks, titles, colors, bgcolors, scale, ts
     font = FontProperties(size=FONTSIZE / 1.25, family=["Nimbus Sans L", "Helvetica", "sans-serif"])
 
     
-    fig = plt.figure(figsize=(10,5))
+    fig = plt.figure(figsize=(3,1 * len(tracks)))
     
     axes = []
     for i, track in enumerate(tracks):
@@ -38,7 +38,7 @@ def heatmap_plot(data, ind, outfile, tracks, titles, colors, bgcolors, scale, ts
         outfile += ".png"
     sys.stderr.write("Saving image\n")
     if outfile.endswith("png"):
-        plt.savefig(outfile, dpi=600)
+        plt.savefig(outfile, dpi=300, bbox_inches='tight')
     else:
         plt.savefig(outfile)
 
