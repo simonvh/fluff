@@ -29,7 +29,7 @@ def heatmap_plot(data, ind, outfile, tracks, titles, colors, bgcolors, scale, ts
     plot_width = 1 * len(tracks)
     width_ratios = [label_ratio] * len(tracks)
     numplots = len(tracks)
-    if labels:
+    if labels is not None and len(labels) == len(ind):
         plot_width += 1 / label_ratio
         numplots += 1
         width_ratios += [1]
