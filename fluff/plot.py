@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 from matplotlib.ticker import NullFormatter,NullLocator
 from matplotlib.font_manager import fontManager, FontProperties
 from matplotlib.patches import FancyArrowPatch,ArrowStyle
+import matplotlib.gridspec as gridspec
 from fluffio import *
 import sys
 from scipy.stats import scoreatpercentile
@@ -13,25 +14,59 @@ FONTSIZE = 8
 PROFILE_MIN_Y = 75
 GENE_ARROW="-|>"
 
-def heatmap_plot(data, ind, outfile, tracks, titles, colors, bgcolors, scale, tscale):
+def hide_axes(ax):
+    for x in [ax.xaxis, ax.yaxis]:
+        x.set_major_formatter(NullFormatter())
+        x.set_major_locator(NullLocator())
+    for loc,spine in ax.spines.iteritems():
+        spine.set_color('none')
+
+
+def heatmap_plot(data, ind, outfile, tracks, titles, colors, bgcolors, scale, tscale, labels):
     font = FontProperties(size=FONTSIZE / 1.25, family=["Nimbus Sans L", "Helvetica", "sans-serif"])
 
     
-    fig = plt.figure(figsize=(3,1 * len(tracks)))
-    
+    fig = plt.figure(figsize=(3,0.25 + 1 * len(tracks)))
+    gs = gridspec.GridSpec(1, len(tracks) + 1,width_ratios=[4] * len(tracks) + [1])
+
     axes = []
     for i, track in enumerate(tracks):
         c = create_colormap(bgcolors[i % len(bgcolors)], colors[i % len(colors)])
-        ax = fig.add_subplot(1,len(tracks),i + 1)
+        #ax = fig.add_subplot(1,len(tracks) + 1,i + 1)
+        ax = plt.subplot(gs[i])
         ax.set_title(titles[i],  fontproperties=font)
         axes.append(ax)
         ax.pcolormesh(data[track][ind], cmap=c, vmin=0, vmax=scale * tscale[i])
         print "%s\t%s\t%s\t%s" % (track, tscale[i] * scale, mean(data[track][ind][:,0:20]), median(data[track][ind]))
-        for x in [ax.xaxis, ax.yaxis]:
-            x.set_major_formatter(NullFormatter())
-            x.set_major_locator(NullLocator())
-        for loc,spine in ax.spines.iteritems():
-            spine.set_color('none')
+        hide_axes(ax)
+        ylim = ax.get_ylim()    
+
+    #ax = fig.add_subplot(1, len(tracks) + 1, len(tracks) + 1)
+    ax = plt.subplot(gs[len(tracks)])
+    min_y, max_y = ylim
+    s = 0
+    plt.axhline(y=1, 
+                color="grey",
+                linewidth=0.5,
+                alpha=0.5
+    )
+    labels = array(labels)
+    for i in range(max(labels) + 1):
+        prev = s
+        s += sum(labels == i)
+        plt.axhline(y=s - 1, 
+                color="grey",
+                linewidth=0.5,
+                alpha=0.5
+        )
+        plt.text(0.5, (prev + s) / 2, 
+                 str(i), 
+                 verticalalignment="center", 
+                 horizontalalignment="center",
+                 fontproperties=font)
+    hide_axes(ax)
+    ax.set_ylim(ylim)
+    
     fig.subplots_adjust(wspace=0, hspace=0)
     ext = outfile.split(".")[-1]
     if not ext in ["png", "svg", "ps", "eps", "pdf"]:
