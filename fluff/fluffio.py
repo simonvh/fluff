@@ -144,7 +144,7 @@ def load_cluster_data(clust_file, datafiles, bins, rpkm, rmdup, rmrepeats, fragm
         result = []
         result = get_binned_stats(clust_file, 
                                   datafile, 
-                                  bins=bins, 
+                                  bins, 
                                   rpkm=rpkm, 
                                   rmdup=rmdup, 
                                   rmrepeats=rmrepeats,
