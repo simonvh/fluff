@@ -162,4 +162,6 @@ for (chrom,start,end,strand), cluster in zip(array(regions, dtype="object")[ind]
     f.write("%s\t%s\t%s\t%s\t0\t%s\n" % (chrom, start, end, cluster, strand))
 f.close()
 
+if not cluster_type == "h":
+    labels = None
 heatmap_plot(data, ind, outfile, tracks, titles, colors, bgcolors, scale, tscale, labels)

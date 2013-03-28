@@ -24,15 +24,24 @@ def hide_axes(ax):
 
 def heatmap_plot(data, ind, outfile, tracks, titles, colors, bgcolors, scale, tscale, labels):
     font = FontProperties(size=FONTSIZE / 1.25, family=["Nimbus Sans L", "Helvetica", "sans-serif"])
-
     
+    label_ratiio = 4.0
+    plot_width = 1 * len(tracks)
+    width_ratios = [label_ratio] * len(tracks)
+    numplots = len(tracks)
+    if labels:
+        plot_width += 1 / label_ratio
+        numplots += 1
+        width_ratios + [1]
+    
+    # Create figure
     fig = plt.figure(figsize=(3,0.25 + 1 * len(tracks)))
-    gs = gridspec.GridSpec(1, len(tracks) + 1,width_ratios=[4] * len(tracks) + [1])
+    # Create subplot layout
+    gs = gridspec.GridSpec(1, numplots, width_ratios=width_ratios)
 
     axes = []
     for i, track in enumerate(tracks):
         c = create_colormap(bgcolors[i % len(bgcolors)], colors[i % len(colors)])
-        #ax = fig.add_subplot(1,len(tracks) + 1,i + 1)
         ax = plt.subplot(gs[i])
         ax.set_title(titles[i],  fontproperties=font)
         axes.append(ax)
@@ -41,31 +50,31 @@ def heatmap_plot(data, ind, outfile, tracks, titles, colors, bgcolors, scale, ts
         hide_axes(ax)
         ylim = ax.get_ylim()    
 
-    #ax = fig.add_subplot(1, len(tracks) + 1, len(tracks) + 1)
-    ax = plt.subplot(gs[len(tracks)])
-    min_y, max_y = ylim
-    s = 0
-    plt.axhline(y=1, 
-                color="grey",
-                linewidth=0.5,
-                alpha=0.5
-    )
-    labels = array(labels)
-    for i in range(max(labels) + 1):
-        prev = s
-        s += sum(labels == i)
-        plt.axhline(y=s - 1, 
-                color="grey",
-                linewidth=0.5,
-                alpha=0.5
+    if labels:
+        ax = plt.subplot(gs[len(tracks)])
+        min_y, max_y = ylim
+        s = 0
+        plt.axhline(y=1, 
+                    color="grey",
+                    linewidth=0.5,
+                    alpha=0.5
         )
-        plt.text(0.5, (prev + s) / 2, 
-                 str(i), 
-                 verticalalignment="center", 
-                 horizontalalignment="center",
-                 fontproperties=font)
-    hide_axes(ax)
-    ax.set_ylim(ylim)
+        labels = array(labels)
+        for i in range(max(labels) + 1):
+            prev = s
+            s += sum(labels == i)
+            plt.axhline(y=s - 1, 
+                    color="grey",
+                    linewidth=0.5,
+                    alpha=0.5
+            )
+            plt.text(0.5, (prev + s) / 2, 
+                     str(i), 
+                     verticalalignment="center", 
+                     horizontalalignment="center",
+                     fontproperties=font)
+        hide_axes(ax)
+        ax.set_ylim(ylim)
     
     fig.subplots_adjust(wspace=0, hspace=0)
     ext = outfile.split(".")[-1]
