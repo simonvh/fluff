@@ -14,17 +14,15 @@ import os
 from numpy import array,hstack,arange,median,mean,zeros
 from scipy.stats.mstats import rankdata
 import Pycluster
-import matplotlib.pyplot as plt
 import matplotlib.cm as cm
-from matplotlib.ticker import NullFormatter,NullLocator
-from matplotlib.font_manager import fontManager, FontProperties
 import pp
 from math import sqrt,log
 
 ### My imports ###
 from fluff.util import *
 from fluff.fluffio import *
-from fluff.color import create_colormap, COLOR_MAP, DEFAULT_COLORS, parse_colors
+from fluff.color import DEFAULT_COLORS, parse_colors
+from fluff.plot import heatmap_plot
 
 VERSION = "1.2"
 
@@ -159,38 +157,9 @@ else:
     #print ind
     labels = zeros(len(regions))
 
-font = FontProperties(size=FONTSIZE / 1.25, family=["Nimbus Sans L", "Helvetica", "sans-serif"])
-
 f = open("%s_clusters.bed" % outfile, "w")
 for (chrom,start,end,strand), cluster in zip(array(regions, dtype="object")[ind], array(labels)[ind]):
     f.write("%s\t%s\t%s\t%s\t0\t%s\n" % (chrom, start, end, cluster, strand))
 f.close()
 
-fig = plt.figure(figsize=(10,5))
-
-axes = []
-for i, track in enumerate(tracks):
-    c = create_colormap(bgcolors[i % len(bgcolors)], colors[i % len(colors)])
-    ax = fig.add_subplot(1,len(tracks),i + 1)
-    ax.set_title(titles[i],  fontproperties=font)
-    axes.append(ax)
-    ax.pcolormesh(data[track][ind], cmap=c, vmin=0, vmax=scale * tscale[i])
-    print "%s\t%s\t%s\t%s" % (track, tscale[i] * scale, mean(data[track][ind][:,0:20]), median(data[track][ind]))
-    for x in [ax.xaxis, ax.yaxis]:
-        x.set_major_formatter(NullFormatter())
-        x.set_major_locator(NullLocator())
-    for loc,spine in ax.spines.iteritems():
-        spine.set_color('none')
-fig.subplots_adjust(wspace=0, hspace=0)
-
-#for i, track in enumerate(tracks):
-    #axes[i].set_title(track.replace(".bam",""), verticalalignment={0:"top",1:"bottom"}[i % 2], zorder=100000)
-
-ext = outfile.split(".")[-1]
-if not ext in ["png", "svg", "ps", "eps", "pdf"]:
-    outfile += ".png"
-print "Saving image"
-if outfile.endswith("png"):
-    plt.savefig(outfile, dpi=600)
-else:
-    plt.savefig(outfile)
+heatmap_plot(data, ind, outfile, tracks, titles, colors, bgcolors, scale, tscale)

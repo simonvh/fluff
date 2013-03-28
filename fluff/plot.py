@@ -6,11 +6,41 @@ from matplotlib.patches import FancyArrowPatch,ArrowStyle
 from fluffio import *
 import sys
 from scipy.stats import scoreatpercentile
+from fluff.color import create_colormap
 
 DEFAULT_COLORS = ["#e41a1c","#4daf4a","#377eb8"]
 FONTSIZE = 8
 PROFILE_MIN_Y = 75
 GENE_ARROW="-|>"
+
+def heatmap_plot(data, ind, outfile, tracks, titles, colors, bgcolors, scale, tscale):
+    font = FontProperties(size=FONTSIZE / 1.25, family=["Nimbus Sans L", "Helvetica", "sans-serif"])
+
+    
+    fig = plt.figure(figsize=(10,5))
+    
+    axes = []
+    for i, track in enumerate(tracks):
+        c = create_colormap(bgcolors[i % len(bgcolors)], colors[i % len(colors)])
+        ax = fig.add_subplot(1,len(tracks),i + 1)
+        ax.set_title(titles[i],  fontproperties=font)
+        axes.append(ax)
+        ax.pcolormesh(data[track][ind], cmap=c, vmin=0, vmax=scale * tscale[i])
+        print "%s\t%s\t%s\t%s" % (track, tscale[i] * scale, mean(data[track][ind][:,0:20]), median(data[track][ind]))
+        for x in [ax.xaxis, ax.yaxis]:
+            x.set_major_formatter(NullFormatter())
+            x.set_major_locator(NullLocator())
+        for loc,spine in ax.spines.iteritems():
+            spine.set_color('none')
+    fig.subplots_adjust(wspace=0, hspace=0)
+    ext = outfile.split(".")[-1]
+    if not ext in ["png", "svg", "ps", "eps", "pdf"]:
+        outfile += ".png"
+    sys.stderr.write("Saving image\n")
+    if outfile.endswith("png"):
+        plt.savefig(outfile, dpi=600)
+    else:
+        plt.savefig(outfile)
 
 def coverage_plot(ax, x, data, color="red", percs=[50,90]):
     """
