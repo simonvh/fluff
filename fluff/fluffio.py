@@ -11,6 +11,18 @@ import os
 from numpy import zeros,min,max
 import tempfile
 
+def is_equal_feature(feature, vals):
+    print feature, ":", vals
+    if not vals:
+        return False
+    if feature.chrom != vals[0]:
+        return False
+    if feature.start != int(vals[1]):
+        return False
+    if feature.end != int(vals[2]):
+        return False
+    return True
+
 def get_features_by_feature(track_a, track_b):
     """ Takes two BedTool tracks as input, returns overlapping features
     """
@@ -25,16 +37,37 @@ def get_features_by_feature(track_a, track_b):
         field_len_b = len(f.fields)
         break
     
-   #i = track_a.intersect(track_b, wo=True)
-   
-    tabix_b = track_b.tabix()
+    i = track_a.intersect(track_b, wao=True, stream=False)
+    tmp = tempfile.NamedTemporaryFile(delete=True)
+    #print tmp.name
+    savedfile = i.saveas(tmp.name)
+    tmp.flush()
+    last = []
+    features = []
+    for line in tmp.readlines(): 
+        vals = line.strip().split("\t")
+        if field_len_a >= 6:
+            feature = pybedtools.Interval(vals[0], int(vals[1]), int(vals[2]), strand=vals[5])
+        else:
+            feature = pybedtools.Interval(vals[0], int(vals[1]), int(vals[2]))
+        
+        if vals[:field_len_a] != last:
+            if len(features) > 0:
+                if len(features) == 1 and features[0][1:3] == ['-1','-1']:
+                    yield feature, []
+                else:
+                    yield feature, features  
+            features = []
+            last = vals[:field_len_a]
+        
+        features.append(vals[field_len_a:]) 
+
+    if len(features) == 1 and features[0][1:3] == ['-1','-1']:
+        yield feature, []
+    else:
+        yield feature, features  
     
-    for feature in track_a:
-        x = [f for f in tabix_b.tabix_intervals(feature)] 
-        yield x
-
-
-
+    tmp.close()
 
 class TrackWrapper():
     def __init__(self, fname):
@@ -45,7 +78,7 @@ class TrackWrapper():
         else:
             self.track = pybedtools.BedTool(fname)
             self.ftype = "bed"
-            self.tabix_track = self.track.tabix()     
+            #self.tabix_track = self.track.tabix()     
 
     def __getitem__(self, window):
         """ 
@@ -120,13 +153,13 @@ class TrackWrapper():
             if rmrepeats:
                 sys.stderr.write("Warning: rmrepeats has no result on BED files!")
 
-        for feature in track:
-            min_strand = []
-            plus_strand = []
-            if feature.start < 0:
-                feature.start = 0
+        if self.ftype == "bam":
+            for feature in track:
+                min_strand = []
+                plus_strand = []
+                if feature.start < 0:
+                    feature.start = 0
 
-            if self.ftype == "bam":
                 self.track.fetch(feature.chrom, feature.start, feature.end, 
                                  callback=lambda x: self._add_read_to_list(x, 
                                                                            min_strand, 
@@ -134,17 +167,6 @@ class TrackWrapper():
                                                                            rmrepeats
                                                                            )
                                 )
-
-                
-            elif self.ftype == "bed":
-                features = [f for f in self.tabix_track.tabix_intervals(feature)] 
-
-                for f in features:
-                    if f.strand == "-":
-                        min_strand.append(f.start)
-                    else:
-                        plus_strand.append(f.start)
-               
             # Remove duplicates
             if rmdup:
                 min_strand = sorted(set(min_strand))
@@ -155,6 +177,20 @@ class TrackWrapper():
        
             
             yield (feature, min_strand, plus_strand)
+
+                
+        elif self.ftype == "bed":
+        
+            for feature, features in get_features_by_feature(track, self.track):
+                min_strand = []
+                plus_strand = []
+
+                for f in features:
+                    if len(f) >= 6 and f[5] == "-":
+                        min_strand.append(int(f[1]))
+                    else:
+                        plus_strand.append(int(f[1]))
+                yield (feature, min_strand, plus_strand) 
 
 def get_profile(interval, track, fragmentsize=200):
     chrom,start,end = interval

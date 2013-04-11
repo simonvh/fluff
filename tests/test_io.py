@@ -91,3 +91,12 @@ def test_fetch_to_counts(frag3, frag6, region3, region6):
             counts = sorted([len(x[1]) + len(x[2]) for x in overlap])
             assert [0,1,3] == counts
 
+def test_get_features_by_feature(frag3, frag6, region3, region6):
+    from fluff.fluffio import get_features_by_feature
+    from pybedtools import BedTool
+
+    for f in [frag6]:
+        for r in [region3, region6]:
+            assert [0,1,3] == sorted([len(x[1])  for x in get_features_by_feature(BedTool(r), BedTool(f))])
+            
+
