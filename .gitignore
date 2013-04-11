@@ -13,6 +13,15 @@ sdist
 develop-eggs
 .installed.cfg
 
+# vim swap files
+**/*.swp
+
+# tmp
+tmp
+
+# tabix indices
+tests/data/*.tbi
+
 # Installer logs
 pip-log.txt
 
