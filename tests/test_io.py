@@ -16,7 +16,27 @@ def region():
 @pytest.fixture
 def fragments():
     return "tests/data/testfragment.bed"
-    
+
+@pytest.fixture
+def frag3():
+    return "tests/data/testfragments3.bed"
+
+@pytest.fixture
+def frag6():
+    return "tests/data/testfragments6.bed"
+
+@pytest.fixture
+def region3():
+    return "tests/data/threeregions3.bed"
+
+@pytest.fixture
+def region6():
+    return "tests/data/threeregions6.bed"
+
+@pytest.fixture
+def bedtool():
+    import pybedtools
+    return pybedtools.BedTool("tests/data/testregion.bed")
 
 def test_import_trackwrapper():
 	from fluff.fluffio import TrackWrapper
@@ -56,4 +76,18 @@ def test_fragmentsize(region, fragments):
     
     result = get_binned_stats(region, fragments, 4, fragmentsize=200)
     counts = [int(x) for x in result[0].split("\t")[-4:]]
-    assert [2,2,22,2] == counts
+    assert [2,2,2,2] == counts
+
+
+def test_fetch_to_counts(frag3, frag6, region3, region6):
+    from fluff.fluffio import TrackWrapper
+    from pybedtools import BedTool
+
+    for f in [frag3, frag6]:
+        for r in [region3, region6]:
+            t = TrackWrapper(f)
+            overlap = [x for x in t.fetch_to_counts(BedTool(r), rmdup=False, rmrepeats=False)]
+            assert 3 == len(overlap)
+            counts = sorted([len(x[1]) + len(x[2]) for x in overlap])
+            assert [0,1,3] == counts
+

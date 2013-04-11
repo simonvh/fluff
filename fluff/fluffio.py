@@ -11,6 +11,31 @@ import os
 from numpy import zeros,min,max
 import tempfile
 
+def get_features_by_feature(track_a, track_b):
+    """ Takes two BedTool tracks as input, returns overlapping features
+    """
+
+    if track_a.file_type != "bed" or  track_b.file_type != "bed":
+        raise ValueError, "Need BED files"
+    
+    for f in track_a:
+        field_len_a = len(f.fields)
+        break
+    for f in track_b:
+        field_len_b = len(f.fields)
+        break
+    
+   #i = track_a.intersect(track_b, wo=True)
+   
+    tabix_b = track_b.tabix()
+    
+    for feature in track_a:
+        x = [f for f in tabix_b.tabix_intervals(feature)] 
+        yield x
+
+
+
+
 class TrackWrapper():
     def __init__(self, fname):
         if fname.endswith("bam"):
@@ -20,7 +45,7 @@ class TrackWrapper():
         else:
             self.track = pybedtools.BedTool(fname)
             self.ftype = "bed"
-        
+            self.tabix_track = self.track.tabix()     
 
     def __getitem__(self, window):
         """ 
@@ -87,32 +112,49 @@ class TrackWrapper():
             else:
                 plus_strand.append(read.pos)
 
-    def fetch_to_counts(self, chrom, start, end, rmdup=False, rmrepeats=False):
-        if start < 0:
-            start = 0
-        min_strand = []
-        plus_strand = []
-        if self.ftype == "bam":
-            self.track.fetch(chrom, start, end, callback=lambda x: self._add_read_to_list(x, min_strand, plus_strand, rmrepeats))
-        elif self.ftype == "bed":
+    def fetch_to_counts(self, track, rmdup=False, rmrepeats=False):
+        """ Generator 
+        """
+   
+        if self.ftype == "bed":
             if rmrepeats:
                 sys.stderr.write("Warning: rmrepeats has no result on BED files!")
-            feature = pybedtools.BedTool("%s %s %s" % (chrom, start, end), from_string=True)
-            for read in self.track.intersect(feature, u=True, stream=True):
-                if read.strand == "+":
-                    plus_strand.append(read.start)
-                else:
-                    min_strand.append(read.start)
-        
-        if rmdup:
-            min_strand = sorted(set(min_strand))
-            plus_strand = sorted(set(plus_strand))
-        else:
-            min_strand = sorted(min_strand)
-            plus_strand = sorted(plus_strand)
-        
-        return min_strand, plus_strand
 
+        for feature in track:
+            min_strand = []
+            plus_strand = []
+            if feature.start < 0:
+                feature.start = 0
+
+            if self.ftype == "bam":
+                self.track.fetch(feature.chrom, feature.start, feature.end, 
+                                 callback=lambda x: self._add_read_to_list(x, 
+                                                                           min_strand, 
+                                                                           plus_strand, 
+                                                                           rmrepeats
+                                                                           )
+                                )
+
+                
+            elif self.ftype == "bed":
+                features = [f for f in self.tabix_track.tabix_intervals(feature)] 
+
+                for f in features:
+                    if f.strand == "-":
+                        min_strand.append(f.start)
+                    else:
+                        plus_strand.append(f.start)
+               
+            # Remove duplicates
+            if rmdup:
+                min_strand = sorted(set(min_strand))
+                plus_strand = sorted(set(plus_strand))
+            else:
+                min_strand = sorted(min_strand)
+                plus_strand = sorted(plus_strand)
+       
+            
+            yield (feature, min_strand, plus_strand)
 
 def get_profile(interval, track, fragmentsize=200):
     chrom,start,end = interval
@@ -225,17 +267,19 @@ def get_binned_stats(in_fname, data_fname, nbins, rpkm=False, rmdup=False, rmrep
     ret = []
     count = 1    
     in_track = pybedtools.BedTool(in_fname)
-    for feature in in_track:
+    
+    for feature, min_strand, plus_strand in track.fetch_to_counts(in_track, rmdup, rmrepeats):
+    #for feature in in_track:
         binsize = (feature.end - feature.start) / float(nbins)
         row = []
         overlap = []
 
-        min_strand, plus_strand = track.fetch_to_counts(
-                                        feature.chrom, 
-                                        feature.start - (fragmentsize - readlength), 
-                                        feature.end + (fragmentsize - readlength), 
-                                        rmdup, 
-                                        rmrepeats)
+     #   min_strand, plus_strand = track.fetch_to_counts(
+      #                                  feature.chrom, 
+      #                                  feature.start - (fragmentsize - readlength), 
+       #                                 feature.end + (fragmentsize - readlength), 
+        #                                rmdup, 
+         #                               rmrepeats)
 
         min_strand = [x - (fragmentsize - readlength) for x in min_strand]
         bin_start = feature.start
