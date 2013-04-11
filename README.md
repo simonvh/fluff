@@ -21,6 +21,7 @@ Fluff makes heavy use of [pysam](http://code.google.com/p/pysam/), [pybedtools](
 
 Prerequisites
 -------------
+* tabix - http://sourceforge.net/projects/samtools/files/
 * pysam - http://code.google.com/p/pysam/
 * pybedtools - http://packages.python.org/pybedtools/
 * HTSeq - http://www-huber.embl.de/users/anders/HTSeq/
