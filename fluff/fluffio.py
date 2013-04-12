@@ -12,7 +12,6 @@ from numpy import zeros,min,max
 import tempfile
 
 def is_equal_feature(feature, vals):
-    print feature, ":", vals
     if not vals:
         return False
     if feature.chrom != vals[0]:
@@ -38,11 +37,10 @@ def get_features_by_feature(track_a, track_b):
         break
     
     i = track_a.intersect(track_b, wao=True, stream=False)
-    tmp = tempfile.NamedTemporaryFile(delete=True)
-    #print tmp.name
+    tmp = tempfile.NamedTemporaryFile(delete=False)
     savedfile = i.saveas(tmp.name)
     tmp.flush()
-    last = []
+    last = None
     features = []
     for line in tmp.readlines(): 
         vals = line.strip().split("\t")
@@ -51,14 +49,14 @@ def get_features_by_feature(track_a, track_b):
         else:
             feature = pybedtools.Interval(vals[0], int(vals[1]), int(vals[2]))
         
-        if vals[:field_len_a] != last:
+        if str(feature) != str(last):
             if len(features) > 0:
                 if len(features) == 1 and features[0][1:3] == ['-1','-1']:
-                    yield feature, []
+                    yield last, []
                 else:
-                    yield feature, features  
+                    yield last, features  
             features = []
-            last = vals[:field_len_a]
+            last = feature
         
         features.append(vals[field_len_a:]) 
 
@@ -304,20 +302,12 @@ def get_binned_stats(in_fname, data_fname, nbins, rpkm=False, rmdup=False, rmrep
     count = 1    
     in_track = pybedtools.BedTool(in_fname)
 
-
+    extend = fragmentsize - readlength
+    
     for feature, min_strand, plus_strand in track.fetch_to_counts(in_track, rmdup, rmrepeats):
-    #for feature in in_track:
-#        print "{0}:{1}-{2}".format(feature.chrom, feature.start, feature.end), min_strand, plus_strand
         binsize = (feature.end - feature.start) / float(nbins)
         row = []
         overlap = []
-
-     #   min_strand, plus_strand = track.fetch_to_counts(
-      #                                  feature.chrom, 
-      #                                  feature.start - (fragmentsize - readlength), 
-       #                                 feature.end + (fragmentsize - readlength), 
-        #                                rmdup, 
-         #                               rmrepeats)
 
         min_strand = [x - (fragmentsize - readlength) for x in min_strand]
         bin_start = feature.start
@@ -345,13 +335,16 @@ def get_binned_stats(in_fname, data_fname, nbins, rpkm=False, rmdup=False, rmrep
                 row.append(num_reads)
 
             bin_start += binsize
-
+        
         if feature.strand == "-":
             row = row[::-1]
+        
         ret.append( [feature.chrom, feature.start, feature.end] + row)
+        
         count += 1
         if count % 1000 == 0:
             sys.stderr.write("%s processed\n" % count)
+    
     return ["\t".join([str(x) for x in row]) for row in ret]
 
 def load_heatmap_data(featurefile, datafile, bins=100, up=5000, down=5000, rmdup=True, rpkm=False, rmrepeats=True, fragmentsize=None):
