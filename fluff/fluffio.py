@@ -307,7 +307,7 @@ def get_binned_stats(in_fname, data_fname, nbins, rpkm=False, rmdup=False, rmrep
 
     for feature, min_strand, plus_strand in track.fetch_to_counts(in_track, rmdup, rmrepeats):
     #for feature in in_track:
-        print "{0}:{1}-{2}".format(feature.chrom, feature.start, feature.end), min_strand, plus_strand
+#        print "{0}:{1}-{2}".format(feature.chrom, feature.start, feature.end), min_strand, plus_strand
         binsize = (feature.end - feature.start) / float(nbins)
         row = []
         overlap = []
