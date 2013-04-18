@@ -81,7 +81,7 @@ rmrepeats = options.rmrepeats
 data = load_cluster_data(clust_file, datafiles, BINS, rpkm, rmdup, rmrepeats, fragmentsize=fragmentsize)
 # Get cluster information
 cluster_data = load_bed_clusters(clust_file)
-clusters = [int(x) for x in cluster_data.keys()]
+clusters = cluster_data.keys()
 
 #Init x-axis
 t = arange(BINS)

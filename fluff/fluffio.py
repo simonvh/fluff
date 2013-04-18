@@ -199,6 +199,21 @@ def get_profile(interval, track, fragmentsize=200):
         profile[iv.start - start:iv.end - start] += 1
     return profile
 
+
+def _convert_value(v):
+    """
+    Returns 0 if v is not specified, otherwise try int
+    """
+    if v:
+        try:
+            v = int(v)
+            return v
+        except:
+            return v
+            
+    return 0
+
+
 def load_bed_clusters(bedfile):
     """
     Reads a BED file, using the fourth column as cluster number
@@ -211,7 +226,7 @@ def load_bed_clusters(bedfile):
     cluster_data = {}
     track = pybedtools.BedTool(bedfile)
     for f in track:
-        cluster_data.setdefault(int(f.name), []).append("%s:%s-%s" % (f.chrom, f.start, f.end))
+        cluster_data.setdefault(_convert_value(f.name), []).append("%s:%s-%s" % (f.chrom, f.start, f.end))
     return cluster_data
 
 def load_cluster_data(clust_file, datafiles, bins, rpkm, rmdup, rmrepeats, fragmentsize=None):
