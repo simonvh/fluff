@@ -26,7 +26,8 @@ def heatmap_plot(data, ind, outfile, tracks, titles, colors, bgcolors, scale, ts
     font = FontProperties(size=FONTSIZE / 1.25, family=["Nimbus Sans L", "Helvetica", "sans-serif"])
     
     label_ratio = 4.0
-    plot_width = 1 * len(tracks)
+    plot_width = 1.75 * len(tracks)
+    plot_height = 6 
     width_ratios = [label_ratio] * len(tracks)
     numplots = len(tracks)
     if labels is not None and len(labels) == len(ind):
@@ -36,7 +37,7 @@ def heatmap_plot(data, ind, outfile, tracks, titles, colors, bgcolors, scale, ts
     
     # Create figure
     print width_ratios
-    fig = plt.figure(figsize=(3, plot_width))
+    fig = plt.figure(figsize=(plot_width, plot_height))
     # Create subplot layout
     gs = gridspec.GridSpec(1, numplots, width_ratios=width_ratios)
 
