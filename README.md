@@ -29,6 +29,8 @@ Prerequisites
 * numpy - http://numpy.scipy.org/
 * scipy - http://www.scipy.org/
 * colorbrewer - http://pypi.python.org/pypi/colorbrewer/
+* Pycluster - https://pypi.python.org/pypi/Pycluster
+* pp - http://www.parallelpython.com/ (optional)
 
 I'd recommend installing matplotlib, numpy and scipy using your preferred package manager. Ubuntu, Debian, Fedora, Gentoo, etc. all have packages providing these libraries.
 

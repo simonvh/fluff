@@ -15,7 +15,6 @@ from numpy import array,hstack,arange,median,mean,zeros
 from scipy.stats.mstats import rankdata
 import Pycluster
 import matplotlib.cm as cm
-import pp
 from math import sqrt,log
 
 ### My imports ###
@@ -97,21 +96,28 @@ if cluster_type == "k" and not options.numclusters >= 2:
 tscale = [1.0 for track in datafiles]
 
 # Calculate the profile data
-# Load data in parallel
-print "Loading data"
-job_server = pp.Server(ncpus=4)
-jobs = []
-for datafile in datafiles:
-    jobs.append(job_server.submit(load_heatmap_data, (featurefile, datafile, bins, extend_up, extend_down, rmdup, rpkm, rmrepeats, fragmentsize),  (), ("tempfile","sys","os","fluff.fluffio","numpy")))
-
 data = {}
 regions = []
-for job in jobs:
-    track,regions,profile = job()
-    #print "##### %s " % track
-    #for row in profile:
-    #    print row
-    data[track] = profile
+print "Loading data"
+try:
+    # Load data in parallel
+    import pp
+    job_server = pp.Server(ncpus=4)
+    jobs = []
+    for datafile in datafiles:
+        jobs.append(job_server.submit(load_heatmap_data, (featurefile, datafile, bins, extend_up, extend_down, rmdup, rpkm, rmrepeats, fragmentsize),  (), ("tempfile","sys","os","fluff.fluffio","numpy")))
+
+    for job in jobs:
+        track,regions,profile = job()
+        #print "##### %s " % track
+        #for row in profile:
+        #    print row
+        data[track] = profile
+except:
+    sys.stderr.write("Parallel Python (pp) not installed, can't load data in parallel\n")
+    for datafile in datafiles:
+        track,regions,profile = load_heatmap_data(featurefile, datafile, bins, extend_up, extend_down, rmdup, rpkm, rmrepeats, fragmentsize)
+        data[track] = profile
 
 scale = get_absolute_scale(options.scale, [data[track] for track in tracks])
 

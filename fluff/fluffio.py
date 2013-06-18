@@ -10,6 +10,8 @@ import sys
 import os
 from numpy import zeros,min,max
 import tempfile
+import fluff
+import numpy
 
 def is_equal_feature(feature, vals):
     if not vals:
