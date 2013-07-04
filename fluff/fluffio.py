@@ -75,6 +75,7 @@ class TrackWrapper():
             self.track = pysam.Samfile(fname, "rb")
             self.htseq_track = HTSeq.BAM_Reader(fname)
             self.ftype = "bam"
+            self.chroms = self.track.references
         else:
             self.track = pybedtools.BedTool(fname)
             self.ftype = "bed"
@@ -112,6 +113,7 @@ class TrackWrapper():
                 intervals.append(HTSeq.GenomicInterval(chrom, read.start, read.end, read.strand))
         
         return intervals            
+    
     
     def count(self, rmdup=False, rmrepeats=False):
         if self.ftype == "bam":
@@ -160,24 +162,24 @@ class TrackWrapper():
                 if feature.start < 0:
                     feature.start = 0
 
-                self.track.fetch(feature.chrom, feature.start, feature.end, 
+                if feature.chrom in self.chroms:
+                    self.track.fetch(feature.chrom, feature.start, feature.end, 
                                  callback=lambda x: self._add_read_to_list(x, 
                                                                            min_strand, 
                                                                            plus_strand, 
                                                                            rmrepeats
                                                                            )
                                 )
-                # Remove duplicates
-                if rmdup:
-                    min_strand = sorted(set(min_strand))
-                    plus_strand = sorted(set(plus_strand))
-                else:
-                    min_strand = sorted(min_strand)
-                    plus_strand = sorted(plus_strand)
+                    # Remove duplicates
+                    if rmdup:
+                        min_strand = sorted(set(min_strand))
+                        plus_strand = sorted(set(plus_strand))
+                    else:
+                        min_strand = sorted(min_strand)
+                        plus_strand = sorted(plus_strand)
        
             
                 yield (feature, min_strand, plus_strand)
-
                 
         elif self.ftype == "bed":
         
