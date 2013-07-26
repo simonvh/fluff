@@ -1,5 +1,6 @@
 import numpy
 import pysam
+import sys
 from scipy.stats import scoreatpercentile,chisquare
 
 def process_groups(groups):

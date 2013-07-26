@@ -39,7 +39,7 @@ def get_features_by_feature(track_a, track_b):
         break
     
     i = track_a.intersect(track_b, wao=True, stream=False)
-    tmp = tempfile.NamedTemporaryFile(delete=False)
+    tmp = tempfile.NamedTemporaryFile(delete=False, prefix="fluff")
     savedfile = i.saveas(tmp.name)
     tmp.flush()
     last = None
@@ -194,6 +194,10 @@ class TrackWrapper():
                         plus_strand.append(int(f[1]))
                 yield (feature, min_strand, plus_strand) 
 
+    def close(self):
+        if self.ftype == "bam":
+            self.track.close()
+
 def get_profile(interval, track, fragmentsize=200):
     chrom,start,end = interval
     profile = zeros(end - start, dtype="i")
@@ -302,6 +306,36 @@ def load_annotation(interval, fname):
             gene_tracks[i] = [gene]
     return gene_tracks
 
+class SimpleFeature():
+    def __init__(self, chrom, start, end, value, strand):
+        self.chrom = chrom
+        self.start = start
+        self.end = end
+        self.value = value
+        self.strand = strand
+
+class SimpleBed():
+    def __init__(self, fname):
+        self.f = open(fname)
+
+    def __iter__(self):
+        return self
+
+    def next(self):
+        line = self.f.readline()
+        while line and (line[0] == "#" or line.startswith("track")):
+            line = self.f.readline()
+
+        if line:
+            
+            vals = line.strip().split("\t")
+            start, end = int(vals[1]), int(vals[2])
+            value = vals[3]
+            return SimpleFeature(vals[0], start, end, value, vals[5])
+        else:
+            self.f.close()
+            raise StopIteration
+        
 def get_binned_stats(in_fname, data_fname, nbins, rpkm=False, rmdup=False, rmrepeats=False, fragmentsize=None):
     track = TrackWrapper(data_fname)
     
@@ -309,17 +343,23 @@ def get_binned_stats(in_fname, data_fname, nbins, rpkm=False, rmdup=False, rmrep
     if not fragmentsize:
         fragmentsize = readlength
     
-    sys.stderr.write("Using fragmentsize %s\n" % fragmentsize)
+    #sys.stderr.write("Using fragmentsize %s\n" % fragmentsize)
 
     total_reads = 1
     if rpkm:
-        sys.stderr.write("Counting reads...\n")
+        #sys.stderr.write("Counting reads...\n")
         total_reads = track.count(rmdup, rmrepeats) / 1000000.0
-        sys.stderr.write("Done.\n")
+        #sys.stderr.write("Done.\n")
 
     ret = []
     count = 1    
-    in_track = pybedtools.BedTool(in_fname)
+    
+    # Only use a BedTool if really necessary, as BedTools does not close open files
+    # on object deletion
+    if track.ftype == "bam":
+        in_track = SimpleBed(in_fname)
+    else:
+        in_track = pybedtools.BedTool(in_fname)
 
     extend = fragmentsize - readlength
     
@@ -330,7 +370,6 @@ def get_binned_stats(in_fname, data_fname, nbins, rpkm=False, rmdup=False, rmrep
 
         min_strand = [x - (fragmentsize - readlength) for x in min_strand]
         bin_start = feature.start
-
 
         while int(bin_start + 0.5) < feature.end:
             num_reads = 0
@@ -361,13 +400,16 @@ def get_binned_stats(in_fname, data_fname, nbins, rpkm=False, rmdup=False, rmrep
         ret.append( [feature.chrom, feature.start, feature.end] + row)
         
         count += 1
-        if count % 1000 == 0:
-            sys.stderr.write("%s processed\n" % count)
+        #if count % 1000 == 0:
+        #    sys.stderr.write("%s processed\n" % count)
     
+    track.close()
+    del in_track
+
     return ["\t".join([str(x) for x in row]) for row in ret]
 
 def load_heatmap_data(featurefile, datafile, bins=100, up=5000, down=5000, rmdup=True, rpkm=False, rmrepeats=True, fragmentsize=None):
-    tmp = tempfile.NamedTemporaryFile(delete=False)
+    tmp = tempfile.NamedTemporaryFile(delete=False, prefix="fluff")
     regions = []
     order = {}
     count = 0

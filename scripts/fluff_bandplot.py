@@ -35,7 +35,7 @@ PADTOP = 0.4                         # For labels
 PADBOTTOM = 0.05
 PADRIGHT = 0.05
 FONTSIZE = 8
-BINS = 21                                # Number of bins for profile
+BINS = 101                                # Number of bins for profile
 #########################################################################
 font = FontProperties(size=FONTSIZE / 1.25, family=["Nimbus Sans L", "Helvetica", "sans-serif"])
 
