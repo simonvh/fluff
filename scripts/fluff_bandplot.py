@@ -35,7 +35,7 @@ PADTOP = 0.4                         # For labels
 PADBOTTOM = 0.05
 PADRIGHT = 0.05
 FONTSIZE = 8
-BINS = 101                                # Number of bins for profile
+BINS = 100                                # Number of bins for profile
 #########################################################################
 font = FontProperties(size=FONTSIZE / 1.25, family=["Nimbus Sans L", "Helvetica", "sans-serif"])
 
@@ -48,10 +48,12 @@ group1 = OptionGroup(parser, 'Optional')
 parser.add_option("-i", dest="clust_file", help="BED file with cluster in 4th column", metavar="FILE")
 parser.add_option("-d", dest="datafiles", help="data files (reads in BAM or BED format)", metavar="FILE(S)")
 parser.add_option("-o", dest="outfile", help="output file (type determined by extension)", metavar="FILE")
+group1.add_option("-S", dest="summary", help="create summary graphs", default=False, action="store_true")
 group1.add_option("-c", dest="colors", help="color(s) (name, colorbrewer profile or hex code)", metavar="NAME(S)", default=DEFAULT_COLORS)
+group1.add_option("-b", dest="bins", help="number of bins", metavar="INT", default=BINS, type=int)
 group1.add_option("-s", dest="scalegroups", help="scale groups", metavar="GROUPS")
-group1.add_option("-p", dest="percs", help="Range of percentiles (default 50,90)", metavar="INT,INT", default="50,90")
-group1.add_option("-F", dest="fragmentsize", help="Fragment length (default: read length)",type="int",  default=None)
+group1.add_option("-p", dest="percs", help="range of percentiles (default 50,90)", metavar="INT,INT", default="50,90")
+group1.add_option("-F", dest="fragmentsize", help="fragment length (default: read length)",type="int",  default=None)
 group1.add_option("-r", dest="rpkm", help="use RPKM instead of read counts", metavar="", action="store_true", default=False)
 group1.add_option("-D", dest="rmdup", help="keep duplicate reads (removed by default)", metavar="", default=True, action="store_false")
 group1.add_option("-R", dest="rmrepeats", help="keep repeats (removed by default, bwa only) ", metavar="", action="store_false", default=True)
@@ -76,18 +78,27 @@ percs = [int(x) for x in options.percs.split(",")]
 rmdup = options.rmdup
 rpkm = options.rpkm
 rmrepeats = options.rmrepeats
+bins = options.bins
+summary = options.summary
 
 # Calculate the profile data
-data = load_cluster_data(clust_file, datafiles, BINS, rpkm, rmdup, rmrepeats, fragmentsize=fragmentsize)
+data = load_cluster_data(clust_file, datafiles, bins, rpkm, rmdup, rmrepeats, fragmentsize=fragmentsize)
 # Get cluster information
 cluster_data = load_bed_clusters(clust_file)
 clusters = cluster_data.keys()
 
 #Init x-axis
-t = arange(BINS)
+t = arange(bins)
+
+rows = len(tracks)
+cols = len(clusters)
+
+if summary:
+    rows += 1
+    cols += 1
 
 # Get a figure with a lot of subplots
-fig, axes = create_grid_figure(len(tracks), len(clusters), plotwidth=PLOTWIDTH, plotheight=PLOTHEIGHT, padleft=PADLEFT, padtop=PADTOP, pad=PAD, padright=PADRIGHT, padbottom=PADBOTTOM) 
+fig, axes = create_grid_figure(rows, cols, plotwidth=PLOTWIDTH, plotheight=PLOTHEIGHT, padleft=PADLEFT, padtop=PADTOP, pad=PAD, padright=PADRIGHT, padbottom=PADBOTTOM) 
 
 track_max = []
 for track_num, track in enumerate(tracks):
@@ -115,7 +126,7 @@ for track_num, track in enumerate(tracks):
 
         # Set scale    
         ax.set_ylim(0, maxscale)
-        ax.set_xlim(0, BINS - 1)    
+        ax.set_xlim(0, bins - 1)    
         
         # Cluster titles
         if track_num == 0:
@@ -131,6 +142,40 @@ for track_num, track in enumerate(tracks):
             
             plt.figtext(text_x,  pos[1][1], "%.4g" % maxscale, clip_on=False, horizontalalignment="right", verticalalignment="top", font_properties=font)
             plt.figtext(text_x,  pos[0][1], 0, clip_on=False, horizontalalignment="right", verticalalignment="bottom", font_properties=font)
+
+if summary:
+    for i,track in enumerate(tracks):
+        ax = axes[i][cols - 1]
+    
+        l = len(clusters)
+        min_alpha = 0.3
+        max_alpha = 0.9
+        step = (max_alpha - min_alpha) / (l - 1)
+        alphas = arange(min_alpha, max_alpha + step, step)
+        
+        for j,cluster in enumerate(clusters):
+            vals = array([data[track][x] for x in cluster_data[cluster]])
+            m = median(vals, axis=0)
+            ax.plot(arange(len(m)), m, color=colors[i % len(colors)], alpha=alphas[j])
+        ax.set_ylim(0, track_max[i])
+
+    for i,cluster in enumerate(clusters):
+        ax = axes[rows - 1][i]
+
+        max_max = 0
+
+        for j,track in enumerate(tracks):
+            vals = array([data[track][x] for x in cluster_data[cluster]])
+            m = median(vals, axis=0)
+            ax.plot(arange(len(m)), m, color=colors[j % len(colors)], alpha=0.8)
+            if track_max[j] > max_max:
+                max_max = track_max[j]
+        ax.set_ylim(0, max_max)
+       
+    ax = axes[rows - 1][cols - 1]
+    ax.set_frame_on(False)
+    ax.axes.get_yaxis().set_visible(False)
+    ax.axes.get_xaxis().set_visible(False)
 
 print "Saving figure"
 savefig(options.outfile, dpi=600)

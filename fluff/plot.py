@@ -119,6 +119,7 @@ def coverage_plot(ax, x, data, color="red", percs=[50,90]):
         
         # Draw the median
         ax.plot(x, m, color="black", alpha=0.95, linewidth=0.8)
+    #ax.plot(x, mean(vals, axis=0), color="purple", alpha=0.95, linewidth=0.8)
 
 def create_grid_figure(nrows, ncolumns, plotwidth=2.0, plotheight=2.0, pad=0.1, padleft=0.1, padright=0.1, padtop=0.1, padbottom=0.1, clean=True):
     wsize = padleft + (ncolumns * plotwidth) + (pad * (ncolumns - 1)) + padright
