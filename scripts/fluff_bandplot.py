@@ -150,9 +150,12 @@ if summary:
         l = len(clusters)
         min_alpha = 0.3
         max_alpha = 0.9
-        step = (max_alpha - min_alpha) / (l - 1)
-        alphas = arange(min_alpha, max_alpha + step, step)
-        
+        if l > 1:
+            step = (max_alpha - min_alpha) / (l - 1)
+            alphas = arange(min_alpha, max_alpha + step, step)
+        else:
+            alphas = [max_alpha]
+
         for j,cluster in enumerate(clusters):
             vals = array([data[track][x] for x in cluster_data[cluster]])
             m = median(vals, axis=0)
