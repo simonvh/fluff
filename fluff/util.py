@@ -2,6 +2,19 @@ import numpy
 import pysam
 import sys
 from scipy.stats import scoreatpercentile,chisquare
+import re
+
+def split_ranges(r):
+    if not r:
+        return r
+
+    p = re.compile('[:-]')
+    n = []
+    for part in r.split(","):
+        nums = [int(x) for x in p.split(part)]
+        for i in range(nums[0], nums[-1] + 1):
+            n.append(i)
+    return n
 
 def process_groups(groups):
     if not groups:

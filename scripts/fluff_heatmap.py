@@ -23,7 +23,7 @@ from fluff.fluffio import *
 from fluff.color import DEFAULT_COLORS, parse_colors
 from fluff.plot import heatmap_plot
 
-VERSION = "1.2"
+VERSION = "1.3"
 
 DEFAULT_BINSIZE = 100
 METRIC = "e"        # Euclidian, PyCluster
@@ -39,24 +39,93 @@ version = "%prog " + str(VERSION)
 parser = OptionParser(version=version, usage=usage)
 group1 = OptionGroup(parser, 'Optional')
 
-parser.add_option("-f", dest="featurefile", help="BED file containing features", metavar="FILE")
-parser.add_option("-d", dest="datafiles", help="data files (reads in BAM or BED format)", metavar="FILE(S)")
-parser.add_option("-o", dest="outfile", help="output file (type determined by extension)", metavar="FILE")
+parser.add_option("-f", 
+                  dest="featurefile", 
+                  help="BED file containing features", 
+                  metavar="FILE")
+parser.add_option("-d", 
+                  dest="datafiles", 
+                  help="data files (reads in BAM or BED format)", 
+                  metavar="FILE(S)")
+parser.add_option("-o", 
+                  dest="outfile", 
+                  help="output file (type determined by extension)", 
+                  metavar="FILE")
 
 # Optional arguments
-group1.add_option("-C", dest="clustering", help="kmeans, hierarchical or none", default=DEFAULT_CLUSTERING, metavar="METHOD")
-group1.add_option("-k", dest="numclusters", help="number of clusters", metavar="INT", type="int", default=1)
-group1.add_option("-m", dest="merge_mirrored", help="merge mirrored clusters (only with kmeans)", metavar="", default=False, action="store_true")
-group1.add_option("-c", dest="colors", help="color(s) (name, colorbrewer profile or hex code)", metavar="NAME(S)", default=DEFAULT_COLORS)
-group1.add_option("-B", dest="bgcolors", help="background color(s) (name, colorbrewer profile or hex code)", metavar="NAME(S)", default=DEFAULT_BG)
-group1.add_option("-e", dest="extend", help="extend (in bp)", metavar="INT", type="int", default=DEFAULT_EXTEND)
-group1.add_option("-b", dest="binsize", help="bin size (default %s)" % DEFAULT_BINSIZE, metavar="INT", type="int", default=DEFAULT_BINSIZE)
-group1.add_option("-s", dest="scale", help="scale (absolute or percentage)", metavar="", type="string", default=DEFAULT_SCALE)
-group1.add_option("-F", dest="fragmentsize", help="Fragment length (default: read length)",type="int",  default=None)
-group1.add_option("-r", dest="rpkm", help="use RPKM instead of read counts", metavar="", action="store_true", default=False)
-group1.add_option("-D", dest="rmdup", help="keep duplicate reads (removed by default)", metavar="", default=True, action="store_false")
-group1.add_option("-R", dest="rmrepeats", help="keep repeats (removed by default, bwa only) ", metavar="", action="store_false", default=True)
-
+group1.add_option("-p", 
+                  dest="pick", 
+                  help="pick specific data files to use for clustering", 
+                  default=None, 
+                  type="string")
+group1.add_option("-C", 
+                  dest="clustering", 
+                  help="kmeans, hierarchical or none", 
+                  default=DEFAULT_CLUSTERING, 
+                  metavar="METHOD")
+group1.add_option("-k", 
+                  dest="numclusters", 
+                  help="number of clusters", 
+                  metavar="INT", 
+                  type="int", 
+                  default=1)
+group1.add_option("-m", 
+                  dest="merge_mirrored", 
+                  help="merge mirrored clusters (only with kmeans)", 
+                  metavar="", 
+                  default=False, 
+                  action="store_true")
+group1.add_option("-c", 
+                  dest="colors", 
+                  help="color(s) (name, colorbrewer profile or hex code)", 
+                  metavar="NAME(S)", 
+                  default=DEFAULT_COLORS)
+group1.add_option("-B", 
+                  dest="bgcolors", 
+                  help="background color(s) (name, colorbrewer profile or hex code)", 
+                  metavar="NAME(S)", 
+                  default=DEFAULT_BG)
+group1.add_option("-e", 
+                  dest="extend", 
+                  help="extend (in bp)", 
+                  metavar="INT", 
+                  type="int", 
+                  default=DEFAULT_EXTEND)
+group1.add_option("-b", 
+                  dest="binsize", 
+                  help="bin size (default %s)" % DEFAULT_BINSIZE, 
+                  metavar="INT", 
+                  type="int", 
+                  default=DEFAULT_BINSIZE)
+group1.add_option("-s", 
+                  dest="scale", 
+                  help="scale (absolute or percentage)", 
+                  metavar="", 
+                  type="string", 
+                  default=DEFAULT_SCALE)
+group1.add_option("-F", 
+                  dest="fragmentsize", 
+                  help="Fragment length (default: read length)",
+                  type="int",
+                  default=None)
+group1.add_option("-r", 
+                  dest="rpkm", 
+                  help="use RPKM instead of read counts", 
+                  metavar="", 
+                  action="store_true", 
+                  default=False)
+group1.add_option("-D", 
+                  dest="rmdup", 
+                  help="keep duplicate reads (removed by default)", 
+                  metavar="", 
+                  default=True, 
+                  action="store_false")
+group1.add_option("-R", 
+                  dest="rmrepeats", 
+                  help="keep repeats (removed by default, bwa only) ", 
+                  metavar="", 
+                  action="store_false", 
+                  default=True)
 
 parser.add_option_group(group1)
 (options, args) = parser.parse_args()
@@ -83,6 +152,7 @@ bins = (extend_up + extend_down) / options.binsize
 rmdup = options.rmdup
 rpkm = options.rpkm
 rmrepeats = options.rmrepeats
+pick = [i - 1 for i in split_ranges(options.pick)]
 
 if not cluster_type in ["k", "h", "n"]:
     sys.stderr.write("Unknown clustering type!\n")
@@ -123,7 +193,7 @@ scale = get_absolute_scale(options.scale, [data[track] for track in tracks])
 
 # Normalize
 norm_data = normalize_data(data, DEFAULT_PERCENTILE)
-clus = hstack([norm_data[t] for t in tracks])
+clus = hstack([norm_data[t] for i,t in enumerate(tracks) if (i in pick or not pick)])
 
 if cluster_type == "k":
     print "K-means clustering"

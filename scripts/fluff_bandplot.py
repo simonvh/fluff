@@ -39,7 +39,7 @@ BINS = 100                                # Number of bins for profile
 #########################################################################
 font = FontProperties(size=FONTSIZE / 1.25, family=["Nimbus Sans L", "Helvetica", "sans-serif"])
 
-VERSION = "1.2"
+VERSION = "1.3"
 
 usage = "Usage: %prog -i <bedfile> -d <file1>[,<file2>,...] -o <out> [options]"
 version = "%prog " + str(VERSION)

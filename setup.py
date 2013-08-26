@@ -1,7 +1,7 @@
 from distutils.core import setup
 import setuptools
 
-VERSION = "1.1"
+VERSION = "1.3"
 DESCRIPTION = """
 fluff - plots and graphs 
 """

@@ -17,7 +17,7 @@ from fluff.plot import profile_screenshot
 from fluff.util import *
 from fluff.color import DEFAULT_COLORS, parse_colors
 
-VERSION = 1.1
+VERSION = 1.3
 BACKGROUNDS = ["white", "stripes", "color"]
 FRAGMENTLENGTH = 200
 
