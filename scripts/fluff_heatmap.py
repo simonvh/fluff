@@ -56,7 +56,7 @@ parser.add_option("-o",
 group1.add_option("-p", 
                   dest="pick", 
                   help="pick specific data files to use for clustering", 
-                  default=None, 
+                  default=None,
                   type="string")
 group1.add_option("-C", 
                   dest="clustering", 
@@ -152,7 +152,11 @@ bins = (extend_up + extend_down) / options.binsize
 rmdup = options.rmdup
 rpkm = options.rpkm
 rmrepeats = options.rmrepeats
-pick = [i - 1 for i in split_ranges(options.pick)]
+
+if (options.pick != None):
+  pick = [i - 1 for i in split_ranges(options.pick)]
+else:
+  pick = range(len(datafiles))
 
 if not cluster_type in ["k", "h", "n"]:
     sys.stderr.write("Unknown clustering type!\n")
@@ -228,6 +232,9 @@ elif cluster_type == "h":
     tree = Pycluster.treecluster(clus, method="m", dist=METRIC)
     labels = tree.cut(options.numclusters)
     ind = sort_tree(tree, arange(len(regions)))
+elif cluster_type == "p":
+    print "PAM (Partitioning Around Medoids)"
+    #Pycluster.kmedoids(clus, options.numclusters)
 else:
     ind = arange(len(regions))
     #print ind
@@ -240,4 +247,5 @@ f.close()
 
 if not cluster_type == "k":
     labels = None
+print data
 heatmap_plot(data, ind, outfile, tracks, titles, colors, bgcolors, scale, tscale, labels)
