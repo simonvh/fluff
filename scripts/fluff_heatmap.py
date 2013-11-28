@@ -126,6 +126,18 @@ group1.add_option("-R",
                   metavar="", 
                   action="store_false", 
                   default=True)
+group1.add_option("-O", 
+                  dest="rcmatrix", 
+                  help="Output read count matrix", 
+                  metavar="", 
+                  action="store_true", 
+                  default=False)
+group1.add_option("-P", 
+                  dest="cpus", 
+                  help="number of CPUs (default: 4)", 
+                  metavar="INT", 
+                  type="int", 
+                  default=4)
 
 parser.add_option_group(group1)
 (options, args) = parser.parse_args()
@@ -152,6 +164,8 @@ bins = (extend_up + extend_down) / options.binsize
 rmdup = options.rmdup
 rpkm = options.rpkm
 rmrepeats = options.rmrepeats
+makercmatrix = options.rcmatrix
+ncpus = options.cpus
 
 if (options.pick != None):
   pick = [i - 1 for i in split_ranges(options.pick)]
@@ -176,7 +190,7 @@ print "Loading data"
 try:
     # Load data in parallel
     import pp
-    job_server = pp.Server(ncpus=4)
+    job_server = pp.Server(ncpus)
     jobs = []
     for datafile in datafiles:
         jobs.append(job_server.submit(load_heatmap_data, (featurefile, datafile, bins, extend_up, extend_down, rmdup, rpkm, rmrepeats, fragmentsize),  (), ("tempfile","sys","os","fluff.fluffio","numpy")))
@@ -247,5 +261,14 @@ f.close()
 
 if not cluster_type == "k":
     labels = None
-print data
+
+#Save read count matrix
+if(makercmatrix):
+  input_file = open('{0}_readcount.txt'.format(outfile), 'w')
+  for k, v in data.items():
+    for row in v:
+      for x in row:
+	input_file.write('{0}\t'.format(str(x)))
+      input_file.write('\n')
+
 heatmap_plot(data, ind, outfile, tracks, titles, colors, bgcolors, scale, tscale, labels)
