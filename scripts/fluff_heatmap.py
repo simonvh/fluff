@@ -200,9 +200,10 @@ if not distancefunction in ["e", "p"]:
 else:
   if distancefunction == "e":
     METRIC = DEFAULT_METRIC
+    print "Euclidean distance method"
   else:
     METRIC = "c"
-
+    print "Pearson distance method"
 ## Get scale for each track
 tscale = [1.0 for track in datafiles]
 
