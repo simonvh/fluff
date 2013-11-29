@@ -28,7 +28,7 @@ from fluff.plot import heatmap_plot
 VERSION = "1.3"
 
 DEFAULT_BINSIZE = 100
-METRIC = "e"        # Euclidian, PyCluster
+DEFAULT_METRIC = "e"        # Euclidian, PyCluster
 FONTSIZE = 8
 DEFAULT_SCALE = "90%" 
 DEFAULT_EXTEND = 5000
@@ -140,7 +140,11 @@ group1.add_option("-P",
                   metavar="INT", 
                   type="int", 
                   default=4)
-
+group1.add_option("-M", 
+                  dest="distancefunction", 
+                  help="Euclidean or Pearson (default: Euclidean)", 
+                  default=DEFAULT_METRIC,
+                  metavar="METHOD")
 parser.add_option_group(group1)
 (options, args) = parser.parse_args()
 
@@ -168,6 +172,7 @@ rpkm = options.rpkm
 rmrepeats = options.rmrepeats
 makercmatrix = options.rcmatrix
 ncpus = options.cpus
+distancefunction = options.distancefunction[0].lower()
 
 if (ncpus>multiprocessing.cpu_count()):
   print "Warning: You can use only up to {0} processors!".format(multiprocessing.cpu_count())
@@ -188,6 +193,15 @@ if not cluster_type in ["k", "h", "n"]:
 if cluster_type == "k" and not options.numclusters >= 2:
     sys.stderr.write("Please provide number of clusters!\n")
     sys.exit(1)
+
+if not distancefunction in ["e", "p"]: 
+  sys.stderr.write("Unknown distance function!\n")
+  sys.exit(1)
+else:
+  if distancefunction == "e":
+    METRIC = DEFAULT_METRIC
+  else:
+    METRIC = "c"
 
 ## Get scale for each track
 tscale = [1.0 for track in datafiles]
