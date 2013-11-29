@@ -87,6 +87,9 @@ Options:
     -r          use RPKM instead of read counts
     -D          keep duplicate reads (removed by default)
     -R          keep repeats (removed by default, bwa only)
+    -O		save read count matrix
+    -P		define number of CPUs
+    -M METHOD	euclidean or pearson
 ```
 
 ### Clustering ###
