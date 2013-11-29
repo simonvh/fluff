@@ -170,7 +170,7 @@ makercmatrix = options.rcmatrix
 ncpus = options.cpus
 
 if (ncpus>multiprocessing.cpu_count()):
-  print "Warning: You can use only {0} processors!".format(multiprocessing.cpu_count())
+  print "Warning: You can use only up to {0} processors!".format(multiprocessing.cpu_count())
   sys.exit(1)
   
 if (len(tracks)>4):
