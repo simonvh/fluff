@@ -9,6 +9,8 @@ from optparse import OptionParser,OptionGroup
 from tempfile import NamedTemporaryFile
 import sys
 import os
+import multiprocessing
+
 
 ### External imports ###
 from numpy import array,hstack,arange,median,mean,zeros
@@ -93,7 +95,7 @@ group1.add_option("-e",
                   default=DEFAULT_EXTEND)
 group1.add_option("-b", 
                   dest="binsize", 
-                  help="bin size (default %s)" % DEFAULT_BINSIZE, 
+                  help="bin size (default {0})".format(DEFAULT_BINSIZE), 
                   metavar="INT", 
                   type="int", 
                   default=DEFAULT_BINSIZE)
@@ -167,6 +169,13 @@ rmrepeats = options.rmrepeats
 makercmatrix = options.rcmatrix
 ncpus = options.cpus
 
+if (ncpus>multiprocessing.cpu_count()):
+  print "Warning: You can use only {0} processors!".format(multiprocessing.cpu_count())
+  sys.exit(1)
+  
+if (len(tracks)>4):
+  print "Warning: Running fluff with too many files might make you system use enormous amount of memory!"
+
 if (options.pick != None):
   pick = [i - 1 for i in split_ranges(options.pick)]
 else:
@@ -226,12 +235,12 @@ if cluster_type == "k":
                 data[track][labels == j] = [row[::-1] for row in data[track][labels == j]]
             for k in range(len(regions)):
                 if labels[k] == j:
-                    (chrom,start,end,strand) = regions[k]
+                    (chrom,start,end,gene,strand) = regions[k]
                     if strand == "+":
                         strand = "-"
                     else:
                         strand = "+"
-                    regions[k] = (chrom, start, end, strand)
+                    regions[k] = (chrom, start, end, gene, strand)
             n = len(set(labels))
             labels[labels == j] = i
             for k in range(j + 1, n):
@@ -246,17 +255,15 @@ elif cluster_type == "h":
     tree = Pycluster.treecluster(clus, method="m", dist=METRIC)
     labels = tree.cut(options.numclusters)
     ind = sort_tree(tree, arange(len(regions)))
-elif cluster_type == "p":
-    print "PAM (Partitioning Around Medoids)"
-    #Pycluster.kmedoids(clus, options.numclusters)
 else:
     ind = arange(len(regions))
     #print ind
     labels = zeros(len(regions))
+    print "test"
 
-f = open("%s_clusters.bed" % outfile, "w")
-for (chrom,start,end,strand), cluster in zip(array(regions, dtype="object")[ind], array(labels)[ind]):
-    f.write("%s\t%s\t%s\t%s\t0\t%s\n" % (chrom, start, end, cluster, strand))
+f = open("{0}_clusters.bed".format(outfile), "w")
+for (chrom,start,end,gene,strand), cluster in zip(array(regions, dtype="object")[ind], array(labels)[ind]):
+    f.write("{0}\t{1}\t{2}\t{3}\t{4}\t{5}\n".format(chrom, start, end, gene, cluster, strand))
 f.close()
 
 if not cluster_type == "k":
