@@ -398,7 +398,7 @@ def get_binned_stats(in_fname, data_fname, nbins, rpkm=False, rmdup=False, rmrep
         if feature.strand == "-":
             row = row[::-1]
         
-        ret.append( [feature.chrom, feature.start, feature.end, feature.gene] + row)
+        ret.append( [feature.chrom, feature.start, feature.end] + row)
         
         count += 1
         #if count % 1000 == 0:
