@@ -11,7 +11,6 @@ import sys
 import os
 import multiprocessing
 
-
 ### External imports ###
 from numpy import array,hstack,arange,median,mean,zeros
 from scipy.stats.mstats import rankdata
@@ -145,6 +144,12 @@ group1.add_option("-M",
                   help="Euclidean or Pearson (default: Euclidean)", 
                   default=DEFAULT_METRIC,
                   metavar="METHOD")
+group1.add_option("-g", 
+                  dest="graphdynamics", 
+                  help="1 bin", 
+                  metavar="", 
+                  action="store_true", 
+                  default=False)
 parser.add_option_group(group1)
 (options, args) = parser.parse_args()
 
@@ -173,7 +178,7 @@ rmrepeats = options.rmrepeats
 makercmatrix = options.rcmatrix
 ncpus = options.cpus
 distancefunction = options.distancefunction[0].lower()
-
+dynam = options.graphdynamics
 if (ncpus>multiprocessing.cpu_count()):
   print "Warning: You can use only up to {0} processors!".format(multiprocessing.cpu_count())
   sys.exit(1)
@@ -210,14 +215,19 @@ tscale = [1.0 for track in datafiles]
 # Calculate the profile data
 data = {}
 regions = []
-print "Loading data"
-try:
+
+def load_data(featurefile, bins_size, extend_up, extend_down, rmdup, rpkm, rmrepeats, fragmentsize):
+  print "Loading data"
+  try:
     # Load data in parallel
+    global data
+    global regions
     import pp
+
     job_server = pp.Server(ncpus)
     jobs = []
     for datafile in datafiles:
-        jobs.append(job_server.submit(load_heatmap_data, (featurefile, datafile, bins, extend_up, extend_down, rmdup, rpkm, rmrepeats, fragmentsize),  (), ("tempfile","sys","os","fluff.fluffio","numpy")))
+        jobs.append(job_server.submit(load_heatmap_data, (featurefile, datafile, bins_size, extend_up, extend_down, rmdup, rpkm, rmrepeats, fragmentsize),  (), ("tempfile","sys","os","fluff.fluffio","numpy")))
 
     for job in jobs:
         track,regions,profile = job()
@@ -225,13 +235,19 @@ try:
         #for row in profile:
         #    print row
         data[track] = profile
-except:
+  except:
     sys.stderr.write("Parallel Python (pp) not installed, can't load data in parallel\n")
     for datafile in datafiles:
-        track,regions,profile = load_heatmap_data(featurefile, datafile, bins, extend_up, extend_down, rmdup, rpkm, rmrepeats, fragmentsize)
+        track,regions,profile = load_heatmap_data(featurefile, datafile, bins_size, extend_up, extend_down, rmdup, rpkm, rmrepeats, fragmentsize)
         data[track] = profile
-
-scale = get_absolute_scale(options.scale, [data[track] for track in tracks])
+        
+        
+if dynam:
+  bins_size = extend_up + extend_down
+else:
+  bins_size = bins
+  
+load_data(featurefile, bins_size, extend_up, extend_down, rmdup, rpkm, rmrepeats, fragmentsize)
 
 # Normalize
 norm_data = normalize_data(data, DEFAULT_PERCENTILE)
@@ -274,7 +290,8 @@ else:
     ind = arange(len(regions))
     #print ind
     labels = zeros(len(regions))
-    print "test"
+
+
 
 f = open("{0}_clusters.bed".format(outfile), "w")
 for (chrom,start,end,gene,strand), cluster in zip(array(regions, dtype="object")[ind], array(labels)[ind]):
@@ -293,4 +310,7 @@ if(makercmatrix):
 	input_file.write('{0}\t'.format(str(x)))
       input_file.write('\n')
 
+load_data(featurefile, bins, extend_up, extend_down, rmdup, rpkm, rmrepeats, fragmentsize)
+
+scale = get_absolute_scale(options.scale, [data[track] for track in tracks])
 heatmap_plot(data, ind, outfile, tracks, titles, colors, bgcolors, scale, tscale, labels)
