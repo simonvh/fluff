@@ -192,7 +192,7 @@ if (options.pick != None):
 else:
   pick = range(len(datafiles))
 
-if not cluster_type in ["k", "h", "n"]:
+if not cluster_type in ["k", "h", "n", "p"]:
     sys.stderr.write("Unknown clustering type!\n")
     sys.exit(1)
 
@@ -289,7 +289,27 @@ elif cluster_type == "h":
     ind = sort_tree(tree, arange(len(regions)))
 elif cluster_type == "p":
     print "Partitioning Around Medoids"
-    
+    labels, error, nfound = Pycluster.kmedoids(clus, options.numclusters, npass=1, initialid=None)
+    if merge_mirrored:
+        (i,j) = mirror_clusters(data, labels)
+        while j:
+            for track in data.keys():
+                data[track][labels == j] = [row[::-1] for row in data[track][labels == j]]
+            for k in range(len(regions)):
+                if labels[k] == j:
+                    (chrom,start,end,gene,strand) = regions[k]
+                    if strand == "+":
+                        strand = "-"
+                    else:
+                        strand = "+"
+                    regions[k] = (chrom, start, end, gene, strand)
+            n = len(set(labels))
+            labels[labels == j] = i
+            for k in range(j + 1, n):
+                labels[labels == k] = k - 1
+            (i,j) = mirror_clusters(data, labels)
+            
+    ind = labels.argsort()
 else:
     ind = arange(len(regions))
     #print ind
