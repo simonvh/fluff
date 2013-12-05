@@ -310,7 +310,8 @@ if(makercmatrix):
 	input_file.write('{0}\t'.format(str(x)))
       input_file.write('\n')
 
-load_data(featurefile, bins, extend_up, extend_down, rmdup, rpkm, rmrepeats, fragmentsize)
+if dynam:
+  load_data(featurefile, bins, extend_up, extend_down, rmdup, rpkm, rmrepeats, fragmentsize)
 
 scale = get_absolute_scale(options.scale, [data[track] for track in tracks])
 heatmap_plot(data, ind, outfile, tracks, titles, colors, bgcolors, scale, tscale, labels)
