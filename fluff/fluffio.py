@@ -431,7 +431,7 @@ def load_heatmap_data(featurefile, datafile, bins=100, up=5000, down=5000, rmdup
             end += up
         if start >= 0:
             regions.append([vals[0], start, end, gene, strand])
-            order["{0}:{1}-{2}:{3}".format(vals[0], start, end, gene)] = count
+            order["{0}:{1}-{2}".format(vals[0], start, end)] = count
             count += 1
             tmp.write("{0}\t{1}\t{2}\t{3}\t0\t{4}\n".format(vals[0], start, end, gene, strand))
     tmp.flush()
