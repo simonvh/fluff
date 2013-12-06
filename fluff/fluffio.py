@@ -330,7 +330,6 @@ class SimpleBed():
             vals = line.strip().split("\t")
             start, end = int(vals[1]), int(vals[2])
             value = vals[3]
-            #gene = vals[4]
             return SimpleFeature(vals[0], start, end, value, vals[5])
         else:
             self.f.close()

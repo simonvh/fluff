@@ -140,7 +140,7 @@ group1.add_option("-M",
                   metavar="METHOD")
 group1.add_option("-g", 
                   dest="graphdynamics", 
-                  help="1 bin", 
+                  help="Cluster as 1 bin, diplay as original number of bins", 
                   metavar="", 
                   action="store_true", 
                   default=False)
@@ -172,6 +172,7 @@ rmrepeats = options.rmrepeats
 ncpus = options.cpus
 distancefunction = options.distancefunction[0].lower()
 dynam = options.graphdynamics
+
 if (ncpus>multiprocessing.cpu_count()):
   print "Warning: You can use only up to {0} processors!".format(multiprocessing.cpu_count())
   sys.exit(1)
@@ -204,8 +205,6 @@ else:
     print "Pearson distance method"
 ## Get scale for each track
 tscale = [1.0 for track in datafiles]
-
-
 
 def load_data(featurefile, amount_bins, extend_up, extend_down, rmdup, rpkm, rmrepeats, fragmentsize):
   # Calculate the profile data
