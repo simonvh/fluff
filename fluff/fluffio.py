@@ -341,13 +341,10 @@ def get_binned_stats(in_fname, data_fname, nbins, rpkm=False, rmdup=False, rmrep
     readlength = track.read_length()
     if not fragmentsize:
         fragmentsize = readlength
-    #sys.stderr.write("Using fragmentsize %s\n" % fragmentsize)
 
     total_reads = 1
     if rpkm:
-        #sys.stderr.write("Counting reads...\n")
         total_reads = track.count(rmdup, rmrepeats) / 1000000.0
-        #sys.stderr.write("Done.\n")
 
     ret = []
     count = 1    
@@ -360,14 +357,11 @@ def get_binned_stats(in_fname, data_fname, nbins, rpkm=False, rmdup=False, rmrep
         in_track = pybedtools.BedTool(in_fname)
     extend = fragmentsize - readlength
     for feature, min_strand, plus_strand in track.fetch_to_counts(in_track, rmdup, rmrepeats):
-      
         binsize = (feature.end - feature.start) / float(nbins)
-          
         row = []
         overlap = []
         min_strand = [x - (fragmentsize - readlength) for x in min_strand]
         bin_start = feature.start
-
         while int(bin_start + 0.5) < feature.end:
             num_reads = 0
             i = 0
@@ -397,12 +391,8 @@ def get_binned_stats(in_fname, data_fname, nbins, rpkm=False, rmdup=False, rmrep
         ret.append( [feature.chrom, feature.start, feature.end] + row)
         
         count += 1
-        #if count % 1000 == 0:
-        #    sys.stderr.write("%s processed\n" % count)
-
     track.close()
     del in_track
-
     return ["\t".join([str(x) for x in row]) for row in ret]
 
 def load_heatmap_data(featurefile, datafile, bins=100, up=5000, down=5000, rmdup=True, rpkm=False, rmrepeats=True, fragmentsize=None, dynam=False):
@@ -410,7 +400,6 @@ def load_heatmap_data(featurefile, datafile, bins=100, up=5000, down=5000, rmdup
     regions = []
     order = {}
     count = 0
-
     for line in open(featurefile):
         if line.startswith("#") or line[:5] == "track":
             continue
@@ -435,12 +424,8 @@ def load_heatmap_data(featurefile, datafile, bins=100, up=5000, down=5000, rmdup
             count += 1
             tmp.write("{0}\t{1}\t{2}\t{3}\t0\t{4}\n".format(vals[0], start, end, gene, strand))
     tmp.flush()
-    
     result = fluff.fluffio.get_binned_stats(tmp.name, datafile, bins, rpkm=rpkm, rmdup=rmdup, rmrepeats=rmrepeats, fragmentsize=fragmentsize)
-    
     # Retrieve original order
-    #r_regions = ["{}:{}-{}".format(*row.split("\t")[:3]) for row in result]
-    #r_order = numpy.array([order[region] for region in r_regions]).argsort()[::-1]
     r_data = numpy.array([[float(x) for x in row.split("\t")[3:]] for row in result])    
     return os.path.basename(datafile), regions, r_data#[r_order]
 

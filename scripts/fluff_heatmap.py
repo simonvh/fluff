@@ -127,12 +127,6 @@ group1.add_option("-R",
                   metavar="", 
                   action="store_false", 
                   default=True)
-group1.add_option("-O", 
-                  dest="rcmatrix", 
-                  help="Output read count matrix", 
-                  metavar="", 
-                  action="store_true", 
-                  default=False)
 group1.add_option("-P", 
                   dest="cpus", 
                   help="number of CPUs (default: 4)", 
@@ -175,7 +169,6 @@ bins = (extend_up + extend_down) / options.binsize
 rmdup = options.rmdup
 rpkm = options.rpkm
 rmrepeats = options.rmrepeats
-makercmatrix = options.rcmatrix
 ncpus = options.cpus
 distancefunction = options.distancefunction[0].lower()
 dynam = options.graphdynamics
@@ -212,42 +205,40 @@ else:
 ## Get scale for each track
 tscale = [1.0 for track in datafiles]
 
-# Calculate the profile data
-data = {}
-regions = []
 
-def load_data(featurefile, bins_size, extend_up, extend_down, rmdup, rpkm, rmrepeats, fragmentsize):
+
+def load_data(featurefile, amount_bins, extend_up, extend_down, rmdup, rpkm, rmrepeats, fragmentsize):
+  # Calculate the profile data
+  data = {}
+  regions = []
+  
   print "Loading data"
   try:
     # Load data in parallel
-    global data
-    global regions
     import pp
 
     job_server = pp.Server(ncpus)
     jobs = []
     for datafile in datafiles:
-        jobs.append(job_server.submit(load_heatmap_data, (featurefile, datafile, bins_size, extend_up, extend_down, rmdup, rpkm, rmrepeats, fragmentsize),  (), ("tempfile","sys","os","fluff.fluffio","numpy")))
+        jobs.append(job_server.submit(load_heatmap_data, (featurefile, datafile, amount_bins, extend_up, extend_down, rmdup, rpkm, rmrepeats, fragmentsize),  (), ("tempfile","sys","os","fluff.fluffio","numpy")))
 
     for job in jobs:
         track,regions,profile = job()
-        #print "##### %s " % track
-        #for row in profile:
-        #    print row
         data[track] = profile
   except:
     sys.stderr.write("Parallel Python (pp) not installed, can't load data in parallel\n")
     for datafile in datafiles:
-        track,regions,profile = load_heatmap_data(featurefile, datafile, bins_size, extend_up, extend_down, rmdup, rpkm, rmrepeats, fragmentsize)
+        track,regions,profile = load_heatmap_data(featurefile, datafile, amount_bins, extend_up, extend_down, rmdup, rpkm, rmrepeats, fragmentsize)
         data[track] = profile
-        
-        
+
+  return data, regions
+
 if dynam:
-  bins_size = extend_up + extend_down
+  amount_bins = 1
 else:
-  bins_size = bins
+  amount_bins = bins
   
-load_data(featurefile, bins_size, extend_up, extend_down, rmdup, rpkm, rmrepeats, fragmentsize)
+data, regions = load_data(featurefile, amount_bins, extend_up, extend_down, rmdup, rpkm, rmrepeats, fragmentsize)
 
 # Normalize
 norm_data = normalize_data(data, DEFAULT_PERCENTILE)
@@ -288,10 +279,7 @@ elif cluster_type == "h":
     ind = sort_tree(tree, arange(len(regions)))
 else:
     ind = arange(len(regions))
-    #print ind
     labels = zeros(len(regions))
-
-
 
 f = open("{0}_clusters.bed".format(outfile), "w")
 for (chrom,start,end,gene,strand), cluster in zip(array(regions, dtype="object")[ind], array(labels)[ind]):
@@ -302,16 +290,15 @@ if not cluster_type == "k":
     labels = None
 
 #Save read count matrix
-if(makercmatrix):
-  input_file = open('{0}_readcount.txt'.format(outfile), 'w')
-  for k, v in data.items():
-    for row in v:
-      for x in row:
-	input_file.write('{0}\t'.format(str(x)))
-      input_file.write('\n')
+input_file = open('{0}_readcount.txt'.format(outfile), 'w')
+for k, v in data.items():
+  for row in v:
+    for x in row:
+      input_file.write('{0}\t'.format(str(x)))
+    input_file.write('\n')
 
 if dynam:
-  load_data(featurefile, bins, extend_up, extend_down, rmdup, rpkm, rmrepeats, fragmentsize)
+  data, regions = load_data(featurefile, bins, extend_up, extend_down, rmdup, rpkm, rmrepeats, fragmentsize)
 
 scale = get_absolute_scale(options.scale, [data[track] for track in tracks])
 heatmap_plot(data, ind, outfile, tracks, titles, colors, bgcolors, scale, tscale, labels)
