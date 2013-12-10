@@ -152,7 +152,9 @@ bins = (extend_up + extend_down) / options.binsize
 rmdup = options.rmdup
 rpkm = options.rpkm
 rmrepeats = options.rmrepeats
-pick = [i - 1 for i in split_ranges(options.pick)]
+pick = split_ranges(options.pick)
+if pick:
+    pick = [i - 1 for i in pick]
 
 if not cluster_type in ["k", "h", "n"]:
     sys.stderr.write("Unknown clustering type!\n")
@@ -193,7 +195,7 @@ scale = get_absolute_scale(options.scale, [data[track] for track in tracks])
 
 # Normalize
 norm_data = normalize_data(data, DEFAULT_PERCENTILE)
-clus = hstack([norm_data[t] for i,t in enumerate(tracks) if (i in pick or not pick)])
+clus = hstack([norm_data[t] for i,t in enumerate(tracks) if (not pick or i in pick)])
 
 if cluster_type == "k":
     print "K-means clustering"
