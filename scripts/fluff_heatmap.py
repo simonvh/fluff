@@ -23,8 +23,9 @@ from fluff.util import *
 from fluff.fluffio import *
 from fluff.color import DEFAULT_COLORS, parse_colors
 from fluff.plot import heatmap_plot
+from fluff.config import *
 
-VERSION = "1.3"
+VERSION = str(FL_VERSION)
 
 DEFAULT_BINSIZE = 100
 DEFAULT_METRIC = "e"        # Euclidian, PyCluster
@@ -107,7 +108,7 @@ group1.add_option("-s",
 group1.add_option("-F", 
                   dest="fragmentsize", 
                   help="Fragment length (default: read length)",
-                  type="int",
+                  #type="int",
                   default=None)
 group1.add_option("-r", 
                   dest="rpkm", 
@@ -162,7 +163,7 @@ bgcolors = parse_colors(options.bgcolors)
 outfile = options.outfile
 extend_up = options.extend
 extend_down = options.extend
-fragmentsize = options.fragmentsize
+fragmentsizes = [int(x.strip()) for x in options.fragmentsize.split(",")]
 cluster_type = options.clustering[0].lower()
 merge_mirrored = options.merge_mirrored
 bins = (extend_up + extend_down) / options.binsize
@@ -206,7 +207,7 @@ else:
 ## Get scale for each track
 tscale = [1.0 for track in datafiles]
 
-def load_data(featurefile, amount_bins, extend_up, extend_down, rmdup, rpkm, rmrepeats, fragmentsize):
+def load_data(featurefile, amount_bins, extend_up, extend_down, rmdup, rpkm, rmrepeats, fragmentsizes):
   # Calculate the profile data
   data = {}
   regions = []
@@ -218,7 +219,8 @@ def load_data(featurefile, amount_bins, extend_up, extend_down, rmdup, rpkm, rmr
 
     job_server = pp.Server(ncpus)
     jobs = []
-    for datafile in datafiles:
+    for datafile, fragmentsize in zip(datafiles, fragmentsizes):
+        print fragmentsize
         jobs.append(job_server.submit(load_heatmap_data, (featurefile, datafile, amount_bins, extend_up, extend_down, rmdup, rpkm, rmrepeats, fragmentsize),  (), ("tempfile","sys","os","fluff.fluffio","numpy")))
 
     for job in jobs:
@@ -226,8 +228,8 @@ def load_data(featurefile, amount_bins, extend_up, extend_down, rmdup, rpkm, rmr
         data[track] = profile
   except:
     sys.stderr.write("Parallel Python (pp) not installed, can't load data in parallel\n")
-    for datafile in datafiles:
-        track,regions,profile = load_heatmap_data(featurefile, datafile, amount_bins, extend_up, extend_down, rmdup, rpkm, rmrepeats, fragmentsize)
+    for datafile, fragmentsize in zip(datafiles, fragmentsizes):
+        track,regions,profile = load_heatmap_data(featurefile, datafile, amount_bins, extend_up, extend_down, rmdup, rpkm, rmrepeats, int(fragmentsize))
         data[track] = profile
 
   return data, regions
@@ -237,7 +239,7 @@ if dynam:
 else:
   amount_bins = bins
   
-data, regions = load_data(featurefile, amount_bins, extend_up, extend_down, rmdup, rpkm, rmrepeats, fragmentsize)
+data, regions = load_data(featurefile, amount_bins, extend_up, extend_down, rmdup, rpkm, rmrepeats, fragmentsizes)
 
 # Normalize
 norm_data = normalize_data(data, DEFAULT_PERCENTILE)
@@ -297,7 +299,7 @@ for k, v in data.items():
     input_file.write('\n')
 
 if dynam:
-  data, regions = load_data(featurefile, bins, extend_up, extend_down, rmdup, rpkm, rmrepeats, fragmentsize)
+  data, regions = load_data(featurefile, bins, extend_up, extend_down, rmdup, rpkm, rmrepeats, fragmentsizes)
 
 scale = get_absolute_scale(options.scale, [data[track] for track in tracks])
 heatmap_plot(data, ind, outfile, tracks, titles, colors, bgcolors, scale, tscale, labels)
