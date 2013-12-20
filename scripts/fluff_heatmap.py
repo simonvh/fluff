@@ -163,7 +163,13 @@ bgcolors = parse_colors(options.bgcolors)
 outfile = options.outfile
 extend_up = options.extend
 extend_down = options.extend
-fragmentsizes = [int(x.strip()) for x in options.fragmentsize.split(",")]
+
+print options.fragmentsize
+if not options.fragmentsize == None :
+  fragmentsizes = [int(x.strip()) for x in options.fragmentsize.split(",")]
+else:
+  fragmentsizes = None
+  
 cluster_type = options.clustering[0].lower()
 merge_mirrored = options.merge_mirrored
 bins = (extend_up + extend_down) / options.binsize
@@ -219,7 +225,8 @@ def load_data(featurefile, amount_bins, extend_up, extend_down, rmdup, rpkm, rmr
 
     job_server = pp.Server(ncpus)
     jobs = []
-    for datafile, fragmentsize in zip(datafiles, fragmentsizes):
+    if not options.fragmentsize == None :
+     for datafile, fragmentsize in zip(datafiles, fragmentsizes):
         print fragmentsize
         jobs.append(job_server.submit(load_heatmap_data, (featurefile, datafile, amount_bins, extend_up, extend_down, rmdup, rpkm, rmrepeats, fragmentsize),  (), ("tempfile","sys","os","fluff.fluffio","numpy")))
 
