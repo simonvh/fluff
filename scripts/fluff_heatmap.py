@@ -164,7 +164,6 @@ outfile = options.outfile
 extend_up = options.extend
 extend_down = options.extend
 
-print options.fragmentsize
 if not options.fragmentsize == None :
   fragmentsizes = [int(x.strip()) for x in options.fragmentsize.split(",")]
 else:
@@ -227,17 +226,22 @@ def load_data(featurefile, amount_bins, extend_up, extend_down, rmdup, rpkm, rmr
     jobs = []
     if not options.fragmentsize == None :
      for datafile, fragmentsize in zip(datafiles, fragmentsizes):
-        print fragmentsize
         jobs.append(job_server.submit(load_heatmap_data, (featurefile, datafile, amount_bins, extend_up, extend_down, rmdup, rpkm, rmrepeats, fragmentsize),  (), ("tempfile","sys","os","fluff.fluffio","numpy")))
-
+    else:
+      for datafile in datafiles:
+	jobs.append(job_server.submit(load_heatmap_data, (featurefile, datafile, amount_bins, extend_up, extend_down, rmdup, rpkm, rmrepeats, fragmentsizes),  (), ("tempfile","sys","os","fluff.fluffio","numpy")))
     for job in jobs:
         track,regions,profile = job()
         data[track] = profile
   except:
     sys.stderr.write("Parallel Python (pp) not installed, can't load data in parallel\n")
-    for datafile, fragmentsize in zip(datafiles, fragmentsizes):
+    if not options.fragmentsize == None :
+      for datafile, fragmentsize in zip(datafiles, fragmentsizes):
         track,regions,profile = load_heatmap_data(featurefile, datafile, amount_bins, extend_up, extend_down, rmdup, rpkm, rmrepeats, int(fragmentsize))
         data[track] = profile
+    else:
+      for datafile in datafiles:
+	jobs.append(job_server.submit(load_heatmap_data, (featurefile, datafile, amount_bins, extend_up, extend_down, rmdup, rpkm, rmrepeats, fragmentsizes),  (), ("tempfile","sys","os","fluff.fluffio","numpy")))
 
   return data, regions
 
