@@ -85,6 +85,7 @@ Options:
     -b INT      bin size (default 100)
     -s SCALE    scale (absolute or percentage)
     -r          use RPKM instead of read counts
+    -F FRAGMENTSIZE(S)  Fragment length (default: read length)
     -D          keep duplicate reads (removed by default)
     -R          keep repeats (removed by default, bwa only)
     -O          save read count matrix

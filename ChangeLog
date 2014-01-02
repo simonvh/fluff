@@ -15,6 +15,7 @@ script/
 		Get reads matrix count as an output ('_readcount.txt') (Issue:
 		#18).
 		Fixed bugs.
+		Use different fragment size for each data file
 	fluff_bandplot.py : 
 	fluff_profile.py : 
 
