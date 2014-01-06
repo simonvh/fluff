@@ -129,7 +129,7 @@ group1.add_option("-R",
                   metavar="", 
                   action="store_false", 
                   default=True)
-		  group1.add_option("-P", 
+group1.add_option("-P", 
                   dest="cpus", 
                   help="number of CPUs (default: 4)", 
                   metavar="INT", 
@@ -142,6 +142,10 @@ group1.add_option("-M",
                   metavar="METHOD")
 group1.add_option("-g", 
                   dest="graphdynamics", 
+                  help="Cluster as 1 bin, diplay as original number of bins", 
+                  metavar="", 
+                  action="store_true", 
+                  default=False)
 parser.add_option_group(group1)
 (options, args) = parser.parse_args()
 
@@ -176,7 +180,6 @@ ncpus = options.cpus
 distancefunction = options.distancefunction[0].lower()
 dynam = options.graphdynamics
 
-if (ncpus>multiprocessing.cpu_count()):
 if (ncpus>multiprocessing.cpu_count()):
   print "Warning: You can use only up to {0} processors!".format(multiprocessing.cpu_count())
   sys.exit(1)
@@ -219,8 +222,6 @@ def load_data(featurefile, amount_bins, extend_up, extend_down, rmdup, rpkm, rmr
   print "Loading data"
   try:
     # Load data in parallel
-    global data
-    global regions
     import pp
 
     job_server = pp.Server(ncpus)
@@ -230,7 +231,7 @@ def load_data(featurefile, amount_bins, extend_up, extend_down, rmdup, rpkm, rmr
         jobs.append(job_server.submit(load_heatmap_data, (featurefile, datafile, amount_bins, extend_up, extend_down, rmdup, rpkm, rmrepeats, fragmentsize),  (), ("tempfile","sys","os","fluff.fluffio","numpy")))
     else:
       for datafile in datafiles:
-	jobs.append(job_server.submit(load_heatmap_data, (featurefile, datafile, amount_bins, extend_up, extend_down, rmdup, rpkm, rmrepeats, fragmentsizes),  (), ("tempfile","sys","os","fluff.fluffio","numpy")))
+        jobs.append(job_server.submit(load_heatmap_data, (featurefile, datafile, amount_bins, extend_up, extend_down, rmdup, rpkm, rmrepeats, fragmentsizes),  (), ("tempfile","sys","os","fluff.fluffio","numpy")))
     for job in jobs:
         track,regions,profile = job()
         data[track] = profile
@@ -242,7 +243,7 @@ def load_data(featurefile, amount_bins, extend_up, extend_down, rmdup, rpkm, rmr
         data[track] = profile
     else:
       for datafile in datafiles:
-	jobs.append(job_server.submit(load_heatmap_data, (featurefile, datafile, amount_bins, extend_up, extend_down, rmdup, rpkm, rmrepeats, fragmentsizes),  (), ("tempfile","sys","os","fluff.fluffio","numpy")))
+        jobs.append(job_server.submit(load_heatmap_data, (featurefile, datafile, amount_bins, extend_up, extend_down, rmdup, rpkm, rmrepeats, fragmentsizes),  (), ("tempfile","sys","os","fluff.fluffio","numpy")))
 
   return data, regions
 
@@ -258,7 +259,7 @@ norm_data = normalize_data(data, DEFAULT_PERCENTILE)
 clus = hstack([norm_data[t] for i,t in enumerate(tracks) if (i in pick or not pick)])
 
 if cluster_type == "k":
-    print "K-means clustering\n"
+    print "K-means clustering"
     ## K-means clustering
     labels, error, nfound = Pycluster.kcluster(clus, options.numclusters, dist=METRIC)
     if merge_mirrored:
@@ -282,13 +283,13 @@ if cluster_type == "k":
     ind = labels.argsort()
 
 elif cluster_type == "h":
-    print "Hierarchical clustering\n"
+    print "Hierarchical clustering"
     tree = Pycluster.treecluster(clus, method="m", dist=METRIC)
     labels = tree.cut(options.numclusters)
     ind = sort_tree(tree, arange(len(regions)))
     
 elif cluster_type == "p":
-    print "K-medoids/PAM(Partitioning Around Medoids) clustering\n"
+    print "K-medoids/PAM(Partitioning Around Medoids) clustering"
     dmatrix = Pycluster.distancematrix(clus)
     labels, error, nfound = Pycluster.kmedoids(dmatrix, options.numclusters)
     if merge_mirrored:
