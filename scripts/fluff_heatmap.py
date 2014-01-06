@@ -18,6 +18,7 @@ import Pycluster
 import matplotlib.cm as cm
 from math import sqrt,log
 
+
 ### My imports ###
 from fluff.util import *
 from fluff.fluffio import *
@@ -62,7 +63,7 @@ group1.add_option("-p",
                   type="string")
 group1.add_option("-C", 
                   dest="clustering", 
-                  help="kmeans, hierarchical or none", 
+                  help="kmeans, hierarchical, pam(kmedoids) or none", 
                   default=DEFAULT_CLUSTERING, 
                   metavar="METHOD")
 group1.add_option("-k", 
@@ -128,7 +129,7 @@ group1.add_option("-R",
                   metavar="", 
                   action="store_false", 
                   default=True)
-group1.add_option("-P", 
+		  group1.add_option("-P", 
                   dest="cpus", 
                   help="number of CPUs (default: 4)", 
                   metavar="INT", 
@@ -141,10 +142,6 @@ group1.add_option("-M",
                   metavar="METHOD")
 group1.add_option("-g", 
                   dest="graphdynamics", 
-                  help="Cluster as 1 bin, diplay as original number of bins", 
-                  metavar="", 
-                  action="store_true", 
-                  default=False)
 parser.add_option_group(group1)
 (options, args) = parser.parse_args()
 
@@ -180,6 +177,7 @@ distancefunction = options.distancefunction[0].lower()
 dynam = options.graphdynamics
 
 if (ncpus>multiprocessing.cpu_count()):
+if (ncpus>multiprocessing.cpu_count()):
   print "Warning: You can use only up to {0} processors!".format(multiprocessing.cpu_count())
   sys.exit(1)
   
@@ -191,7 +189,7 @@ if (options.pick != None):
 else:
   pick = range(len(datafiles))
 
-if not cluster_type in ["k", "h", "n"]:
+if not cluster_type in ["k", "h", "n", "p"]:
     sys.stderr.write("Unknown clustering type!\n")
     sys.exit(1)
 
@@ -220,6 +218,8 @@ def load_data(featurefile, amount_bins, extend_up, extend_down, rmdup, rpkm, rmr
   print "Loading data"
   try:
     # Load data in parallel
+    global data
+    global regions
     import pp
 
     job_server = pp.Server(ncpus)
@@ -257,7 +257,7 @@ norm_data = normalize_data(data, DEFAULT_PERCENTILE)
 clus = hstack([norm_data[t] for i,t in enumerate(tracks) if (i in pick or not pick)])
 
 if cluster_type == "k":
-    print "K-means clustering"
+    print "K-means clustering\n"
     ## K-means clustering
     # PyCluster
     labels, error, nfound = Pycluster.kcluster(clus, options.numclusters, dist=METRIC)
@@ -285,10 +285,34 @@ if cluster_type == "k":
     # Other cluster implementation
     #    centres, labels, dist = kmeanssample(clus, options.numclusters, len(clus) / 10,  metric=cl, maxiter=200, verbose=1, delta=0.00001)
 elif cluster_type == "h":
-    print "Hierarchical clustering"
+    print "Hierarchical clustering\n"
     tree = Pycluster.treecluster(clus, method="m", dist=METRIC)
     labels = tree.cut(options.numclusters)
     ind = sort_tree(tree, arange(len(regions)))
+elif cluster_type == "p":
+    print "K-medoids/PAM(Partitioning Around Medoids) clustering\n"
+    dmatrix = Pycluster.distancematrix(clus)
+    labels, error, nfound = Pycluster.kmedoids(dmatrix, options.numclusters)
+    if merge_mirrored:
+        (i,j) = mirror_clusters(data, labels)
+        while j:
+            for track in data.keys():
+                data[track][labels == j] = [row[::-1] for row in data[track][labels == j]]
+            for k in range(len(regions)):
+                if labels[k] == j:
+                    (chrom,start,end,gene,strand) = regions[k]
+                    if strand == "+":
+                        strand = "-"
+                    else:
+                        strand = "+"
+                    regions[k] = (chrom, start, end, gene, strand)
+            n = len(set(labels))
+            labels[labels == j] = i
+            for k in range(j + 1, n):
+                labels[labels == k] = k - 1
+            (i,j) = mirror_clusters(data, labels)
+            
+    ind = labels.argsort()
 else:
     ind = arange(len(regions))
     labels = zeros(len(regions))

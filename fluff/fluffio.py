@@ -29,7 +29,7 @@ def get_features_by_feature(track_a, track_b):
     """
 
     if track_a.file_type != "bed" or  track_b.file_type != "bed":
-        raise ValueError, "Need BED files"
+        raise ValueError, "Need BED files\n"
     
     for f in track_a:
         field_len_a = len(f.fields)
@@ -127,7 +127,7 @@ class TrackWrapper():
             return c
         if self.ftype == "bed":
             if rmrepeats:
-                sys.stderr.write("Warning: rmrepeats has no result on BED files!")
+                sys.stderr.write("Warning: rmrepeats has no result on BED files!\n")
             if rmdup:
                 sys.stderr.write("Warning: rmdup has no result on BED files! (yet...;))")
 
@@ -153,7 +153,7 @@ class TrackWrapper():
    
         if self.ftype == "bed":
             if rmrepeats:
-                sys.stderr.write("Warning: rmrepeats has no result on BED files!")
+                sys.stderr.write("Warning: rmrepeats has no result on BED files!\n")
 
         if self.ftype == "bam":
             for feature in track:

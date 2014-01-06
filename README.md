@@ -76,7 +76,7 @@ Options:
   -o FILE       output file (type determined by extension)
 
   Optional:
-    -C METHOD   kmeans, hierarchical or none
+    -C METHOD   kmeans, hierarchical, pam(kmedoids) or none
     -k INT      number of clusters
     -m          merge mirrored clusters (only with kmeans)
     -c NAME(S)  color(s) (name, colorbrewer profile or hex code)

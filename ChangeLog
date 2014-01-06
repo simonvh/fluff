@@ -15,7 +15,8 @@ script/
 		Get reads matrix count as an output ('_readcount.txt') (Issue:
 		#18).
 		Fixed bugs.
-		Use different fragment size for each data file
+		Use different fragment size for each data file.
+		Partitioning Around Medoids (PAM)/k-medoids have been added as a new clustering method.
 	fluff_bandplot.py : 
 	fluff_profile.py : 
 
