@@ -288,8 +288,8 @@ elif cluster_type == "h":
     labels = tree.cut(options.numclusters)
     ind = sort_tree(tree, arange(len(regions)))
 elif cluster_type == "p":
-    print "Partitioning Around Medoids"
-    labels, error, nfound = Pycluster.kmedoids(clus, options.numclusters, npass=1, initialid=None)
+    print "k-medoids"
+    labels, error, nfound = Pycluster.kmedoids(clus, options.numclusters, dist=METRIC)
     if merge_mirrored:
         (i,j) = mirror_clusters(data, labels)
         while j:
