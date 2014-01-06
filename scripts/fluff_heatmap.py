@@ -207,6 +207,7 @@ else:
   else:
     METRIC = "c"
     print "Pearson distance method"
+    
 ## Get scale for each track
 tscale = [1.0 for track in datafiles]
 
@@ -259,9 +260,7 @@ clus = hstack([norm_data[t] for i,t in enumerate(tracks) if (i in pick or not pi
 if cluster_type == "k":
     print "K-means clustering\n"
     ## K-means clustering
-    # PyCluster
     labels, error, nfound = Pycluster.kcluster(clus, options.numclusters, dist=METRIC)
-    
     if merge_mirrored:
         (i,j) = mirror_clusters(data, labels)
         while j:
@@ -280,15 +279,14 @@ if cluster_type == "k":
             for k in range(j + 1, n):
                 labels[labels == k] = k - 1
             (i,j) = mirror_clusters(data, labels)
-            
     ind = labels.argsort()
-    # Other cluster implementation
-    #    centres, labels, dist = kmeanssample(clus, options.numclusters, len(clus) / 10,  metric=cl, maxiter=200, verbose=1, delta=0.00001)
+
 elif cluster_type == "h":
     print "Hierarchical clustering\n"
     tree = Pycluster.treecluster(clus, method="m", dist=METRIC)
     labels = tree.cut(options.numclusters)
     ind = sort_tree(tree, arange(len(regions)))
+    
 elif cluster_type == "p":
     print "K-medoids/PAM(Partitioning Around Medoids) clustering\n"
     dmatrix = Pycluster.distancematrix(clus)
@@ -311,8 +309,8 @@ elif cluster_type == "p":
             for k in range(j + 1, n):
                 labels[labels == k] = k - 1
             (i,j) = mirror_clusters(data, labels)
-            
     ind = labels.argsort()
+    
 else:
     ind = arange(len(regions))
     labels = zeros(len(regions))
