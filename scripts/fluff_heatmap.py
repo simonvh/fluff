@@ -284,12 +284,14 @@ if cluster_type == "k":
 
 elif cluster_type == "h":
     print "Hierarchical clustering"
+    ## Hierarchical clustering
     tree = Pycluster.treecluster(clus, method="m", dist=METRIC)
     labels = tree.cut(options.numclusters)
     ind = sort_tree(tree, arange(len(regions)))
     
 elif cluster_type == "p":
     print "K-medoids/PAM(Partitioning Around Medoids) clustering"
+    ## K-medoids clustering
     dmatrix = Pycluster.distancematrix(clus)
     labels, error, nfound = Pycluster.kmedoids(dmatrix, options.numclusters)
     if merge_mirrored:
@@ -316,6 +318,7 @@ else:
     ind = arange(len(regions))
     labels = zeros(len(regions))
 
+#Save _clusters.bed
 f = open("{0}_clusters.bed".format(outfile), "w")
 for (chrom,start,end,gene,strand), cluster in zip(array(regions, dtype="object")[ind], array(labels)[ind]):
     f.write("{0}\t{1}\t{2}\t{3}\t{4}\t{5}\n".format(chrom, start, end, gene, cluster, strand))
