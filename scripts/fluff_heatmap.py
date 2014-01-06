@@ -62,7 +62,7 @@ group1.add_option("-p",
                   type="string")
 group1.add_option("-C", 
                   dest="clustering", 
-                  help="kmeans, hierarchical or none", 
+                  help="kmeans, hierarchical, pam(kmedoids) or none", 
                   default=DEFAULT_CLUSTERING, 
                   metavar="METHOD")
 group1.add_option("-k", 
@@ -181,11 +181,11 @@ ncpus = options.cpus
 distancefunction = options.distancefunction[0].lower()
 dynam = options.graphdynamics
 if (ncpus>multiprocessing.cpu_count()):
-  print "Warning: You can use only up to {0} processors!".format(multiprocessing.cpu_count())
+  print "Warning: You can use only up to {0} processors!\n".format(multiprocessing.cpu_count())
   sys.exit(1)
   
 if (len(tracks)>4):
-  print "Warning: Running fluff with too many files might make you system use enormous amount of memory!"
+  print "Warning: Running fluff with too many files might make you system use enormous amount of memory!\n"
 
 if (options.pick != None):
   pick = [i - 1 for i in split_ranges(options.pick)]
@@ -255,7 +255,7 @@ norm_data = normalize_data(data, DEFAULT_PERCENTILE)
 clus = hstack([norm_data[t] for i,t in enumerate(tracks) if (i in pick or not pick)])
 
 if cluster_type == "k":
-    print "K-means clustering"
+    print "K-means clustering\n"
     ## K-means clustering
     # PyCluster
     labels, error, nfound = Pycluster.kcluster(clus, options.numclusters, dist=METRIC)
@@ -283,13 +283,14 @@ if cluster_type == "k":
     # Other cluster implementation
     #    centres, labels, dist = kmeanssample(clus, options.numclusters, len(clus) / 10,  metric=cl, maxiter=200, verbose=1, delta=0.00001)
 elif cluster_type == "h":
-    print "Hierarchical clustering"
+    print "Hierarchical clustering\n"
     tree = Pycluster.treecluster(clus, method="m", dist=METRIC)
     labels = tree.cut(options.numclusters)
     ind = sort_tree(tree, arange(len(regions)))
 elif cluster_type == "p":
-    print "k-medoids"
-    labels, error, nfound = Pycluster.kmedoids(clus, options.numclusters, dist=METRIC)
+    print "K-medoids/PAM(Partitioning Around Medoids) clustering\n"
+    dmatrix = Pycluster.distancematrix(clus)
+    labels, error, nfound = Pycluster.kmedoids(dmatrix, options.numclusters)
     if merge_mirrored:
         (i,j) = mirror_clusters(data, labels)
         while j:
