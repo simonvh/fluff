@@ -74,7 +74,7 @@ group1.add_option("-k",
                   default=1)
 group1.add_option("-m", 
                   dest="merge_mirrored", 
-                  help="merge mirrored clusters (only with kmeans)", 
+                  help="merge mirrored clusters (only with kmeans and pam(kmedoids))", 
                   metavar="", 
                   default=False, 
                   action="store_true")
@@ -321,7 +321,10 @@ else:
 #Save _clusters.bed
 f = open("{0}_clusters.bed".format(outfile), "w")
 for (chrom,start,end,gene,strand), cluster in zip(array(regions, dtype="object")[ind], array(labels)[ind]):
-    f.write("{0}\t{1}\t{2}\t{3}\t{4}\t{5}\n".format(chrom, start, end, gene, cluster, strand))
+    if not gene:
+      f.write("{0}\t{1}\t{2}\t{3}\t{4}\n".format(chrom, start, end, cluster, strand))
+    else:
+      f.write("{0}\t{1}\t{2}\t{3}\t{4}\t{5}\n".format(chrom, start, end, gene, cluster, strand))
 f.close()
 
 if not cluster_type == "k":
