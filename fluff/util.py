@@ -128,7 +128,7 @@ def normalize_data(data, percentile=75):
     for track,ar in data.items():
         s = scoreatpercentile(ar.flatten(), percentile)
         if s == 0:
-            sys.stderr.write("Error normalizing track %s as score at percentile %s is 0, normalizing to maximum value instead\n" % (track, percentile))
+            sys.stderr.write("Error normalizing track {0} as score at percentile {1} is 0, normalizing to maximum value instead\n".format(track, percentile))
             x =  ar / max(ar.flatten())
         else:
             x =  ar / scoreatpercentile(ar.flatten(), percentile)

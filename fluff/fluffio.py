@@ -104,10 +104,10 @@ class TrackWrapper():
                         intervals.append(almnt.iv)
         elif self.ftype == "bed":
             if strand == ".":
-                feature = pybedtools.BedTool("%s %s %s" % (chrom, start, end), from_string=True)
+                feature = pybedtools.BedTool("{0} {1} {2}".format(chrom, start, end), from_string=True)
                 s = False
             else:
-                feature = pybedtools.BedTool("%s %s %s 0 0 %s" % (chrom, start, end, strand), from_string=True)
+                feature = pybedtools.BedTool("{0} {1} {2} 0 0 {3}".format(chrom, start, end, strand), from_string=True)
                 s = True
             for read in self.track.intersect(feature, u=True, stream=True, s=s):
                 intervals.append(HTSeq.GenomicInterval(chrom, read.start, read.end, read.strand))
@@ -234,7 +234,7 @@ def load_bed_clusters(bedfile):
     cluster_data = {}
     track = pybedtools.BedTool(bedfile)
     for f in track:
-        cluster_data.setdefault(_convert_value(f.name), []).append("%s:%s-%s" % (f.chrom, f.start, f.end))
+        cluster_data.setdefault(_convert_value(f.name), []).append("{0}:{1}-{2}".format(f.chrom, f.start, f.end))
     return cluster_data
 
 def load_cluster_data(clust_file, datafiles, bins, rpkm, rmdup, rmrepeats, fragmentsize=None):
@@ -249,7 +249,7 @@ def load_cluster_data(clust_file, datafiles, bins, rpkm, rmdup, rmrepeats, fragm
                                   rmrepeats=rmrepeats,
                                   fragmentsize=fragmentsize)
         result =  [row.split("\t") for row in result]
-        data[os.path.basename(datafile)] = dict([["%s:%s-%s" % (vals[0], vals[1], vals[2]), [float(x) for x in vals[3:]]] for vals in result])
+        data[os.path.basename(datafile)] = dict([["{0}:{1}-{2}".format(vals[0], vals[1], vals[2]), [float(x) for x in vals[3:]]] for vals in result])
     return data
 
 def load_profile(interval, tracks, fragmentsize=200):
@@ -288,7 +288,7 @@ def load_annotation(interval, fname):
                 vals[i] = int(vals[i])
             if vals[0] == chrom:
                 if (vals[1] > start and vals[1] < end) or (vals[2] > start and vals[2] < end):
-                    sys.stderr.write("Adding %s\n" % vals[3])
+                    sys.stderr.write("Adding {0}\n".format(vals[3]))
                     genes.append(vals)
     
     if len(genes) == 0:
@@ -307,13 +307,13 @@ def load_annotation(interval, fname):
     return gene_tracks
 
 class SimpleFeature():
-    def __init__(self, chrom, start, end, value, strand):
+    def __init__(self, chrom, start, end, gene, value, strand):
         self.chrom = chrom
         self.start = start
         self.end = end
+        self.gene = gene
         self.value = value
         self.strand = strand
-
 class SimpleBed():
     def __init__(self, fname):
         self.f = open(fname)
@@ -331,7 +331,8 @@ class SimpleBed():
             vals = line.strip().split("\t")
             start, end = int(vals[1]), int(vals[2])
             value = vals[3]
-            return SimpleFeature(vals[0], start, end, value, vals[5])
+            gene = vals[4]
+            return SimpleFeature(vals[0], start, end, gene, value, vals[5])
         else:
             self.f.close()
             raise StopIteration
@@ -418,8 +419,11 @@ def load_heatmap_data(featurefile, datafile, bins=100, up=5000, down=5000, rmdup
             continue
         vals = line.strip().split("\t")
         strand = "+"
+        gene = ""
         if len(vals) >= 6:
             strand = vals[5]
+        if len(vals) >= 4:
+            gene = vals[3]
         middle = (int(vals[2]) + int(vals[1])) / 2
         start,end = middle, middle
         if strand == "+":
@@ -429,10 +433,10 @@ def load_heatmap_data(featurefile, datafile, bins=100, up=5000, down=5000, rmdup
             start -= down
             end += up
         if start >= 0:
-            regions.append([vals[0], start, end, strand])
-            order["%s:%s-%s" % (vals[0], start, end)] = count
+            regions.append([vals[0], start, end, gene, strand])
+            order["{0}:{1}-{2}:{3}".format(vals[0], start, end, gene)] = count
             count += 1
-            tmp.write("%s\t%s\t%s\t0\t0\t%s\n" % (vals[0], start, end, strand))
+            tmp.write("{0}\t{1}\t{2}\t{3}\t0\t{4}\n".format(vals[0], start, end, gene, strand))
     tmp.flush()
     
     result = fluff.fluffio.get_binned_stats(tmp.name, datafile, bins, rpkm=rpkm, rmdup=rmdup, rmrepeats=rmrepeats, fragmentsize=fragmentsize)

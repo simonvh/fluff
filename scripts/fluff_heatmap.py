@@ -9,6 +9,8 @@ from optparse import OptionParser,OptionGroup
 from tempfile import NamedTemporaryFile
 import sys
 import os
+import multiprocessing
+
 
 ### External imports ###
 from numpy import array,hstack,arange,median,mean,zeros
@@ -26,7 +28,7 @@ from fluff.plot import heatmap_plot
 VERSION = "1.3"
 
 DEFAULT_BINSIZE = 100
-METRIC = "e"        # Euclidian, PyCluster
+DEFAULT_METRIC = "e"        # Euclidian, PyCluster
 FONTSIZE = 8
 DEFAULT_SCALE = "90%" 
 DEFAULT_EXTEND = 5000
@@ -56,7 +58,7 @@ parser.add_option("-o",
 group1.add_option("-p", 
                   dest="pick", 
                   help="pick specific data files to use for clustering", 
-                  default=None, 
+                  default=None,
                   type="string")
 group1.add_option("-C", 
                   dest="clustering", 
@@ -93,7 +95,7 @@ group1.add_option("-e",
                   default=DEFAULT_EXTEND)
 group1.add_option("-b", 
                   dest="binsize", 
-                  help="bin size (default %s)" % DEFAULT_BINSIZE, 
+                  help="bin size (default {0})".format(DEFAULT_BINSIZE), 
                   metavar="INT", 
                   type="int", 
                   default=DEFAULT_BINSIZE)
@@ -126,7 +128,23 @@ group1.add_option("-R",
                   metavar="", 
                   action="store_false", 
                   default=True)
-
+group1.add_option("-O", 
+                  dest="rcmatrix", 
+                  help="Output read count matrix", 
+                  metavar="", 
+                  action="store_true", 
+                  default=False)
+group1.add_option("-P", 
+                  dest="cpus", 
+                  help="number of CPUs (default: 4)", 
+                  metavar="INT", 
+                  type="int", 
+                  default=4)
+group1.add_option("-M", 
+                  dest="distancefunction", 
+                  help="Euclidean or Pearson (default: Euclidean)", 
+                  default=DEFAULT_METRIC,
+                  metavar="METHOD")
 parser.add_option_group(group1)
 (options, args) = parser.parse_args()
 
@@ -151,10 +169,22 @@ merge_mirrored = options.merge_mirrored
 bins = (extend_up + extend_down) / options.binsize
 rmdup = options.rmdup
 rpkm = options.rpkm
-rmrepeats = options.rmrepeats
-pick = split_ranges(options.pick)
-if pick:
-    pick = [i - 1 for i in pick]
+
+makercmatrix = options.rcmatrix
+ncpus = options.cpus
+distancefunction = options.distancefunction[0].lower()
+
+if (ncpus>multiprocessing.cpu_count()):
+  print "Warning: You can use only up to {0} processors!".format(multiprocessing.cpu_count())
+  sys.exit(1)
+  
+if (len(tracks)>4):
+  print "Warning: Running fluff with too many files might make you system use enormous amount of memory!"
+
+if (options.pick != None):
+  pick = [i - 1 for i in split_ranges(options.pick)]
+else:
+  pick = range(len(datafiles))
 
 if not cluster_type in ["k", "h", "n"]:
     sys.stderr.write("Unknown clustering type!\n")
@@ -164,6 +194,16 @@ if cluster_type == "k" and not options.numclusters >= 2:
     sys.stderr.write("Please provide number of clusters!\n")
     sys.exit(1)
 
+if not distancefunction in ["e", "p"]: 
+  sys.stderr.write("Unknown distance function!\n")
+  sys.exit(1)
+else:
+  if distancefunction == "e":
+    METRIC = DEFAULT_METRIC
+    print "Euclidean distance method"
+  else:
+    METRIC = "c"
+    print "Pearson distance method"
 ## Get scale for each track
 tscale = [1.0 for track in datafiles]
 
@@ -174,7 +214,7 @@ print "Loading data"
 try:
     # Load data in parallel
     import pp
-    job_server = pp.Server(ncpus=4)
+    job_server = pp.Server(ncpus)
     jobs = []
     for datafile in datafiles:
         jobs.append(job_server.submit(load_heatmap_data, (featurefile, datafile, bins, extend_up, extend_down, rmdup, rpkm, rmrepeats, fragmentsize),  (), ("tempfile","sys","os","fluff.fluffio","numpy")))
@@ -210,12 +250,12 @@ if cluster_type == "k":
                 data[track][labels == j] = [row[::-1] for row in data[track][labels == j]]
             for k in range(len(regions)):
                 if labels[k] == j:
-                    (chrom,start,end,strand) = regions[k]
+                    (chrom,start,end,gene,strand) = regions[k]
                     if strand == "+":
                         strand = "-"
                     else:
                         strand = "+"
-                    regions[k] = (chrom, start, end, strand)
+                    regions[k] = (chrom, start, end, gene, strand)
             n = len(set(labels))
             labels[labels == j] = i
             for k in range(j + 1, n):
@@ -234,12 +274,23 @@ else:
     ind = arange(len(regions))
     #print ind
     labels = zeros(len(regions))
+    print "test"
 
-f = open("%s_clusters.bed" % outfile, "w")
-for (chrom,start,end,strand), cluster in zip(array(regions, dtype="object")[ind], array(labels)[ind]):
-    f.write("%s\t%s\t%s\t%s\t0\t%s\n" % (chrom, start, end, cluster, strand))
+f = open("{0}_clusters.bed".format(outfile), "w")
+for (chrom,start,end,gene,strand), cluster in zip(array(regions, dtype="object")[ind], array(labels)[ind]):
+    f.write("{0}\t{1}\t{2}\t{3}\t{4}\t{5}\n".format(chrom, start, end, gene, cluster, strand))
 f.close()
 
 if not cluster_type == "k":
     labels = None
+
+#Save read count matrix
+if(makercmatrix):
+  input_file = open('{0}_readcount.txt'.format(outfile), 'w')
+  for k, v in data.items():
+    for row in v:
+      for x in row:
+	input_file.write('{0}\t'.format(str(x)))
+      input_file.write('\n')
+
 heatmap_plot(data, ind, outfile, tracks, titles, colors, bgcolors, scale, tscale, labels)
