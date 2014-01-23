@@ -76,7 +76,7 @@ Options:
   -o FILE       output file (type determined by extension)
 
   Optional:
-    -C METHOD   kmeans, hierarchical or none
+    -C METHOD   kmeans, hierarchical, pam(kmedoids) or none
     -k INT      number of clusters
     -m          merge mirrored clusters (only with kmeans)
     -c NAME(S)  color(s) (name, colorbrewer profile or hex code)
@@ -85,6 +85,7 @@ Options:
     -b INT      bin size (default 100)
     -s SCALE    scale (absolute or percentage)
     -r          use RPKM instead of read counts
+    -F FRAGMENTSIZE(S)  Fragment length (default: read length)
     -D          keep duplicate reads (removed by default)
     -R          keep repeats (removed by default, bwa only)
     -O          save read count matrix

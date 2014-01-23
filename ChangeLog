@@ -1,0 +1,33 @@
+Fluff
+
+Version : 1.4
+Date : 
+
+script/
+	fluff_heatmap.py :
+		Pearson as distance function.
+		Multiprocessing.
+		Cluster as 1 bin and diplay with the original number of bins
+		in order to identify dynamics.
+		Warning when using too many data (Issue: #17).
+		If there is a gene name in BED file will be added to
+		'_clusters.bed' file (Issue: #16).
+		Get reads matrix count as an output ('_readcount.txt') (Issue:
+		#18).
+		Fixed bugs.
+		Use different fragment size for each data file.
+		Partitioning Around Medoids (PAM)/k-medoids have been added as a new clustering method.
+	fluff_bandplot.py : 
+	fluff_profile.py : 
+
+fluff/
+	fluffio.py :
+		If there is a gene name in BED file will be added to 
+		'_clusters.bed' file (Issue: #16).
+		Fixed bugs.
+	color.py : 
+	config.py :
+		Global version added.
+	plot.py : 
+	util.py : 
+	

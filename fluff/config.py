@@ -1,0 +1,2 @@
+### CONSTANTS ###
+FL_VERSION = "1.4"

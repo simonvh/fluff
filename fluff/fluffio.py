@@ -29,7 +29,7 @@ def get_features_by_feature(track_a, track_b):
     """
 
     if track_a.file_type != "bed" or  track_b.file_type != "bed":
-        raise ValueError, "Need BED files"
+        raise ValueError, "Need BED files\n"
     
     for f in track_a:
         field_len_a = len(f.fields)
@@ -127,7 +127,7 @@ class TrackWrapper():
             return c
         if self.ftype == "bed":
             if rmrepeats:
-                sys.stderr.write("Warning: rmrepeats has no result on BED files!")
+                sys.stderr.write("Warning: rmrepeats has no result on BED files!\n")
             if rmdup:
                 sys.stderr.write("Warning: rmdup has no result on BED files! (yet...;))")
 
@@ -153,7 +153,7 @@ class TrackWrapper():
    
         if self.ftype == "bed":
             if rmrepeats:
-                sys.stderr.write("Warning: rmrepeats has no result on BED files!")
+                sys.stderr.write("Warning: rmrepeats has no result on BED files!\n")
 
         if self.ftype == "bam":
             for feature in track:
@@ -307,11 +307,10 @@ def load_annotation(interval, fname):
     return gene_tracks
 
 class SimpleFeature():
-    def __init__(self, chrom, start, end, gene, value, strand):
+    def __init__(self, chrom, start, end, value, strand):
         self.chrom = chrom
         self.start = start
         self.end = end
-        self.gene = gene
         self.value = value
         self.strand = strand
 class SimpleBed():
@@ -331,26 +330,20 @@ class SimpleBed():
             vals = line.strip().split("\t")
             start, end = int(vals[1]), int(vals[2])
             value = vals[3]
-            gene = vals[4]
-            return SimpleFeature(vals[0], start, end, gene, value, vals[5])
+            return SimpleFeature(vals[0], start, end, value, vals[5])
         else:
             self.f.close()
             raise StopIteration
-        
+	  
 def get_binned_stats(in_fname, data_fname, nbins, rpkm=False, rmdup=False, rmrepeats=False, fragmentsize=None):
     track = TrackWrapper(data_fname)
-    
     readlength = track.read_length()
     if not fragmentsize:
         fragmentsize = readlength
-    
-    #sys.stderr.write("Using fragmentsize %s\n" % fragmentsize)
 
     total_reads = 1
     if rpkm:
-        #sys.stderr.write("Counting reads...\n")
         total_reads = track.count(rmdup, rmrepeats) / 1000000.0
-        #sys.stderr.write("Done.\n")
 
     ret = []
     count = 1    
@@ -361,17 +354,13 @@ def get_binned_stats(in_fname, data_fname, nbins, rpkm=False, rmdup=False, rmrep
         in_track = SimpleBed(in_fname)
     else:
         in_track = pybedtools.BedTool(in_fname)
-
     extend = fragmentsize - readlength
-    
     for feature, min_strand, plus_strand in track.fetch_to_counts(in_track, rmdup, rmrepeats):
         binsize = (feature.end - feature.start) / float(nbins)
         row = []
         overlap = []
-
         min_strand = [x - (fragmentsize - readlength) for x in min_strand]
         bin_start = feature.start
-
         while int(bin_start + 0.5) < feature.end:
             num_reads = 0
             i = 0
@@ -392,24 +381,20 @@ def get_binned_stats(in_fname, data_fname, nbins, rpkm=False, rmdup=False, rmrep
                 row.append(per_kb / total_reads)
             else:
                 row.append(num_reads)
-
+            
             bin_start += binsize
-        
+
         if feature.strand == "-":
             row = row[::-1]
         
         ret.append( [feature.chrom, feature.start, feature.end] + row)
         
         count += 1
-        #if count % 1000 == 0:
-        #    sys.stderr.write("%s processed\n" % count)
-    
     track.close()
     del in_track
-
     return ["\t".join([str(x) for x in row]) for row in ret]
 
-def load_heatmap_data(featurefile, datafile, bins=100, up=5000, down=5000, rmdup=True, rpkm=False, rmrepeats=True, fragmentsize=None):
+def load_heatmap_data(featurefile, datafile, bins=100, up=5000, down=5000, rmdup=True, rpkm=False, rmrepeats=True, fragmentsize=None, dynam=False):
     tmp = tempfile.NamedTemporaryFile(delete=False, prefix="fluff")
     regions = []
     order = {}
@@ -434,17 +419,12 @@ def load_heatmap_data(featurefile, datafile, bins=100, up=5000, down=5000, rmdup
             end += up
         if start >= 0:
             regions.append([vals[0], start, end, gene, strand])
-            order["{0}:{1}-{2}:{3}".format(vals[0], start, end, gene)] = count
+            order["{0}:{1}-{2}".format(vals[0], start, end)] = count
             count += 1
             tmp.write("{0}\t{1}\t{2}\t{3}\t0\t{4}\n".format(vals[0], start, end, gene, strand))
     tmp.flush()
-    
     result = fluff.fluffio.get_binned_stats(tmp.name, datafile, bins, rpkm=rpkm, rmdup=rmdup, rmrepeats=rmrepeats, fragmentsize=fragmentsize)
-    
     # Retrieve original order
-    #r_regions = ["{}:{}-{}".format(*row.split("\t")[:3]) for row in result]
-    #r_order = numpy.array([order[region] for region in r_regions]).argsort()[::-1]
-    r_data = numpy.array([[float(x) for x in row.split("\t")[3:]] for row in result])
-
+    r_data = numpy.array([[float(x) for x in row.split("\t")[3:]] for row in result])    
     return os.path.basename(datafile), regions, r_data#[r_order]
 

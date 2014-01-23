@@ -24,6 +24,7 @@ from fluff.fluffio import *
 from fluff.plot import *
 from fluff.util import *
 from fluff.color import DEFAULT_COLORS,parse_colors
+from fluff.config import *
 
 ######## EDIT CONSTANTS TO CHANGE BEHAVIOUR OF THE SCRIPT #############
 # Sizes of the plots (in inches)
@@ -39,7 +40,7 @@ BINS = 21                                # Number of bins for profile
 #########################################################################
 font = FontProperties(size=FONTSIZE / 1.25, family=["Nimbus Sans L", "Helvetica", "sans-serif"])
 
-VERSION = "1.3"
+VERSION = str(FL_VERSION)
 
 usage = "Usage: %prog -i <bedfile> -d <file1>[,<file2>,...] -o <out> [options]"
 version = "%prog " + str(VERSION)

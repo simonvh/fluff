@@ -11,7 +11,6 @@ import sys
 import os
 import multiprocessing
 
-
 ### External imports ###
 from numpy import array,hstack,arange,median,mean,zeros
 from scipy.stats.mstats import rankdata
@@ -19,13 +18,15 @@ import Pycluster
 import matplotlib.cm as cm
 from math import sqrt,log
 
+
 ### My imports ###
 from fluff.util import *
 from fluff.fluffio import *
 from fluff.color import DEFAULT_COLORS, parse_colors
 from fluff.plot import heatmap_plot
+from fluff.config import *
 
-VERSION = "1.3"
+VERSION = str(FL_VERSION)
 
 DEFAULT_BINSIZE = 100
 DEFAULT_METRIC = "e"        # Euclidian, PyCluster
@@ -62,7 +63,7 @@ group1.add_option("-p",
                   type="string")
 group1.add_option("-C", 
                   dest="clustering", 
-                  help="kmeans, hierarchical or none", 
+                  help="kmeans, hierarchical, pam(kmedoids) or none", 
                   default=DEFAULT_CLUSTERING, 
                   metavar="METHOD")
 group1.add_option("-k", 
@@ -73,7 +74,7 @@ group1.add_option("-k",
                   default=1)
 group1.add_option("-m", 
                   dest="merge_mirrored", 
-                  help="merge mirrored clusters (only with kmeans)", 
+                  help="merge mirrored clusters (only with kmeans and pam(kmedoids))", 
                   metavar="", 
                   default=False, 
                   action="store_true")
@@ -108,7 +109,7 @@ group1.add_option("-s",
 group1.add_option("-F", 
                   dest="fragmentsize", 
                   help="Fragment length (default: read length)",
-                  type="int",
+                  #type="int",
                   default=None)
 group1.add_option("-r", 
                   dest="rpkm", 
@@ -128,12 +129,6 @@ group1.add_option("-R",
                   metavar="", 
                   action="store_false", 
                   default=True)
-group1.add_option("-O", 
-                  dest="rcmatrix", 
-                  help="Output read count matrix", 
-                  metavar="", 
-                  action="store_true", 
-                  default=False)
 group1.add_option("-P", 
                   dest="cpus", 
                   help="number of CPUs (default: 4)", 
@@ -145,6 +140,12 @@ group1.add_option("-M",
                   help="Euclidean or Pearson (default: Euclidean)", 
                   default=DEFAULT_METRIC,
                   metavar="METHOD")
+group1.add_option("-g", 
+                  dest="graphdynamics", 
+                  help="Cluster as 1 bin, diplay as original number of bins", 
+                  metavar="", 
+                  action="store_true", 
+                  default=False)
 parser.add_option_group(group1)
 (options, args) = parser.parse_args()
 
@@ -163,16 +164,21 @@ bgcolors = parse_colors(options.bgcolors)
 outfile = options.outfile
 extend_up = options.extend
 extend_down = options.extend
-fragmentsize = options.fragmentsize
+
+if not options.fragmentsize == None :
+  fragmentsizes = [int(x.strip()) for x in options.fragmentsize.split(",")]
+else:
+  fragmentsizes = None
+  
 cluster_type = options.clustering[0].lower()
 merge_mirrored = options.merge_mirrored
 bins = (extend_up + extend_down) / options.binsize
 rmdup = options.rmdup
 rpkm = options.rpkm
-
-makercmatrix = options.rcmatrix
+rmrepeats = options.rmrepeats
 ncpus = options.cpus
 distancefunction = options.distancefunction[0].lower()
+dynam = options.graphdynamics
 
 if (ncpus>multiprocessing.cpu_count()):
   print "Warning: You can use only up to {0} processors!".format(multiprocessing.cpu_count())
@@ -186,7 +192,7 @@ if (options.pick != None):
 else:
   pick = range(len(datafiles))
 
-if not cluster_type in ["k", "h", "n"]:
+if not cluster_type in ["k", "h", "n", "p"]:
     sys.stderr.write("Unknown clustering type!\n")
     sys.exit(1)
 
@@ -204,34 +210,49 @@ else:
   else:
     METRIC = "c"
     print "Pearson distance method"
+    
 ## Get scale for each track
 tscale = [1.0 for track in datafiles]
 
-# Calculate the profile data
-data = {}
-regions = []
-print "Loading data"
-try:
+def load_data(featurefile, amount_bins, extend_up, extend_down, rmdup, rpkm, rmrepeats, fragmentsizes):
+  # Calculate the profile data
+  data = {}
+  regions = []
+  
+  print "Loading data"
+  try:
     # Load data in parallel
     import pp
+
     job_server = pp.Server(ncpus)
     jobs = []
-    for datafile in datafiles:
-        jobs.append(job_server.submit(load_heatmap_data, (featurefile, datafile, bins, extend_up, extend_down, rmdup, rpkm, rmrepeats, fragmentsize),  (), ("tempfile","sys","os","fluff.fluffio","numpy")))
-
+    if not options.fragmentsize == None :
+     for datafile, fragmentsize in zip(datafiles, fragmentsizes):
+        jobs.append(job_server.submit(load_heatmap_data, (featurefile, datafile, amount_bins, extend_up, extend_down, rmdup, rpkm, rmrepeats, fragmentsize),  (), ("tempfile","sys","os","fluff.fluffio","numpy")))
+    else:
+      for datafile in datafiles:
+        jobs.append(job_server.submit(load_heatmap_data, (featurefile, datafile, amount_bins, extend_up, extend_down, rmdup, rpkm, rmrepeats, fragmentsizes),  (), ("tempfile","sys","os","fluff.fluffio","numpy")))
     for job in jobs:
         track,regions,profile = job()
-        #print "##### %s " % track
-        #for row in profile:
-        #    print row
         data[track] = profile
-except:
+  except:
     sys.stderr.write("Parallel Python (pp) not installed, can't load data in parallel\n")
-    for datafile in datafiles:
-        track,regions,profile = load_heatmap_data(featurefile, datafile, bins, extend_up, extend_down, rmdup, rpkm, rmrepeats, fragmentsize)
+    if not options.fragmentsize == None :
+      for datafile, fragmentsize in zip(datafiles, fragmentsizes):
+        track,regions,profile = load_heatmap_data(featurefile, datafile, amount_bins, extend_up, extend_down, rmdup, rpkm, rmrepeats, int(fragmentsize))
         data[track] = profile
+    else:
+      for datafile in datafiles:
+        jobs.append(job_server.submit(load_heatmap_data, (featurefile, datafile, amount_bins, extend_up, extend_down, rmdup, rpkm, rmrepeats, fragmentsizes),  (), ("tempfile","sys","os","fluff.fluffio","numpy")))
 
-scale = get_absolute_scale(options.scale, [data[track] for track in tracks])
+  return data, regions
+
+if dynam:
+  amount_bins = 1
+else:
+  amount_bins = bins
+  
+data, regions = load_data(featurefile, amount_bins, extend_up, extend_down, rmdup, rpkm, rmrepeats, fragmentsizes)
 
 # Normalize
 norm_data = normalize_data(data, DEFAULT_PERCENTILE)
@@ -240,9 +261,7 @@ clus = hstack([norm_data[t] for i,t in enumerate(tracks) if (not pick or i in pi
 if cluster_type == "k":
     print "K-means clustering"
     ## K-means clustering
-    # PyCluster
     labels, error, nfound = Pycluster.kcluster(clus, options.numclusters, dist=METRIC)
-    
     if merge_mirrored:
         (i,j) = mirror_clusters(data, labels)
         while j:
@@ -261,36 +280,66 @@ if cluster_type == "k":
             for k in range(j + 1, n):
                 labels[labels == k] = k - 1
             (i,j) = mirror_clusters(data, labels)
-            
     ind = labels.argsort()
-    # Other cluster implementation
-    #    centres, labels, dist = kmeanssample(clus, options.numclusters, len(clus) / 10,  metric=cl, maxiter=200, verbose=1, delta=0.00001)
+
 elif cluster_type == "h":
     print "Hierarchical clustering"
+    ## Hierarchical clustering
     tree = Pycluster.treecluster(clus, method="m", dist=METRIC)
     labels = tree.cut(options.numclusters)
     ind = sort_tree(tree, arange(len(regions)))
+    
+elif cluster_type == "p":
+    print "K-medoids/PAM(Partitioning Around Medoids) clustering"
+    ## K-medoids clustering
+    dmatrix = Pycluster.distancematrix(clus)
+    labels, error, nfound = Pycluster.kmedoids(dmatrix, options.numclusters)
+    if merge_mirrored:
+        (i,j) = mirror_clusters(data, labels)
+        while j:
+            for track in data.keys():
+                data[track][labels == j] = [row[::-1] for row in data[track][labels == j]]
+            for k in range(len(regions)):
+                if labels[k] == j:
+                    (chrom,start,end,gene,strand) = regions[k]
+                    if strand == "+":
+                        strand = "-"
+                    else:
+                        strand = "+"
+                    regions[k] = (chrom, start, end, gene, strand)
+            n = len(set(labels))
+            labels[labels == j] = i
+            for k in range(j + 1, n):
+                labels[labels == k] = k - 1
+            (i,j) = mirror_clusters(data, labels)
+    ind = labels.argsort()
+    
 else:
     ind = arange(len(regions))
-    #print ind
     labels = zeros(len(regions))
-    print "test"
 
+#Save _clusters.bed
 f = open("{0}_clusters.bed".format(outfile), "w")
 for (chrom,start,end,gene,strand), cluster in zip(array(regions, dtype="object")[ind], array(labels)[ind]):
-    f.write("{0}\t{1}\t{2}\t{3}\t{4}\t{5}\n".format(chrom, start, end, gene, cluster, strand))
+    if not gene:
+      f.write("{0}\t{1}\t{2}\t{3}\t{4}\n".format(chrom, start, end, cluster, strand))
+    else:
+      f.write("{0}\t{1}\t{2}\t{3}\t{4}\t{5}\n".format(chrom, start, end, gene, cluster, strand))
 f.close()
 
 if not cluster_type == "k":
     labels = None
 
 #Save read count matrix
-if(makercmatrix):
-  input_file = open('{0}_readcount.txt'.format(outfile), 'w')
-  for k, v in data.items():
-    for row in v:
-      for x in row:
-	input_file.write('{0}\t'.format(str(x)))
-      input_file.write('\n')
+input_file = open('{0}_readcount.txt'.format(outfile), 'w')
+for k, v in data.items():
+  for row in v:
+    for x in row:
+      input_file.write('{0}\t'.format(str(x)))
+    input_file.write('\n')
 
+if dynam:
+  data, regions = load_data(featurefile, bins, extend_up, extend_down, rmdup, rpkm, rmrepeats, fragmentsizes)
+
+scale = get_absolute_scale(options.scale, [data[track] for track in tracks])
 heatmap_plot(data, ind, outfile, tracks, titles, colors, bgcolors, scale, tscale, labels)
