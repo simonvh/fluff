@@ -1,13 +1,22 @@
+import sys
 from numpy import *
+from scipy.stats import scoreatpercentile
+from scipy.interpolate import splprep, splev
+
+# Matplotlib imports
+import matplotlib
+matplotlib.use("Agg")
 import matplotlib.pyplot as plt
+from pylab import plot, show, ylim, yticks, savefig
 from matplotlib.ticker import NullFormatter,NullLocator
 from matplotlib.font_manager import fontManager, FontProperties
 from matplotlib.patches import FancyArrowPatch,ArrowStyle
 import matplotlib.gridspec as gridspec
+
+# Fluff imports
 from fluffio import *
-import sys
-from scipy.stats import scoreatpercentile
 from fluff.color import create_colormap
+from fluff.config import *
 
 DEFAULT_COLORS = ["#e41a1c","#4daf4a","#377eb8"]
 FONTSIZE = 8
@@ -20,7 +29,6 @@ def hide_axes(ax):
         x.set_major_locator(NullLocator())
     for loc,spine in ax.spines.iteritems():
         spine.set_color('none')
-
 
 def heatmap_plot(data, ind, outfile, tracks, titles, colors, bgcolors, scale, tscale, labels):
     font = FontProperties(size=FONTSIZE / 1.25, family=["Nimbus Sans L", "Helvetica", "sans-serif"])
@@ -336,6 +344,121 @@ def profile_screenshot(fname, intervals, tracks, colors=None, scalegroups=[], an
     plt.savefig(fname, dpi=dpi)
     plt.close()
 
+def bandplot(outfile, tracks, cluster_data, data, bins=BANDPLOT_BINS, summary=False, colors=DEFAULT_COLORS, scalegroups=None, percs=[50,90], titles=None):
+    
+    # Use name of tracks if titles are not present
+    if not titles:
+        titles = tracks
+
+    clusters = cluster_data.keys()
+
+    #Init x-axis
+    t = arange(bins)
+
+    rows = len(tracks)
+    cols = len(clusters)
+    
+    if summary:
+        rows += 1
+        cols += 1
+    
+    font = FontProperties(size=BANDPLOT_FONTSIZE / 1.25, family=["Nimbus Sans L", "Helvetica", "sans-serif"])
+
+    # Get a figure with a lot of subplots
+    fig, axes = create_grid_figure(rows, 
+                                   cols, 
+                                   plotwidth=BANDPLOT_WIDTH, 
+                                   plotheight=BANDPLOT_HEIGHT, 
+                                   padleft=BANDPLOT_PADLEFT, 
+                                   padtop=BANDPLOT_PADTOP, 
+                                   pad=BANDPLOT_PAD, 
+                                   padright=BANDPLOT_PADRIGHT, 
+                                   padbottom=BANDPLOT_PADBOTTOM)
+    
+    track_max = []
+    for track_num, track in enumerate(tracks):
+        percentiles = [scoreatpercentile([data[track][x] for x in cluster_data[cluster]], 90) for cluster in clusters]
+        track_max.append(max(percentiles))
+    
+    for track_num, track in enumerate(tracks):
+        for i,cluster in enumerate(clusters):
+            # Retrieve axes
+            ax = axes[track_num][i]
+    
+            # Get the data
+            vals = array([data[track][x] for x in cluster_data[cluster]])
+    
+            # Make the plot
+            coverage_plot(ax, t, vals, colors[track_num % len(colors)], percs)
+    
+            # Get scale max
+            maxscale = track_max[track_num]
+            if scalegroups and len(scalegroups) > 0:
+                for group in scalegroups:
+                    if (track_num + 1) in group:
+                        maxscale = max([track_max[j - 1] for j in group])
+                        break
+    
+            # Set scale    
+            ax.set_ylim(0, maxscale)
+            ax.set_xlim(0, bins - 1)
+    
+            # Cluster titles
+            if track_num == 0:
+                ax.set_title("%s\nn=%s" % (cluster, len(cluster_data[cluster])), font_properties=font)
+    
+            # Track title and scale
+            if i == 0:
+    
+                pos = axes[track_num][0].get_position().get_points()
+                text_y = (pos[1][1] + pos[0][1]) / 2
+                text_x = pos[0][0] - (BANDPLOT_PAD / fig.get_figwidth())
+                plt.figtext(text_x, text_y, titles[track_num], clip_on=False, horizontalalignment="right", verticalalignment="center", font_properties=font)
+    
+                plt.figtext(text_x,  pos[1][1], "%.4g" % maxscale, clip_on=False, horizontalalignment="right", verticalalignment="top", font_properties=font)
+                plt.figtext(text_x,  pos[0][1], 0, clip_on=False, horizontalalignment="right", verticalalignment="bottom", font_properties=font)
+    
+    
+    if summary:
+        for i,track in enumerate(tracks):
+            ax = axes[i][cols - 1]
+    
+            l = len(clusters)
+            min_alpha = 0.3
+            max_alpha = 0.9
+            if l > 1:
+                step = (max_alpha - min_alpha) / (l - 1)
+                alphas = arange(min_alpha, max_alpha + step, step)
+            else:
+                alphas = [max_alpha]
+    
+            for j,cluster in enumerate(clusters):
+                vals = array([data[track][x] for x in cluster_data[cluster]])
+                m = median(vals, axis=0)
+                ax.plot(arange(len(m)), m, color=colors[i % len(colors)], alpha=alphas[j])
+            ax.set_ylim(0, track_max[i])
+    
+        for i,cluster in enumerate(clusters):
+            ax = axes[rows - 1][i]
+    
+            max_max = 0
+    
+            for j,track in enumerate(tracks):
+                vals = array([data[track][x] for x in cluster_data[cluster]])
+                m = median(vals, axis=0)
+                ax.plot(arange(len(m)), m, color=colors[j % len(colors)], alpha=0.8)
+                if track_max[j] > max_max:
+                    max_max = track_max[j]
+            ax.set_ylim(0, max_max)
+    
+        ax = axes[rows - 1][cols - 1]
+        ax.set_frame_on(False)
+        ax.axes.get_yaxis().set_visible(False)
+        ax.axes.get_xaxis().set_visible(False)
+    
+    print "Saving figure"
+    savefig(outfile, dpi=600)
+    
 if __name__ == "__main__":
     
 #    import matplotlib.pyplot as plt

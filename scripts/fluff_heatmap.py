@@ -15,9 +15,7 @@ import multiprocessing
 from numpy import array,hstack,arange,median,mean,zeros
 from scipy.stats.mstats import rankdata
 import Pycluster
-import matplotlib.cm as cm
 from math import sqrt,log
-
 
 ### My imports ###
 from fluff.util import *

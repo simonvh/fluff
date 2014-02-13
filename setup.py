@@ -1,13 +1,13 @@
 from distutils.core import setup
 import setuptools
+from fluff.config import FL_VERSION
 
-VERSION = "1.3"
 DESCRIPTION = """
 fluff - plots and graphs 
 """
 
 setup (name = 'fluff',
-        version = VERSION,
+        version = FL_VERSION,
         description = DESCRIPTION,
         author='Simon van Heeringen',
         author_email='s.vanheeringen@ncmls.ru.nl',
