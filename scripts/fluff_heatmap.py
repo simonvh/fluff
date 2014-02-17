@@ -144,6 +144,13 @@ group1.add_option("-g",
                   metavar="", 
                   action="store_true", 
                   default=False)
+group1.add_option("-S", 
+                  dest="featurecenter", 
+                  help="Extent feature 1kb only for clustering", 
+                  metavar="", 
+                  action="store_true", 
+                  default=False)
+
 parser.add_option_group(group1)
 (options, args) = parser.parse_args()
 
@@ -172,6 +179,7 @@ rmrepeats = options.rmrepeats
 ncpus = options.cpus
 distancefunction = options.distancefunction[0].lower()
 dynam = options.graphdynamics
+bindynam = options.featurecenter
 
 if (ncpus>multiprocessing.cpu_count()):
   print "Warning: You can use only up to {0} processors!".format(multiprocessing.cpu_count())
@@ -206,7 +214,7 @@ else:
 ## Get scale for each track
 tscale = [1.0 for track in datafiles]
 
-def load_data(featurefile, amount_bins, extend_up, extend_down, rmdup, rpkm, rmrepeats, fragmentsize):
+def load_data(featurefile, amount_bins, extend_dyn_up, extend_dyn_down, rmdup, rpkm, rmrepeats, fragmentsize):
   # Calculate the profile data
   data = {}
   regions = []
@@ -219,7 +227,7 @@ def load_data(featurefile, amount_bins, extend_up, extend_down, rmdup, rpkm, rmr
     job_server = pp.Server(ncpus)
     jobs = []
     for datafile in datafiles:
-        jobs.append(job_server.submit(load_heatmap_data, (featurefile, datafile, amount_bins, extend_up, extend_down, rmdup, rpkm, rmrepeats, fragmentsize),  (), ("tempfile","sys","os","fluff.fluffio","numpy")))
+        jobs.append(job_server.submit(load_heatmap_data, (featurefile, datafile, amount_bins, extend_dyn_up, extend_dyn_down, rmdup, rpkm, rmrepeats, fragmentsize),  (), ("tempfile","sys","os","fluff.fluffio","numpy")))
 
     for job in jobs:
         track,regions,profile = job()
@@ -227,7 +235,7 @@ def load_data(featurefile, amount_bins, extend_up, extend_down, rmdup, rpkm, rmr
   except:
     sys.stderr.write("Parallel Python (pp) not installed, can't load data in parallel\n")
     for datafile in datafiles:
-        track,regions,profile = load_heatmap_data(featurefile, datafile, amount_bins, extend_up, extend_down, rmdup, rpkm, rmrepeats, fragmentsize)
+        track,regions,profile = load_heatmap_data(featurefile, datafile, amount_bins, extend_dyn_up, extend_dyn_down, rmdup, rpkm, rmrepeats, fragmentsize)
         data[track] = profile
 
   return data, regions
@@ -237,7 +245,15 @@ if dynam:
 else:
   amount_bins = bins
   
-data, regions = load_data(featurefile, amount_bins, extend_up, extend_down, rmdup, rpkm, rmrepeats, fragmentsize)
+if bindynam:
+  extend_dyn_up = 1000
+  extend_dyn_down = 1000
+else:
+  extend_dyn_up = extend_up
+  extend_dyn_down = extend_down
+  
+  
+data, regions = load_data(featurefile, amount_bins, extend_dyn_up, extend_dyn_down, rmdup, rpkm, rmrepeats, fragmentsize)
 
 # Normalize
 norm_data = normalize_data(data, DEFAULT_PERCENTILE)
@@ -296,7 +312,7 @@ for k, v in data.items():
       input_file.write('{0}\t'.format(str(x)))
     input_file.write('\n')
 
-if dynam:
+if dynam or bindynam:
   data, regions = load_data(featurefile, bins, extend_up, extend_down, rmdup, rpkm, rmrepeats, fragmentsize)
 
 scale = get_absolute_scale(options.scale, [data[track] for track in tracks])
