@@ -47,6 +47,16 @@ def heatmap_plot(data, ind, outfile, tracks, titles, colors, bgcolors, scale, ts
         ax = plt.subplot(gs[i])
         ax.set_title(titles[i],  fontproperties=font)
         axes.append(ax)
+        
+        
+        #print len(data[track])
+        #print len(ind)
+        #print data[track]
+        #print ind
+        
+        #tmp = data[track][ind]
+        #vmax = scale * tscale[i]
+        
         ax.pcolormesh(data[track][ind], cmap=c, vmin=0, vmax=scale * tscale[i])
         print "%s\t%s\t%s\t%s" % (track, tscale[i] * scale, mean(data[track][ind][:,0:20]), median(data[track][ind]))
         hide_axes(ax)

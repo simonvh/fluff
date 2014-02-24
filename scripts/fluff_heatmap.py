@@ -9,6 +9,7 @@ from optparse import OptionParser,OptionGroup
 from tempfile import NamedTemporaryFile
 import sys
 import os
+import os.path
 import multiprocessing
 
 ### External imports ###
@@ -34,6 +35,7 @@ DEFAULT_EXTEND = 5000
 DEFAULT_PERCENTILE = 99
 DEFAULT_CLUSTERING = "none"
 DEFAULT_BG = "white"
+DEFAULT_DYN_EXTEND = 5000
 
 usage = "Usage: %prog -f <bedfile> -d <file1>[,<file2>,...] -o <out> [options]"
 version = "%prog " + str(VERSION)
@@ -72,7 +74,7 @@ group1.add_option("-k",
                   default=1)
 group1.add_option("-m", 
                   dest="merge_mirrored", 
-                  help="merge mirrored clusters (only with kmeans)", 
+                  help="merge mirrored clusters (only with kmeans and without -g option)", 
                   metavar="", 
                   default=False, 
                   action="store_true")
@@ -140,32 +142,36 @@ group1.add_option("-M",
                   metavar="METHOD")
 group1.add_option("-g", 
                   dest="graphdynamics", 
-                  help="Cluster as 1 bin, diplay as original number of bins", 
+                  help="Identify dynamics by extending features 1kb up/down stream(just for clustering), cluster as 1 bin, diplay as original number of bins and with the default extend values",  
                   metavar="", 
                   action="store_true", 
                   default=False)
-group1.add_option("-S", 
-                  dest="featurecenter", 
-                  help="Extent feature 1kb only for clustering", 
-                  metavar="", 
-                  action="store_true", 
-                  default=False)
-
 parser.add_option_group(group1)
 (options, args) = parser.parse_args()
 
+#Check if files exist
 for opt in [options.featurefile, options.datafiles, options.outfile]:
     if not opt:
         parser.print_help()
         sys.exit()
-
+if not os.path.isfile(options.featurefile):
+  print "ERROR: The BED files which contains the features file does not exist!"
+  sys.exit(1)
+for x in options.datafiles.split(","):
+  if not os.path.isfile(x):
+    print "ERROR: Data file '{0}' does not exist".format(x)
+    sys.exit(1)
+for x in options.datafiles.split(","):
+  if '.bam' in x and not os.path.isfile("{0}.bai".format(x)):
+    print "ERROR: Data file '{0}' does not have an index file!".format(x)
+    sys.exit(1)
+#Options Parser
 featurefile = options.featurefile
 datafiles = [x.strip() for x in options.datafiles.split(",")]
 tracks = [os.path.basename(x) for x in datafiles]
 titles = [os.path.splitext(x)[0] for x in tracks]
 colors = parse_colors(options.colors)
 bgcolors = parse_colors(options.bgcolors)
-
 outfile = options.outfile
 extend_up = options.extend
 extend_down = options.extend
@@ -179,28 +185,31 @@ rmrepeats = options.rmrepeats
 ncpus = options.cpus
 distancefunction = options.distancefunction[0].lower()
 dynam = options.graphdynamics
-bindynam = options.featurecenter
 
+#Check for given number of processors
 if (ncpus>multiprocessing.cpu_count()):
-  print "Warning: You can use only up to {0} processors!".format(multiprocessing.cpu_count())
+  print "ERROR: You can use only up to {0} processors!".format(multiprocessing.cpu_count())
   sys.exit(1)
-  
+#Check for mutually exclusive parameters
+if merge_mirrored and dynam:
+  print "ERROR: -m and -g option CANNOT be used together"
+  sys.exit(1)
+#Warning about too much files
 if (len(tracks)>4):
   print "Warning: Running fluff with too many files might make you system use enormous amount of memory!"
-
+#Method of clustering
 if (options.pick != None):
   pick = [i - 1 for i in split_ranges(options.pick)]
 else:
   pick = range(len(datafiles))
-
 if not cluster_type in ["k", "h", "n"]:
     sys.stderr.write("Unknown clustering type!\n")
     sys.exit(1)
-
+#Number of clusters
 if cluster_type == "k" and not options.numclusters >= 2:
     sys.stderr.write("Please provide number of clusters!\n")
     sys.exit(1)
-
+#Distance function
 if not distancefunction in ["e", "p"]: 
   sys.stderr.write("Unknown distance function!\n")
   sys.exit(1)
@@ -214,58 +223,57 @@ else:
 ## Get scale for each track
 tscale = [1.0 for track in datafiles]
 
-def load_data(featurefile, amount_bins, extend_dyn_up, extend_dyn_down, rmdup, rpkm, rmrepeats, fragmentsize):
+#Function to load heatmap data
+def load_data(featurefile, amount_bins, extend_dyn_up, extend_dyn_down, rmdup, rpkm, rmrepeats, fragmentsize, dynam, guard=[]):
   # Calculate the profile data
   data = {}
   regions = []
-  
-  print "Loading data"
+  if guard:
+    print "Loading data"
   try:
     # Load data in parallel
     import pp
-
     job_server = pp.Server(ncpus)
     jobs = []
     for datafile in datafiles:
-        jobs.append(job_server.submit(load_heatmap_data, (featurefile, datafile, amount_bins, extend_dyn_up, extend_dyn_down, rmdup, rpkm, rmrepeats, fragmentsize),  (), ("tempfile","sys","os","fluff.fluffio","numpy")))
-
+        jobs.append(job_server.submit(load_heatmap_data, (featurefile, datafile, amount_bins, extend_dyn_up, extend_dyn_down, rmdup, rpkm, rmrepeats, fragmentsize, dynam, guard),  (), ("tempfile","sys","os","fluff.fluffio","numpy")))
     for job in jobs:
-        track,regions,profile = job()
+        track,regions,profile,guard = job()
         data[track] = profile
   except:
     sys.stderr.write("Parallel Python (pp) not installed, can't load data in parallel\n")
     for datafile in datafiles:
-        track,regions,profile = load_heatmap_data(featurefile, datafile, amount_bins, extend_dyn_up, extend_dyn_down, rmdup, rpkm, rmrepeats, fragmentsize)
+        track,regions,profile,guard = load_heatmap_data(featurefile, datafile, amount_bins, extend_dyn_up, extend_dyn_down, rmdup, rpkm, rmrepeats, fragmentsize, dynam, guard)
         data[track] = profile
+  return data, regions, guard
 
-  return data, regions
-
+#-g : Option to try and get dynamics
+#Extend features 1kb up/down stream
+#Cluster them in one bin
+guard=[]
 if dynam:
   amount_bins = 1
-else:
-  amount_bins = bins
-  
-if bindynam:
   extend_dyn_up = 1000
   extend_dyn_down = 1000
+  data, regions, guard = load_data(featurefile, bins, extend_up, extend_down, rmdup, rpkm, rmrepeats, fragmentsize, dynam, guard)
 else:
+  amount_bins = bins
   extend_dyn_up = extend_up
   extend_dyn_down = extend_down
-  
-  
-data, regions = load_data(featurefile, amount_bins, extend_dyn_up, extend_dyn_down, rmdup, rpkm, rmrepeats, fragmentsize)
 
+#Load data for clustering
+data, regions, guard = load_data(featurefile, amount_bins, extend_dyn_up, extend_dyn_down, rmdup, rpkm, rmrepeats, fragmentsize, dynam, guard)
 # Normalize
 norm_data = normalize_data(data, DEFAULT_PERCENTILE)
 clus = hstack([norm_data[t] for i,t in enumerate(tracks) if (i in pick or not pick)])
 
+#Clustering
 if cluster_type == "k":
     print "K-means clustering"
     ## K-means clustering
     # PyCluster
     labels, error, nfound = Pycluster.kcluster(clus, options.numclusters, dist=METRIC)
-    
-    if merge_mirrored:
+    if not dynam and merge_mirrored:
         (i,j) = mirror_clusters(data, labels)
         while j:
             for track in data.keys():
@@ -295,9 +303,11 @@ elif cluster_type == "h":
 else:
     ind = arange(len(regions))
     labels = zeros(len(regions))
-
 f = open("{0}_clusters.bed".format(outfile), "w")
 for (chrom,start,end,gene,strand), cluster in zip(array(regions, dtype="object")[ind], array(labels)[ind]):
+  if not gene:
+    f.write("{0}\t{1}\t{2}\t{3}\t{4}\n".format(chrom, start, end, cluster, strand))
+  else: 
     f.write("{0}\t{1}\t{2}\t{3}\t{4}\t{5}\n".format(chrom, start, end, gene, cluster, strand))
 f.close()
 
@@ -306,14 +316,20 @@ if not cluster_type == "k":
 
 #Save read count matrix
 input_file = open('{0}_readcount.txt'.format(outfile), 'w')
-for k, v in data.items():
-  for row in v:
-    for x in row:
-      input_file.write('{0}\t'.format(str(x)))
-    input_file.write('\n')
+for i, track in enumerate(tracks):
+  for k, v in data.items():
+    if track == k:
+      order = []
+      for row in v:
+        for x in row:
+          order.append(x)
+      for j in ind:
+        input_file.write('{0}\t'.format(str(order[j])))
+      input_file.write('\n')
 
-if dynam or bindynam:
-  data, regions = load_data(featurefile, bins, extend_up, extend_down, rmdup, rpkm, rmrepeats, fragmentsize)
+#Load data for visualization if -g option was used
+if dynam:
+  data, regions, guard = load_data(featurefile, bins, extend_up, extend_down, rmdup, rpkm, rmrepeats, fragmentsize, dynam, guard)
 
 scale = get_absolute_scale(options.scale, [data[track] for track in tracks])
 heatmap_plot(data, ind, outfile, tracks, titles, colors, bgcolors, scale, tscale, labels)

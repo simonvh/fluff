@@ -7,15 +7,16 @@ script/
 	fluff_heatmap.py :
 		Pearson as distance function.
 		Multiprocessing.
-		Cluster as 1 bin and diplay with the original number of bins
-		in order to identify dynamics.
+		Try to identify dynamics by extending 1 kb up/down stream, just for clustering
+		and display the data with the default settings
 		Warning when using too many data (Issue: #17).
 		If there is a gene name in BED file will be added to
 		'_clusters.bed' file (Issue: #16).
 		Get reads matrix count as an output ('_readcount.txt') (Issue:
 		#18).
 		Fixed bugs.
-	fluff_bandplot.py : 
+	fluff_bandplot.py :
+		"_clusters.bed" files with/without gene name can be used to develop bandplots
 	fluff_profile.py : 
 
 fluff/

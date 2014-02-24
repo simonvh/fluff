@@ -90,6 +90,7 @@ Options:
     -O          save read count matrix
     -P          define number of CPUs
     -M METHOD   euclidean or pearson
+    -g          Identify dynamics by extending features 1kb up/down stream(just for clustering), cluster as 1 bin, diplay as original number of bins and with the default extend values
 ```
 
 ### Clustering ###

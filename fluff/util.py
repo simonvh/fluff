@@ -7,7 +7,6 @@ import re
 def split_ranges(r):
     if not r:
         return r
-
     p = re.compile('[:-]')
     n = []
     for part in r.split(","):
@@ -170,7 +169,6 @@ def mirror_clusters(data, labels, cutoff=0.01):
     n = len(set(labels))
     if n == 1:
         return (None,None)    
-
     mirror = dict([(i,{}) for i in range(n)])
     for track in data.keys():
         profiles = []
@@ -181,7 +179,6 @@ def mirror_clusters(data, labels, cutoff=0.01):
                 p = chisquare(profiles[i], profiles[j][::-1])[1]
                 mirror[i].setdefault(j, []).append(p)
     result = []
-
     for i in mirror.keys():
         for j in mirror[i].keys():
             result.append([(i,j), mirror[i][j]])
@@ -192,6 +189,7 @@ def mirror_clusters(data, labels, cutoff=0.01):
     #print "<<<<"
 
     for (i,j), ps in sorted(result, cmp=lambda a,b: cmp(numpy.mean(a[1]), numpy.mean(b[1])))[::-1]:
+        #print (i,j), ps, numpy.array(ps), cutoff
         if (numpy.array(ps) >= cutoff).all():
             return (i,j)
-    return (None,None)    
+    return (None,None)
