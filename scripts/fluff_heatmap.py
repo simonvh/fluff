@@ -24,8 +24,9 @@ from fluff.util import *
 from fluff.fluffio import *
 from fluff.color import DEFAULT_COLORS, parse_colors
 from fluff.plot import heatmap_plot
+from fluff.config import *
 
-VERSION = "1.3"
+VERSION = str(FL_VERSION)
 
 DEFAULT_BINSIZE = 100
 DEFAULT_METRIC = "e"        # Euclidian, PyCluster

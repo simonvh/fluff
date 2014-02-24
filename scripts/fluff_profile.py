@@ -16,8 +16,10 @@ from numpy import array
 from fluff.plot import profile_screenshot
 from fluff.util import *
 from fluff.color import DEFAULT_COLORS, parse_colors
+from fluff.config import *
 
-VERSION = 1.3
+VERSION = str(FL_VERSION)
+
 BACKGROUNDS = ["white", "stripes", "color"]
 FRAGMENTLENGTH = 200
 
