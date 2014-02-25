@@ -313,6 +313,7 @@ class SimpleFeature():
         self.end = end
         self.value = value
         self.strand = strand
+
 class SimpleBed():
     def __init__(self, fname):
         self.f = open(fname)
@@ -329,13 +330,19 @@ class SimpleBed():
             
             vals = line.strip().split("\t")
             start, end = int(vals[1]), int(vals[2])
-            value = vals[3]
-            return SimpleFeature(vals[0], start, end, value, vals[5])
+            if len(vals) > 3:
+                value = vals[3]
+            else:
+                value = 0
+            strand = "+"
+            if len(vals) >= 6:
+                strand = vals[5]
+            return SimpleFeature(vals[0], start, end, value, strand)
         else:
             self.f.close()
             raise StopIteration
 	  
-def get_binned_stats(in_fname, data_fname, nbins, rpkm=False, rmdup=False, rmrepeats=False, fragmentsize=None):
+def get_binned_stats(in_fname, data_fname, nbins, rpkm=False, rmdup=False, rmrepeats=False, fragmentsize=None, split=False):
     track = TrackWrapper(data_fname)
     readlength = track.read_length()
     if not fragmentsize:
@@ -392,13 +399,18 @@ def get_binned_stats(in_fname, data_fname, nbins, rpkm=False, rmdup=False, rmrep
         count += 1
     track.close()
     del in_track
-    return ["\t".join([str(x) for x in row]) for row in ret]
-
-def load_heatmap_data(featurefile, datafile, bins=100, up=5000, down=5000, rmdup=True, rpkm=False, rmrepeats=True, fragmentsize=None, dynam=False):
+    if split:
+        return ret 
+    else:
+        return ["\t".join([str(x) for x in row]) for row in ret]
+        
+def load_heatmap_data(featurefile, datafile, bins=100, up=5000, down=5000, rmdup=True, rpkm=False, rmrepeats=True, fragmentsize=None, dynam=False, filt=None):
     tmp = tempfile.NamedTemporaryFile(delete=False, prefix="fluff")
     regions = []
     order = {}
     count = 0
+    
+    filt = []
     for line in open(featurefile):
         if line.startswith("#") or line[:5] == "track":
             continue
@@ -418,13 +430,17 @@ def load_heatmap_data(featurefile, datafile, bins=100, up=5000, down=5000, rmdup
             start -= down
             end += up
         if start >= 0:
+            filt.append(True)
             regions.append([vals[0], start, end, gene, strand])
             order["{0}:{1}-{2}".format(vals[0], start, end)] = count
             count += 1
             tmp.write("{0}\t{1}\t{2}\t{3}\t0\t{4}\n".format(vals[0], start, end, gene, strand))
+        else:
+            filt.append(False)
+          
     tmp.flush()
     result = fluff.fluffio.get_binned_stats(tmp.name, datafile, bins, rpkm=rpkm, rmdup=rmdup, rmrepeats=rmrepeats, fragmentsize=fragmentsize)
     # Retrieve original order
     r_data = numpy.array([[float(x) for x in row.split("\t")[3:]] for row in result])    
-    return os.path.basename(datafile), regions, r_data#[r_order]
+    return os.path.basename(datafile), regions, r_data, filt#[r_order]
 
