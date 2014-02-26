@@ -36,7 +36,6 @@ def heatmap_plot(data, ind, outfile, tracks, titles, colors, bgcolors, scale, ts
         width_ratios += [1]
     
     # Create figure
-    print width_ratios
     fig = plt.figure(figsize=(plot_width, plot_height))
     # Create subplot layout
     gs = gridspec.GridSpec(1, numplots, width_ratios=width_ratios)
@@ -81,7 +80,7 @@ def heatmap_plot(data, ind, outfile, tracks, titles, colors, bgcolors, scale, ts
                     alpha=0.5
             )
             plt.text(0.5, (prev + s) / 2, 
-                     str(i), 
+                     str(i+1), 
                      verticalalignment="center", 
                      horizontalalignment="center",
                      fontproperties=font)
@@ -134,15 +133,15 @@ def coverage_plot(ax, x, data, color="red", percs=[50,90]):
 def create_grid_figure(nrows, ncolumns, plotwidth=2.0, plotheight=2.0, pad=0.1, padleft=0.1, padright=0.1, padtop=0.1, padbottom=0.1, clean=True):
     wsize = padleft + (ncolumns * plotwidth) + (pad * (ncolumns - 1)) + padright
     hsize = padtop + (nrows * plotheight) + (pad * (nrows - 1)) + padbottom
-
     fig = plt.figure(figsize=(wsize, hsize))
     wpadfraction = pad / wsize
     hpadfraction = pad / hsize
     wplotsize = plotwidth / wsize
     hplotsize = plotheight / hsize 
-
     axes = {}
     # Create all the subplots
+    print nrows
+    print ncolumns
     for row in range(nrows):
         axes[row] = {}
         for col in range(ncolumns):

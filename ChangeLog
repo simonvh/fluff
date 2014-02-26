@@ -1,6 +1,6 @@
 Fluff
 
-Version : 1.4
+Version : 1.41
 Date : 
 
 script/
@@ -15,6 +15,7 @@ script/
 		Get reads matrix count as an output ('_readcount.txt') (Issue:
 		#18).
 		Fixed bugs.
+		Fixed clusters numbers
 	fluff_bandplot.py :
 		"_clusters.bed" files with/without gene name can be used to develop bandplots
 	fluff_profile.py : 

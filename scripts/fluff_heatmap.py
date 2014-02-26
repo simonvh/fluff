@@ -91,7 +91,7 @@ group1.add_option("-B",
                   default=DEFAULT_BG)
 group1.add_option("-e", 
                   dest="extend", 
-                  help="extend (in bp)", 
+                  help="extend (in bp. Default: {0})".format(DEFAULT_EXTEND), 
                   metavar="INT", 
                   type="int", 
                   default=DEFAULT_EXTEND)
@@ -307,9 +307,9 @@ else:
 f = open("{0}_clusters.bed".format(outfile), "w")
 for (chrom,start,end,gene,strand), cluster in zip(array(regions, dtype="object")[ind], array(labels)[ind]):
   if not gene:
-    f.write("{0}\t{1}\t{2}\t{3}\t{4}\n".format(chrom, start, end, cluster, strand))
+    f.write("{0}\t{1}\t{2}\t{3}\t{4}\n".format(chrom, start, end, cluster+1, strand))
   else: 
-    f.write("{0}\t{1}\t{2}\t{3}\t{4}\t{5}\n".format(chrom, start, end, gene, cluster, strand))
+    f.write("{0}\t{1}\t{2}\t{3}\t{4}\t{5}\n".format(chrom, start, end, gene, cluster+1, strand))
 f.close()
 
 if not cluster_type == "k":

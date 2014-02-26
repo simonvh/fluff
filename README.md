@@ -69,27 +69,27 @@ It is worth mentioning that the heatmap can be save in a vector-based format, ho
 Usage: fluff_heatmap.py -f <bedfile> -d <file1>[,<file2>,...] -o <out> [options]
 
 Options:
-  --version     show program's version number and exit
-  -h, --help    show this help message and exit
+  --version     Show program's version number and exit
+  -h, --help    Show this help message and exit
   -f FILE       BED file containing features
-  -d FILE(S)    data files (reads in BAM or BED format)
-  -o FILE       output file (type determined by extension)
+  -d FILE(S)    Data files (reads in BAM or BED format)
+  -o FILE       Output file (type determined by extension)
 
   Optional:
     -C METHOD   kmeans, hierarchical or none
-    -k INT      number of clusters
-    -m          merge mirrored clusters (only with kmeans)
-    -c NAME(S)  color(s) (name, colorbrewer profile or hex code)
-    -B NAME(S)  background color(s) (name, colorbrewer profile or hex code)
-    -e INT      extend (in bp)
-    -b INT      bin size (default 100)
-    -s SCALE    scale (absolute or percentage)
-    -r          use RPKM instead of read counts
-    -D          keep duplicate reads (removed by default)
-    -R          keep repeats (removed by default, bwa only)
-    -O          save read count matrix
-    -P          define number of CPUs
-    -M METHOD   euclidean or pearson
+    -k INT      Number of clusters
+    -m          Merge mirrored clusters (only with kmeans)
+    -c NAME(S)  Color(s) (name, colorbrewer profile or hex code)
+    -B NAME(S)  Background color(s) (name, colorbrewer profile or hex code)
+    -e INT      Extend (in bp. Default: 5000)
+    -b INT      Bin size (default 100)
+    -s SCALE    Scale (absolute or percentage)
+    -r          Use RPKM instead of read counts
+    -D          Keep duplicate reads (removed by default)
+    -R          Keep repeats (removed by default, bwa only)
+    -O          Save read count matrix
+    -P          Define number of CPUs
+    -M METHOD   Euclidean or pearson
     -g          Identify dynamics by extending features 1kb up/down stream(just for clustering), cluster as 1 bin, diplay as original number of bins and with the default extend values
 ```
 
@@ -114,19 +114,19 @@ While heatmaps can be very informative, sometimes you want to show the average p
 Usage: fluff_bandplot.py -c <bedfile> -d <file1>[,<file2>,...] -o <out> [options]
 
 Options:
-  --version     show program's version number and exit
-  -h, --help    show this help message and exit
+  --version     Show program's version number and exit
+  -h, --help    Show this help message and exit
   -i FILE       BED file with cluster in 4th column
-  -d FILE(S)    data files (reads in BAM or BED format)
-  -o FILE       output file (type determined by extension)
+  -d FILE(S)    Data files (reads in BAM or BED format)
+  -o FILE       Output file (type determined by extension)
 
   Optional:
-    -c NAME(S)  color(s) (name, colorbrewer profile or hex code)
-    -s GROUPS   scale groups
+    -c NAME(S)  Color(s) (name, colorbrewer profile or hex code)
+    -s GROUPS   Scale groups
     -p INT,INT  Range of percentiles (default 50,90)
-    -r          use RPKM instead of read counts
-    -D          keep duplicate reads (removed by default)
-    -R          keep repeats (removed by default, bwa only)
+    -r          Use RPKM instead of read counts
+    -D          Keep duplicate reads (removed by default)
+    -R          Keep repeats (removed by default, bwa only)
 ```
 
 The input file should contain a cluster identifier in the fourth column. Any string or number can be used; all features with the same identifier will be grouped. The size of the regions is determined by the coordinates in the BED file, ie if you want to plot a region of 10kb all the entries in the BED file should span a region of 10kb. The `*_clusters.bed` file from `fluff_heatmap.py` can directly be used in this script.
@@ -143,20 +143,20 @@ Produces output like a Genome Browser screenshot. Currently only 1) profiles bas
 Usage: fluff_profile.py -i <loc1>[,<loc2>,...] -d <file1>[,<file2>,...] -o <out> [options]
 
 Options:
-  --version           show program's version number and exit
-  -h, --help          show this help message and exit
-  -i INTERVAL(S)      one or more genomic intervals (chrom:start-end)
-  -d FILE(S)          data files (reads in BAM or BED format)
-  -o FILE             output file name (type determined by extension)
+  --version           Show program's version number and exit
+  -h, --help          Show this help message and exit
+  -i INTERVAL(S)      One or more genomic intervals (chrom:start-end)
+  -d FILE(S)          Data files (reads in BAM or BED format)
+  -o FILE             Output file name (type determined by extension)
 
   Optional:
-    -a FILE           annotation in BED12 format
-    -c NAME(S)        color(s) (name, colorbrewer profile or hex code)
-    -t GROUPS         track groups
-    -s GROUPS         scale groups
-    -S SCALE          scale: 'auto' (default), 'off' or int for each track
-    -b BACKGROUND     background color: white | color | stripes
-    -f FRAGMENTSIZE   fragment length (default: 200)
+    -a FILE           Annotation in BED12 format
+    -c NAME(S)        Color(s) (name, colorbrewer profile or hex code)
+    -t GROUPS         Track groups
+    -s GROUPS         Scale groups
+    -S SCALE          Scale: 'auto' (default), 'off' or int for each track
+    -b BACKGROUND     Background color: white | color | stripes
+    -f FRAGMENTSIZE   Fragment length (default: 200)
 ```
 
 ###Scale and track groups###

@@ -99,7 +99,6 @@ track_max = []
 for track_num, track in enumerate(tracks):
     percentiles = [scoreatpercentile([data[track][x] for x in cluster_data[cluster]], 90) for cluster in clusters]
     track_max.append(max(percentiles))
-
 for track_num, track in enumerate(tracks):
     for i,cluster in enumerate(clusters):
         # Retrieve axes
