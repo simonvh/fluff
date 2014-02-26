@@ -1,2 +1,2 @@
 ### CONSTANTS ###
-FL_VERSION = "1.41"
+FL_VERSION = "1.42"
