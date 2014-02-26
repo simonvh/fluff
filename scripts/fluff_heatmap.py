@@ -228,7 +228,7 @@ def load_data(featurefile, amount_bins, extend_dyn_up, extend_dyn_down, rmdup, r
   # Calculate the profile data
   data = {}
   regions = []
-  if guard:
+  if guard or not dynam:
     print "Loading data"
   try:
     # Load data in parallel

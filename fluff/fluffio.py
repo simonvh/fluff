@@ -28,8 +28,7 @@ def get_features_by_feature(track_a, track_b):
     """ Takes two BedTool tracks as input, returns overlapping features
     """
     if track_a.file_type != "bed" or  track_b.file_type != "bed":
-        raise ValueError, "Need BED files\n"
-    
+        raise ValueError, "Need BED files"
     for f in track_a:
         field_len_a = len(f.fields)
         break
@@ -115,7 +114,7 @@ class TrackWrapper():
             return c
         if self.ftype == "bed":
             if rmrepeats:
-                sys.stderr.write("Warning: rmrepeats has no result on BED files!\n")
+                sys.stderr.write("Warning: rmrepeats has no result on BED files!")
             if rmdup:
                 sys.stderr.write("Warning: rmdup has no result on BED files! (yet...;))")
 
@@ -139,8 +138,8 @@ class TrackWrapper():
         """ Generator 
         """
         if self.ftype == "bed":
-          if rmrepeats:
-              sys.stderr.write("Warning: rmrepeats has no result on BED files!\n")
+            if rmrepeats:
+                sys.stderr.write("Warning: rmrepeats has no result on BED files!")
         if self.ftype == "bam":
             for feature in track:
                 min_strand = []
@@ -286,7 +285,6 @@ class SimpleFeature():
         self.end = end
         self.value = value
         self.strand = strand
-
 class SimpleBed():
     def __init__(self, fname):
         self.f = open(fname)
@@ -314,19 +312,11 @@ class SimpleBed():
 	        return SimpleFeature(vals[0], start, end, value, vals[4])
 	    else:
 	      return SimpleFeature(vals[0], start, end, value, '+')
-            if len(vals) > 3:
-                value = vals[3]
-            else:
-                value = 0
-            strand = "+"
-            if len(vals) >= 6:
-                strand = vals[5]
-            return SimpleFeature(vals[0], start, end, value, strand)
         else:
             self.f.close()
             raise StopIteration
 	  
-def get_binned_stats(in_fname, data_fname, nbins, rpkm=False, rmdup=False, rmrepeats=False, fragmentsize=None, split=False):
+def get_binned_stats(in_fname, data_fname, nbins, rpkm=False, rmdup=False, rmrepeats=False, fragmentsize=None):
     track = TrackWrapper(data_fname)
     readlength = track.read_length()
     if not fragmentsize:
@@ -368,8 +358,7 @@ def get_binned_stats(in_fname, data_fname, nbins, rpkm=False, rmdup=False, rmrep
                 per_kb = num_reads * (1000.0 / binsize)
                 row.append(per_kb / total_reads)
             else:
-                row.append(num_reads)
-            
+                row.append(num_reads)           
             bin_start += binsize
         if feature.strand == "-":
             row = row[::-1]
@@ -380,12 +369,6 @@ def get_binned_stats(in_fname, data_fname, nbins, rpkm=False, rmdup=False, rmrep
     return ["\t".join([str(x) for x in row]) for row in ret]
 
 def load_heatmap_data(featurefile, datafile, bins=100, up=5000, down=5000, rmdup=True, rpkm=False, rmrepeats=True, fragmentsize=None, dynam=False, guard=[]):
-    if split:
-        return ret 
-    else:
-        return ["\t".join([str(x) for x in row]) for row in ret]
-        
-def load_heatmap_data(featurefile, datafile, bins=100, up=5000, down=5000, rmdup=True, rpkm=False, rmrepeats=True, fragmentsize=None, dynam=False, filt=None):
     tmp = tempfile.NamedTemporaryFile(delete=False, prefix="fluff")
     regions = []
     order = {}
@@ -395,9 +378,6 @@ def load_heatmap_data(featurefile, datafile, bins=100, up=5000, down=5000, rmdup
     else:
       filt = False
     for i, line in enumerate(open(featurefile)):
-    
-    filt = []
-    for line in open(featurefile):
         if line.startswith("#") or line[:5] == "track":
             continue
         vals = line.strip().split("\t")
@@ -431,17 +411,3 @@ def load_heatmap_data(featurefile, datafile, bins=100, up=5000, down=5000, rmdup
     # Retrieve original order
     r_data = numpy.array([[float(x) for x in row.split("\t")[3:]] for row in result])
     return os.path.basename(datafile), regions, r_data, guard#[r_order]
-        if start >= 0:
-            filt.append(True)
-            regions.append([vals[0], start, end, gene, strand])
-            order["{0}:{1}-{2}".format(vals[0], start, end)] = count
-            count += 1
-            tmp.write("{0}\t{1}\t{2}\t{3}\t0\t{4}\n".format(vals[0], start, end, gene, strand))
-        else:
-            filt.append(False)
-          
-    tmp.flush()
-    result = fluff.fluffio.get_binned_stats(tmp.name, datafile, bins, rpkm=rpkm, rmdup=rmdup, rmrepeats=rmrepeats, fragmentsize=fragmentsize)
-    # Retrieve original order
-    r_data = numpy.array([[float(x) for x in row.split("\t")[3:]] for row in result])    
-    return os.path.basename(datafile), regions, r_data, filt#[r_order]
