@@ -16,7 +16,6 @@ import multiprocessing
 from numpy import array,hstack,arange,median,mean,zeros
 from scipy.stats.mstats import rankdata
 import Pycluster
-import matplotlib.cm as cm
 from math import sqrt,log
 
 ### My imports ###
@@ -266,7 +265,7 @@ else:
 data, regions, guard = load_data(featurefile, amount_bins, extend_dyn_up, extend_dyn_down, rmdup, rpkm, rmrepeats, fragmentsize, dynam, guard)
 # Normalize
 norm_data = normalize_data(data, DEFAULT_PERCENTILE)
-clus = hstack([norm_data[t] for i,t in enumerate(tracks) if (i in pick or not pick)])
+clus = hstack([norm_data[t] for i,t in enumerate(tracks) if (not pick or i in pick)])
 
 #Clustering
 if cluster_type == "k":

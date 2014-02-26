@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# Copyright (c) 2012-2013 Simon van Heeringen <s.vanheeringen@ncmls.ru.nl>
+# Copyright (c) 2012-2014 Simon van Heeringen <s.vanheeringen@ncmls.ru.nl>
 #
 # This script is free software. You can redistribute it and/or modify it under 
 # the terms of the MIT License
@@ -9,36 +9,12 @@ from optparse import OptionParser,OptionGroup
 import sys
 import os
 
-### External imports ###
-from pylab import plot, show, ylim, yticks,savefig
-import matplotlib.pyplot as plt
-from matplotlib.ticker import NullFormatter,NullLocator
-from matplotlib.font_manager import fontManager, FontProperties
-from numpy import array,mean,amax,max,std,median,arange
-from scipy.interpolate import splprep, splev
-from scipy.stats import scoreatpercentile
-import pybedtools
-
 ### My imports ###
-from fluff.fluffio import *
-from fluff.plot import *
-from fluff.util import *
+from fluff.fluffio import load_cluster_data,load_bed_clusters
+from fluff.plot import bandplot
 from fluff.color import DEFAULT_COLORS,parse_colors
 from fluff.config import *
-
-######## EDIT CONSTANTS TO CHANGE BEHAVIOUR OF THE SCRIPT #############
-# Sizes of the plots (in inches)
-PLOTWIDTH = 0.6
-PLOTHEIGHT = 0.6
-PAD = 0.05
-PADLEFT = 1.5                        # For labels
-PADTOP = 0.4                         # For labels
-PADBOTTOM = 0.05
-PADRIGHT = 0.05
-FONTSIZE = 8
-BINS = 100                                # Number of bins for profile
-#########################################################################
-font = FontProperties(size=FONTSIZE / 1.25, family=["Nimbus Sans L", "Helvetica", "sans-serif"])
+from fluff.util import process_groups
 
 VERSION = str(FL_VERSION)
 
@@ -51,14 +27,13 @@ parser.add_option("-d", dest="datafiles", help="data files (reads in BAM or BED 
 parser.add_option("-o", dest="outfile", help="output file (type determined by extension)", metavar="FILE")
 group1.add_option("-S", dest="summary", help="create summary graphs", default=False, action="store_true")
 group1.add_option("-c", dest="colors", help="color(s) (name, colorbrewer profile or hex code)", metavar="NAME(S)", default=DEFAULT_COLORS)
-group1.add_option("-b", dest="bins", help="number of bins", metavar="INT", default=BINS, type=int)
+group1.add_option("-b", dest="bins", help="number of bins", metavar="INT", default=BANDPLOT_BINS, type=int)
 group1.add_option("-s", dest="scalegroups", help="scale groups", metavar="GROUPS")
 group1.add_option("-p", dest="percs", help="range of percentiles (default 50,90)", metavar="INT,INT", default="50,90")
 group1.add_option("-F", dest="fragmentsize", help="fragment length (default: read length)",type="int",  default=None)
 group1.add_option("-r", dest="rpkm", help="use RPKM instead of read counts", metavar="", action="store_true", default=False)
 group1.add_option("-D", dest="rmdup", help="keep duplicate reads (removed by default)", metavar="", default=True, action="store_false")
 group1.add_option("-R", dest="rmrepeats", help="keep repeats (removed by default, bwa only) ", metavar="", action="store_false", default=True)
-
 
 parser.add_option_group(group1)
 (options, args) = parser.parse_args()
@@ -67,18 +42,22 @@ for opt in [options.clust_file, options.datafiles, options.outfile]:
     if not opt:
         parser.print_help()
         sys.exit()
+
+# Data
 clust_file = options.clust_file
 datafiles = [x.strip() for x in options.datafiles.split(",")]
 fragmentsize = options.fragmentsize
 tracks = [os.path.basename(x) for x in datafiles]
-titles = [os.path.splitext(x)[0] for x in tracks]
-colors = parse_colors(options.colors)
-scalegroups = process_groups(options.scalegroups)
-percs = [int(x) for x in options.percs.split(",")]
 rmdup = options.rmdup
 rpkm = options.rpkm
 rmrepeats = options.rmrepeats
 bins = options.bins
+
+# Plot
+titles = [os.path.splitext(x)[0] for x in tracks]
+colors = parse_colors(options.colors)
+scalegroups = process_groups(options.scalegroups)
+percs = [int(x) for x in options.percs.split(",")]
 summary = options.summary
 
 # Calculate the profile data
@@ -160,3 +139,6 @@ if summary:
     ax.axes.get_xaxis().set_visible(False)
 print "Saving figure"
 savefig(options.outfile, dpi=600)
+
+# Make the plot
+bandplot(options.outfile, tracks, cluster_data, data, bins=bins, summary=summary, colors=colors, scalegroups=scalegroups, percs=percs, titles=titles) 
