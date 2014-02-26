@@ -17,9 +17,14 @@ from fluff.plot import profile_screenshot
 from fluff.util import *
 from fluff.color import DEFAULT_COLORS, parse_colors
 from fluff.config import *
+<<<<<<< HEAD
+
+VERSION = str(FL_VERSION)
+=======
 
 VERSION = str(FL_VERSION)
 
+>>>>>>> bins
 BACKGROUNDS = ["white", "stripes", "color"]
 FRAGMENTLENGTH = 200
 

@@ -19,6 +19,7 @@ import Pycluster
 import matplotlib.cm as cm
 from math import sqrt,log
 
+
 ### My imports ###
 from fluff.util import *
 from fluff.fluffio import *
@@ -64,7 +65,7 @@ group1.add_option("-p",
                   type="string")
 group1.add_option("-C", 
                   dest="clustering", 
-                  help="kmeans, hierarchical or none", 
+                  help="kmeans, hierarchical, pam(kmedoids) or none", 
                   default=DEFAULT_CLUSTERING, 
                   metavar="METHOD")
 group1.add_option("-k", 
@@ -75,7 +76,11 @@ group1.add_option("-k",
                   default=1)
 group1.add_option("-m", 
                   dest="merge_mirrored", 
+<<<<<<< HEAD
+                  help="merge mirrored clusters (only with kmeans and pam(kmedoids))", 
+=======
                   help="merge mirrored clusters (only with kmeans and without -g option)", 
+>>>>>>> bins
                   metavar="", 
                   default=False, 
                   action="store_true")
@@ -110,7 +115,7 @@ group1.add_option("-s",
 group1.add_option("-F", 
                   dest="fragmentsize", 
                   help="Fragment length (default: read length)",
-                  type="int",
+                  #type="int",
                   default=None)
 group1.add_option("-r", 
                   dest="rpkm", 
@@ -176,7 +181,12 @@ bgcolors = parse_colors(options.bgcolors)
 outfile = options.outfile
 extend_up = options.extend
 extend_down = options.extend
-fragmentsize = options.fragmentsize
+
+if not options.fragmentsize == None :
+  fragmentsizes = [int(x.strip()) for x in options.fragmentsize.split(",")]
+else:
+  fragmentsizes = None
+  
 cluster_type = options.clustering[0].lower()
 merge_mirrored = options.merge_mirrored
 bins = (extend_up + extend_down) / options.binsize
@@ -203,7 +213,12 @@ if (options.pick != None):
   pick = [i - 1 for i in split_ranges(options.pick)]
 else:
   pick = range(len(datafiles))
+<<<<<<< HEAD
+
+if not cluster_type in ["k", "h", "n", "p"]:
+=======
 if not cluster_type in ["k", "h", "n"]:
+>>>>>>> bins
     sys.stderr.write("Unknown clustering type!\n")
     sys.exit(1)
 #Number of clusters
@@ -221,11 +236,16 @@ else:
   else:
     METRIC = "c"
     print "Pearson distance method"
+    
 ## Get scale for each track
 tscale = [1.0 for track in datafiles]
 
+<<<<<<< HEAD
+def load_data(featurefile, amount_bins, extend_up, extend_down, rmdup, rpkm, rmrepeats, fragmentsizes):
+=======
 #Function to load heatmap data
 def load_data(featurefile, amount_bins, extend_dyn_up, extend_dyn_down, rmdup, rpkm, rmrepeats, fragmentsize, dynam, guard=[]):
+>>>>>>> bins
   # Calculate the profile data
   data = {}
   regions = []
@@ -236,17 +256,36 @@ def load_data(featurefile, amount_bins, extend_dyn_up, extend_dyn_down, rmdup, r
     import pp
     job_server = pp.Server(ncpus)
     jobs = []
+<<<<<<< HEAD
+    if not options.fragmentsize == None :
+     for datafile, fragmentsize in zip(datafiles, fragmentsizes):
+        jobs.append(job_server.submit(load_heatmap_data, (featurefile, datafile, amount_bins, extend_up, extend_down, rmdup, rpkm, rmrepeats, fragmentsize),  (), ("tempfile","sys","os","fluff.fluffio","numpy")))
+    else:
+      for datafile in datafiles:
+        jobs.append(job_server.submit(load_heatmap_data, (featurefile, datafile, amount_bins, extend_up, extend_down, rmdup, rpkm, rmrepeats, fragmentsizes),  (), ("tempfile","sys","os","fluff.fluffio","numpy")))
+=======
     for datafile in datafiles:
         jobs.append(job_server.submit(load_heatmap_data, (featurefile, datafile, amount_bins, extend_dyn_up, extend_dyn_down, rmdup, rpkm, rmrepeats, fragmentsize, dynam, guard),  (), ("tempfile","sys","os","fluff.fluffio","numpy")))
+>>>>>>> bins
     for job in jobs:
         track,regions,profile,guard = job()
         data[track] = profile
   except:
     sys.stderr.write("Parallel Python (pp) not installed, can't load data in parallel\n")
+<<<<<<< HEAD
+    if not options.fragmentsize == None :
+      for datafile, fragmentsize in zip(datafiles, fragmentsizes):
+        track,regions,profile = load_heatmap_data(featurefile, datafile, amount_bins, extend_up, extend_down, rmdup, rpkm, rmrepeats, int(fragmentsize))
+        data[track] = profile
+    else:
+      for datafile in datafiles:
+        jobs.append(job_server.submit(load_heatmap_data, (featurefile, datafile, amount_bins, extend_up, extend_down, rmdup, rpkm, rmrepeats, fragmentsizes),  (), ("tempfile","sys","os","fluff.fluffio","numpy")))
+=======
     for datafile in datafiles:
         track,regions,profile,guard = load_heatmap_data(featurefile, datafile, amount_bins, extend_dyn_up, extend_dyn_down, rmdup, rpkm, rmrepeats, fragmentsize, dynam, guard)
         data[track] = profile
   return data, regions, guard
+>>>>>>> bins
 
 #-g : Option to try and get dynamics
 #Extend features 1kb up/down stream
@@ -259,8 +298,13 @@ if dynam:
   data, regions, guard = load_data(featurefile, bins, extend_up, extend_down, rmdup, rpkm, rmrepeats, fragmentsize, dynam, guard)
 else:
   amount_bins = bins
+<<<<<<< HEAD
+  
+data, regions = load_data(featurefile, amount_bins, extend_up, extend_down, rmdup, rpkm, rmrepeats, fragmentsizes)
+=======
   extend_dyn_up = extend_up
   extend_dyn_down = extend_down
+>>>>>>> bins
 
 #Load data for clustering
 data, regions, guard = load_data(featurefile, amount_bins, extend_dyn_up, extend_dyn_down, rmdup, rpkm, rmrepeats, fragmentsize, dynam, guard)
@@ -272,9 +316,12 @@ clus = hstack([norm_data[t] for i,t in enumerate(tracks) if (i in pick or not pi
 if cluster_type == "k":
     print "K-means clustering"
     ## K-means clustering
-    # PyCluster
     labels, error, nfound = Pycluster.kcluster(clus, options.numclusters, dist=METRIC)
+<<<<<<< HEAD
+    if merge_mirrored:
+=======
     if not dynam and merge_mirrored:
+>>>>>>> bins
         (i,j) = mirror_clusters(data, labels)
         while j:
             for track in data.keys():
@@ -292,24 +339,60 @@ if cluster_type == "k":
             for k in range(j + 1, n):
                 labels[labels == k] = k - 1
             (i,j) = mirror_clusters(data, labels)
-            
     ind = labels.argsort()
-    # Other cluster implementation
-    #    centres, labels, dist = kmeanssample(clus, options.numclusters, len(clus) / 10,  metric=cl, maxiter=200, verbose=1, delta=0.00001)
+
 elif cluster_type == "h":
     print "Hierarchical clustering"
+    ## Hierarchical clustering
     tree = Pycluster.treecluster(clus, method="m", dist=METRIC)
     labels = tree.cut(options.numclusters)
     ind = sort_tree(tree, arange(len(regions)))
+    
+elif cluster_type == "p":
+    print "K-medoids/PAM(Partitioning Around Medoids) clustering"
+    ## K-medoids clustering
+    dmatrix = Pycluster.distancematrix(clus)
+    labels, error, nfound = Pycluster.kmedoids(dmatrix, options.numclusters)
+    if merge_mirrored:
+        (i,j) = mirror_clusters(data, labels)
+        while j:
+            for track in data.keys():
+                data[track][labels == j] = [row[::-1] for row in data[track][labels == j]]
+            for k in range(len(regions)):
+                if labels[k] == j:
+                    (chrom,start,end,gene,strand) = regions[k]
+                    if strand == "+":
+                        strand = "-"
+                    else:
+                        strand = "+"
+                    regions[k] = (chrom, start, end, gene, strand)
+            n = len(set(labels))
+            labels[labels == j] = i
+            for k in range(j + 1, n):
+                labels[labels == k] = k - 1
+            (i,j) = mirror_clusters(data, labels)
+    ind = labels.argsort()
+    
 else:
     ind = arange(len(regions))
     labels = zeros(len(regions))
+<<<<<<< HEAD
+
+#Save _clusters.bed
+f = open("{0}_clusters.bed".format(outfile), "w")
+for (chrom,start,end,gene,strand), cluster in zip(array(regions, dtype="object")[ind], array(labels)[ind]):
+    if not gene:
+      f.write("{0}\t{1}\t{2}\t{3}\t{4}\n".format(chrom, start, end, cluster, strand))
+    else:
+      f.write("{0}\t{1}\t{2}\t{3}\t{4}\t{5}\n".format(chrom, start, end, gene, cluster, strand))
+=======
 f = open("{0}_clusters.bed".format(outfile), "w")
 for (chrom,start,end,gene,strand), cluster in zip(array(regions, dtype="object")[ind], array(labels)[ind]):
   if not gene:
     f.write("{0}\t{1}\t{2}\t{3}\t{4}\n".format(chrom, start, end, cluster+1, strand))
   else: 
     f.write("{0}\t{1}\t{2}\t{3}\t{4}\t{5}\n".format(chrom, start, end, gene, cluster+1, strand))
+>>>>>>> bins
 f.close()
 
 if not cluster_type == "k":
@@ -330,7 +413,11 @@ for i, track in enumerate(tracks):
 
 #Load data for visualization if -g option was used
 if dynam:
+<<<<<<< HEAD
+  data, regions = load_data(featurefile, bins, extend_up, extend_down, rmdup, rpkm, rmrepeats, fragmentsizes)
+=======
   data, regions, guard = load_data(featurefile, bins, extend_up, extend_down, rmdup, rpkm, rmrepeats, fragmentsize, dynam, guard)
+>>>>>>> bins
 
 scale = get_absolute_scale(options.scale, [data[track] for track in tracks])
 heatmap_plot(data, ind, outfile, tracks, titles, colors, bgcolors, scale, tscale, labels)
