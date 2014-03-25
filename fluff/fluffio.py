@@ -299,7 +299,10 @@ class SimpleBed():
         if line:
             vals = line.strip().split("\t")
             start, end = int(vals[1]), int(vals[2])
-            value = vals[3]
+            if len(vals) > 3:
+                value = vals[3]
+            else:
+                value = 0
             if len(vals)>5:
 	      if not (vals[5] is '+') or (vals[5] is '-'):
 		return SimpleFeature(vals[0], start, end, value, '+')
@@ -316,7 +319,7 @@ class SimpleBed():
             self.f.close()
             raise StopIteration
 	  
-def get_binned_stats(in_fname, data_fname, nbins, rpkm=False, rmdup=False, rmrepeats=False, fragmentsize=None):
+def get_binned_stats(in_fname, data_fname, nbins, rpkm=False, rmdup=False, rmrepeats=False, fragmentsize=None, split=False):
     track = TrackWrapper(data_fname)
     readlength = track.read_length()
     if not fragmentsize:
@@ -366,7 +369,10 @@ def get_binned_stats(in_fname, data_fname, nbins, rpkm=False, rmdup=False, rmrep
         count += 1
     track.close()
     del in_track
-    return ["\t".join([str(x) for x in row]) for row in ret]
+    if split:
+        return ret
+    else:
+        return ["\t".join([str(x) for x in row]) for row in ret]
 
 def load_heatmap_data(featurefile, datafile, bins=100, up=5000, down=5000, rmdup=True, rpkm=False, rmrepeats=True, fragmentsize=None, dynam=False, guard=[]):
     tmp = tempfile.NamedTemporaryFile(delete=False, prefix="fluff")
