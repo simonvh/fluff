@@ -182,12 +182,6 @@ def mirror_clusters(data, labels, cutoff=0.01):
     for i in mirror.keys():
         for j in mirror[i].keys():
             result.append([(i,j), mirror[i][j]])
-    
-    #print ">>>>"
-    #for row in sorted(result, cmp=lambda a,b: cmp(numpy.mean(a[1]), numpy.mean(b[1])))[::-1]:
-    #    print row
-    #print "<<<<"
-
     for (i,j), ps in sorted(result, cmp=lambda a,b: cmp(numpy.mean(a[1]), numpy.mean(b[1])))[::-1]:
         #print (i,j), ps, numpy.array(ps), cutoff
         if (numpy.array(ps) >= cutoff).all():

@@ -306,7 +306,7 @@ else:
 f = open("{0}_clusters.bed".format(outfile), "w")
 for (chrom,start,end,gene,strand), cluster in zip(array(regions, dtype="object")[ind], array(labels)[ind]):
   if not gene:
-    f.write("{0}\t{1}\t{2}\t{3}\t{4}\n".format(chrom, start, end, cluster+1, strand))
+    f.write("{0}\t{1}\t{2}\t.\t{3}\t{4}\n".format(chrom, start, end, cluster+1, strand))
   else: 
     f.write("{0}\t{1}\t{2}\t{3}\t{4}\t{5}\n".format(chrom, start, end, gene, cluster+1, strand))
 f.close()

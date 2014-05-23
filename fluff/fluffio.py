@@ -208,7 +208,7 @@ def load_bed_clusters(bedfile):
     cluster_data = {}
     track = pybedtools.BedTool(bedfile)
     for f in track:
-        cluster_data.setdefault(_convert_value(f.name), []).append("{0}:{1}-{2}".format(f.chrom, f.start, f.end))
+        cluster_data.setdefault(_convert_value(f.score), []).append("{0}:{1}-{2}".format(f.chrom, f.start, f.end))
     return cluster_data
 
 def load_cluster_data(clust_file, datafiles, bins, rpkm, rmdup, rmrepeats, fragmentsize=None):
@@ -304,21 +304,21 @@ class SimpleBed():
             else:
                 value = 0
             if len(vals)>5:
-	      if not (vals[5] is '+') or (vals[5] is '-'):
-		return SimpleFeature(vals[0], start, end, value, '+')
-	      else:
-	        return SimpleFeature(vals[0], start, end, value, vals[5])
-	    elif len(vals)>4:
-	      if not (vals[4] is '+') or (vals[4] is '-'):
-		return SimpleFeature(vals[0], start, end, value, '+')
-	      else:
-	        return SimpleFeature(vals[0], start, end, value, vals[4])
-	    else:
-	      return SimpleFeature(vals[0], start, end, value, '+')
+                if not (vals[5] is '+') or (vals[5] is '-'):
+                    return SimpleFeature(vals[0], start, end, value, '+')
+                else:
+                    return SimpleFeature(vals[0], start, end, value, vals[5])
+            elif len(vals)>4:
+                if not (vals[4] is '+') or (vals[4] is '-'):
+                    return SimpleFeature(vals[0], start, end, value, '+')
+                else:
+                    return SimpleFeature(vals[0], start, end, value, vals[4])
+            else:
+                return SimpleFeature(vals[0], start, end, value, '+')
         else:
             self.f.close()
             raise StopIteration
-	  
+
 def get_binned_stats(in_fname, data_fname, nbins, rpkm=False, rmdup=False, rmrepeats=False, fragmentsize=None, split=False):
     track = TrackWrapper(data_fname)
     readlength = track.read_length()
@@ -402,16 +402,16 @@ def load_heatmap_data(featurefile, datafile, bins=100, up=5000, down=5000, rmdup
             start -= down
             end += up
         if filt:
-	  if start >= 0:
-	    guard.append(True)
-	  else:
-	    guard.append(False)
+            if start >= 0:
+                guard.append(True)
+            else:
+                guard.append(False)
         if not filt and start >= 0:
-	    if not dynam or guard[i]:
-              regions.append([vals[0], start, end, gene, strand])
-              order["{0}:{1}-{2}".format(vals[0], start, end)] = count
-              count += 1
-              tmp.write("{0}\t{1}\t{2}\t{3}\t0\t{4}\n".format(vals[0], start, end, gene, strand))
+            if not dynam or guard[i]:
+                regions.append([vals[0], start, end, gene, strand])
+                order["{0}:{1}-{2}".format(vals[0], start, end)] = count
+                count += 1
+                tmp.write("{0}\t{1}\t{2}\t{3}\t0\t{4}\n".format(vals[0], start, end, gene, strand))
     tmp.flush()
     result = fluff.fluffio.get_binned_stats(tmp.name, datafile, bins, rpkm=rpkm, rmdup=rmdup, rmrepeats=rmrepeats, fragmentsize=fragmentsize)
     # Retrieve original order
