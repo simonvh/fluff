@@ -101,7 +101,7 @@ group1.add_option("-b",
                   type="int", 
                   default=DEFAULT_BINSIZE)
 group1.add_option("-s", 
-                  dest="scale", 
+                  dest="scale", hi
                   help="scale (absolute or percentage)", 
                   metavar="", 
                   type="string", 
@@ -163,8 +163,10 @@ for x in options.datafiles.split(","):
     sys.exit(1)
 for x in options.datafiles.split(","):
   if '.bam' in x and not os.path.isfile("{0}.bai".format(x)):
-    print "ERROR: Data file '{0}' does not have an index file!".format(x)
-    sys.exit(1)
+    print "Data file '{0}' does not have an index file".format(x)
+    print "Creating an index file for {0}".format(x)
+    pysam.index(x)
+    print "Done!"
 #Options Parser
 featurefile = options.featurefile
 datafiles = [x.strip() for x in options.datafiles.split(",")]

@@ -379,12 +379,14 @@ def load_heatmap_data(featurefile, datafile, bins=100, up=5000, down=5000, rmdup
     regions = []
     order = {}
     count = 0
+    hashcounter = 0
     if not guard and dynam:
       filt  = True
     else:
       filt = False
     for i, line in enumerate(open(featurefile)):
         if line.startswith("#") or line[:5] == "track":
+	    hashcounter += 1
             continue
         vals = line.strip().split("\t")
         strand = "+"
@@ -407,7 +409,7 @@ def load_heatmap_data(featurefile, datafile, bins=100, up=5000, down=5000, rmdup
             else:
                 guard.append(False)
         if not filt and start >= 0:
-            if not dynam or guard[i]:
+            if not dynam or guard[i-hashcounter]:
                 regions.append([vals[0], start, end, gene, strand])
                 order["{0}:{1}-{2}".format(vals[0], start, end)] = count
                 count += 1

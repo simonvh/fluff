@@ -68,6 +68,12 @@ for opt in [options.clust_file, options.datafiles, options.outfile]:
         parser.print_help()
         sys.exit()
 clust_file = options.clust_file
+for x in options.datafiles.split(","):
+  if '.bam' in x and not os.path.isfile("{0}.bai".format(x)):
+    print "Data file '{0}' does not have an index file".format(x)
+    print "Creating an index file for {0}".format(x)
+    pysam.index(x)
+    print "Done!"
 datafiles = [x.strip() for x in options.datafiles.split(",")]
 fragmentsize = options.fragmentsize
 tracks = [os.path.basename(x) for x in datafiles]
