@@ -49,7 +49,12 @@ for opt in [options.intervals, options.datafiles, options.outfile]:
 if not options.background in BACKGROUNDS:
     print "Please specify a correct background!"
     sys.exit(1)
-
+for x in options.datafiles.split(","):
+  if '.bam' in x and not os.path.isfile("{0}.bai".format(x)):
+    print "Data file '{0}' does not have an index file".format(x)
+    print "Creating an index file for {0}".format(x)
+    pysam.index(x)
+    print "Done!"
 
 intervals = [x.strip() for x in options.intervals.split(",")]
 datafiles = [x.strip() for x in options.datafiles.split(",")]

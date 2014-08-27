@@ -37,6 +37,7 @@ PADBOTTOM = 0.05
 PADRIGHT = 0.05
 FONTSIZE = 8
 BINS = 100                                # Number of bins for profile
+SCALAR = 99
 #########################################################################
 font = FontProperties(size=FONTSIZE / 1.25, family=["Nimbus Sans L", "Helvetica", "sans-serif"])
 
@@ -46,7 +47,7 @@ usage = "Usage: %prog -i <bedfile> -d <file1>[,<file2>,...] -o <out> [options]"
 version = "%prog " + str(VERSION)
 parser = OptionParser(version=version, usage=usage)
 group1 = OptionGroup(parser, 'Optional')
-parser.add_option("-i", dest="clust_file", help="BED file with cluster in 4th column", metavar="FILE")
+parser.add_option("-i", dest="clust_file", help="BED file with cluster in 5th column", metavar="FILE")
 parser.add_option("-d", dest="datafiles", help="data files (reads in BAM or BED format)", metavar="FILE(S)")
 parser.add_option("-o", dest="outfile", help="output file (type determined by extension)", metavar="FILE")
 group1.add_option("-S", dest="summary", help="create summary graphs", default=False, action="store_true")
@@ -58,11 +59,15 @@ group1.add_option("-F", dest="fragmentsize", help="fragment length (default: rea
 group1.add_option("-r", dest="rpkm", help="use RPKM instead of read counts", metavar="", action="store_true", default=False)
 group1.add_option("-D", dest="rmdup", help="keep duplicate reads (removed by default)", metavar="", default=True, action="store_false")
 group1.add_option("-R", dest="rmrepeats", help="keep repeats (removed by default, bwa only) ", metavar="", action="store_false", default=True)
-
+group1.add_option("-P", dest="scalar", help="Percentile at which to extract score. Value should be in range [0,100] (default 90)", metavar="INT", default=SCALAR)
 
 parser.add_option_group(group1)
 (options, args) = parser.parse_args()
-
+if (0 > options.scalar) or  (options.scalar > 100):
+  print "ERROR: -P value has to be between 0 and 100"
+  sys.exit(1)
+else:
+  scalar = options.scalar
 for opt in [options.clust_file, options.datafiles, options.outfile]:
     if not opt:
         parser.print_help()
@@ -86,7 +91,6 @@ rpkm = options.rpkm
 rmrepeats = options.rmrepeats
 bins = options.bins
 summary = options.summary
-
 # Calculate the profile data
 data = load_cluster_data(clust_file, datafiles, bins, rpkm, rmdup, rmrepeats, fragmentsize=fragmentsize)
 # Get cluster information
@@ -103,7 +107,7 @@ if summary:
 fig, axes = create_grid_figure(rows, cols, plotwidth=PLOTWIDTH, plotheight=PLOTHEIGHT, padleft=PADLEFT, padtop=PADTOP, pad=PAD, padright=PADRIGHT, padbottom=PADBOTTOM) 
 track_max = []
 for track_num, track in enumerate(tracks):
-    percentiles = [scoreatpercentile([data[track][x] for x in cluster_data[cluster]], 90) for cluster in clusters]
+    percentiles = [scoreatpercentile([data[track][x] for x in cluster_data[cluster]], scalar) for cluster in clusters]
     track_max.append(max(percentiles))
 for track_num, track in enumerate(tracks):
     for i,cluster in enumerate(clusters):

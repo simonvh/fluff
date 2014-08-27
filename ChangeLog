@@ -18,6 +18,7 @@ script/
 		Fixed clusters numbers
 	fluff_bandplot.py :
 		"_clusters.bed" files with/without gene name can be used to develop bandplots
+		-P option added to chance the the percentile
 	fluff_profile.py : 
 
 fluff/
