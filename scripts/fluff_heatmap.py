@@ -101,7 +101,7 @@ group1.add_option("-b",
                   type="int", 
                   default=DEFAULT_BINSIZE)
 group1.add_option("-s", 
-                  dest="scale", hi
+                  dest="scale",
                   help="scale (absolute or percentage)", 
                   metavar="", 
                   type="string", 
