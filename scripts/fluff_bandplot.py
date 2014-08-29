@@ -63,7 +63,7 @@ group1.add_option("-P", dest="scalar", help="Percentile at which to extract scor
 
 parser.add_option_group(group1)
 (options, args) = parser.parse_args()
-if (0 > options.scalar) or  (options.scalar > 100):
+if (0 > options.scalar) or  (options.scalar < 100):
   print "ERROR: -P value has to be between 0 and 100"
   sys.exit(1)
 else:
