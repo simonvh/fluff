@@ -120,7 +120,7 @@ class TrackWrapper():
 
     def read_length(self):
         if self.ftype == "bam":
-            for read in self.track.fetch():
+            for read in self.track.fetch(until_eof=True):
                 if read.alen:
                     return read.alen
         if self.ftype == "bed":
