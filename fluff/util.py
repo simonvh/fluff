@@ -133,7 +133,7 @@ def normalize_data(data, percentile=75):
             x =  ar / scoreatpercentile(ar.flatten(), percentile)
             #x[x <= 0.5] = 0
             x[x >= 1.0] = 1
-            norm_data[track] = x
+        norm_data[track] = x
     return norm_data
 
 def get_absolute_scale(scale, data, per_track=False):
