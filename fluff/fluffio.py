@@ -127,13 +127,6 @@ class TrackWrapper():
             for read in self.track:
                 return read.end - read.start
     
-    def _add_read_to_list(self, read, min_strand, plus_strand, rmrepeats=False):
-        if (not rmrepeats) or (('X0',1) in read.tags or not 'X0' in [x[0] for x in read.tags]):
-            if read.is_reverse:
-                min_strand.append(read.pos)
-            else:
-                plus_strand.append(read.pos)
-
     def fetch_to_counts(self, track, rmdup=False, rmrepeats=False):
         """ Generator 
         """
@@ -147,13 +140,13 @@ class TrackWrapper():
                 if feature.start < 0:
                     feature.start = 0
                 if feature.chrom in self.chroms:
-                    self.track.fetch(feature.chrom, feature.start, feature.end, 
-                                 callback=lambda x: self._add_read_to_list(x, 
-                                                                           min_strand, 
-                                                                           plus_strand, 
-                                                                           rmrepeats
-                                                                           )
-                                )
+                    for read in self.track.fetch(feature.chrom, feature.start, feature.end):
+                        if (not rmrepeats) or (('X0',1) in read.tags or not 'X0' in [x[0] for x in read.tags]):
+                            if read.is_reverse:
+                                 min_strand.append(read.pos)
+                            else:
+                                plus_strand.append(read.pos)
+                    
                     # Remove duplicates
                     if rmdup:
                         min_strand = sorted(set(min_strand))
