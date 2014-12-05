@@ -338,28 +338,22 @@ def get_binned_stats(in_fname, data_fname, nbins, rpkm=False, rmdup=False, rmrep
         while int(bin_start + 0.5) < feature.end:
             num_reads = 0
             i = 0
+            c = 0
             while i < len(min_strand) and min_strand[i] <= int(bin_start + binsize + 0.5):
+                if min_strand[i] + fragmentsize <= int(bin_start + binsize + 0.5):
+                    c += 1
                 num_reads += 1
                 i += 1
+            min_strand = min_strand[c:]
             
-            pos = int(bin_start + binsize + 0.5)
-            
-            if len(min_strand) > 0:
-                for c in range(0,len(min_strand)):
-                    if min_strand[c] + fragmentsize > pos:
-                        break
-                min_strand = min_strand[c:]
-
             i = 0
+            c = 0
             while i < len(plus_strand) and plus_strand[i] <= int(bin_start + binsize + 0.5):
+                if plus_strand[i] + fragmentsize <= int(bin_start + binsize + 0.5):
+                    c += 1
                 num_reads += 1
                 i += 1
-            
-            if len(plus_strand) > 0:
-                for c in range(0, len(plus_strand)):
-                    if plus_strand[c] + fragmentsize > pos:
-                        break
-                plus_strand = plus_strand[c:]
+            plus_strand = plus_strand[c:]
        
             if rpkm:
                 per_kb = num_reads * (1000.0 / binsize)
