@@ -330,7 +330,6 @@ def get_binned_stats(in_fname, data_fname, nbins, rpkm=False, rmdup=False, rmrep
         in_track = pybedtools.BedTool(in_fname)
     extend = fragmentsize - readlength
     for feature, min_strand, plus_strand in track.fetch_to_counts(in_track, rmdup, rmrepeats):
-        min_strand = []
         binsize = (feature.end - feature.start) / float(nbins)
         row = []
         overlap = []
