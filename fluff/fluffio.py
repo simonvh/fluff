@@ -343,21 +343,23 @@ def get_binned_stats(in_fname, data_fname, nbins, rpkm=False, rmdup=False, rmrep
                 i += 1
             
             pos = int(bin_start + binsize + 0.5)
-            for c in range(len(min_strand) - 1, -1, -1):
-                if min_strand[c] + fragmentsize > pos:
-                    break
-
-            min_strand = min_strand[:c + 1]
+            
+            if len(min_strand) > 0:
+                for c in range(len(min_strand) - 1, -1, -1):
+                    if min_strand[c] + fragmentsize > pos:
+                        break
+                min_strand = min_strand[:c + 1]
 
             i = 0
             while i < len(plus_strand) and plus_strand[i] <= int(bin_start + binsize + 0.5):
                 num_reads += 1
                 i += 1
             
-            for c in range(0, len(plus_strand)):
-                if plus_strand[c] + fragmentsize > pos:
-                    break
-            plus_strand = plus_strand[:c]
+            if len(plus_strand) > 0:
+                for c in range(0, len(plus_strand)):
+                    if plus_strand[c] + fragmentsize > pos:
+                        break
+                plus_strand = plus_strand[:c]
        
             if rpkm:
                 per_kb = num_reads * (1000.0 / binsize)
