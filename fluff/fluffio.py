@@ -207,7 +207,7 @@ class TrackWrapper():
                 iv.length = fragmentsize
                 region = profile[iv.start - start:iv.end - start]
                 region[np.isnan(region)] = 0
-                profile[region] += 1
+                region += 1
         elif self.ftype == "wiggle":
             for iv,score in self.htseq_track:
                 if iv.chrom == chrom:
