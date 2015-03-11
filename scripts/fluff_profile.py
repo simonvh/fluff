@@ -37,6 +37,24 @@ group1.add_option("-s", dest="scalegroups", help="scale groups", metavar="GROUPS
 group1.add_option("-S", dest="scale", help="scale: 'auto' (default), 'off' or int for each track", metavar="SCALE", default="auto")
 group1.add_option("-b", dest="background", help="background color: white | color | stripes", default="white")
 group1.add_option("-f", dest="fragmentsize", help="fragment length (default: %s)" % FRAGMENTLENGTH,type="int",  default=FRAGMENTLENGTH)
+group1.add_option("-D",
+                  dest="rmdup",
+                  help="keep duplicate reads (removed by default)",
+                  metavar="",
+                  default=True,
+                  action="store_false")
+group1.add_option("-R",
+                  dest="rmrepeats",
+                  help="keep repeats (removed by default, bwa only) ",
+                  metavar="",
+                  action="store_false",
+                  default=True)
+group1.add_option("-r",
+                  dest="reverse",
+                  help="reverse ",
+                  metavar="",
+                  action="store_true",
+                  default=False)
 
 parser.add_option_group(group1)
 (options, args) = parser.parse_args()
@@ -93,4 +111,14 @@ for group in trackgroups:
 intervals = [split_interval(x) for x in intervals]
 
 # Create the image
-profile_screenshot(outfile, intervals, tracks, annotation=annotation, scalegroups=scalegroups, colors=colors, bgmode=options.background, fragmentsize=options.fragmentsize, scale=scale)
+profile_screenshot(outfile, intervals, tracks, 
+    annotation=annotation, 
+    scalegroups=scalegroups, 
+    colors=colors, 
+    bgmode=options.background, 
+    fragmentsize=options.fragmentsize, 
+    scale=scale,
+    rmdup=options.rmdup,
+    rmrepeats=options.rmrepeats,
+    reverse=options.reverse,
+    )

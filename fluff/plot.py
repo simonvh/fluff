@@ -2,7 +2,7 @@ from numpy import *
 import matplotlib.pyplot as plt
 from matplotlib.ticker import NullFormatter,NullLocator
 from matplotlib.font_manager import fontManager, FontProperties
-from matplotlib.patches import FancyArrowPatch,ArrowStyle
+from matplotlib.patches import FancyArrowPatch,ArrowStyle,Polygon
 import matplotlib.gridspec as gridspec
 from fluffio import *
 import sys
@@ -12,7 +12,8 @@ from fluff.color import create_colormap
 DEFAULT_COLORS = ["#e41a1c","#4daf4a","#377eb8"]
 FONTSIZE = 8
 PROFILE_MIN_Y = 75
-GENE_ARROW="-|>"
+GENE_ARROW="->"
+GENE_ARROW=ArrowStyle._Curve(beginarrow=False, endarrow=True, head_length=.4, head_width=.4)
 
 def hide_axes(ax):
     for x in [ax.xaxis, ax.yaxis]:
@@ -167,7 +168,7 @@ def create_grid_figure(nrows, ncolumns, plotwidth=2.0, plotheight=2.0, pad=0.1, 
 
     return fig, axes
 
-def profile_screenshot(fname, intervals, tracks, colors=None, scalegroups=[], annotation=None, bgmode="color", fragmentsize=200, scale=False, dpi=300):
+def profile_screenshot(fname, intervals, tracks, colors=None, scalegroups=[], annotation=None, bgmode="color", fragmentsize=200, scale=False, dpi=300, rmdup=False, rmrepeats=False, reverse=False):
     # Colors
     if not colors:
         colors = DEFAULT_COLORS
@@ -263,7 +264,7 @@ def profile_screenshot(fname, intervals, tracks, colors=None, scalegroups=[], an
             plt.text((s - start) / (end - start) + 0.01, 0.5, str(int(s)), horizontalalignment='left', verticalalignment='center', transform = ax.transAxes, fontproperties=font)
 
         # Load the actual data
-        profiles = load_profile(interval, tracks, fragmentsize=fragmentsize)
+        profiles = load_profile(interval, tracks, fragmentsize=fragmentsize, rmdup=rmdup, rmrepeats=rmrepeats, reverse=reverse)
 
         # Plot the profiles
         color_index = 0
@@ -327,21 +328,382 @@ def profile_screenshot(fname, intervals, tracks, colors=None, scalegroups=[], an
                     exonsizes =  [int(x) for x in gene[10].split(",") if x]
                     genestrand = gene[5]
         
-                    ax.axhline(h_gene, (genestart - start)/float(end - start), (geneend - start)/ float(end - start), color="black")
-                    step = plotwidth/ 400.0
+                    x1 = (genestart - start)
+                    x2 = (geneend - start)
+                    if reverse:
+                       x1 = end - genestart
+                       x2 = end - geneend
+                    gstart = x1 / float(end - start)
+                    gend = x2 / float(end - start)
+                    
+                    # Horizontal line for complete gene
+                    ax.axhline(h_gene, 
+                                gstart, 
+                                gend, 
+                                color="black")
+
+                    # Exons 
                     for exonstart,exonsize in zip(exonstarts, exonsizes):
-                        ax.axhspan(h_gene - 0.6, h_gene + 0.6, (genestart + exonstart - start)/float(end - start), (genestart + exonstart + exonsize - start)/ float(end - start), color="black")
-                    for i in arange((genestart -start)/ float(end-start) + step, (geneend - start)/ float(end-start) - step, step):
-                        if genestrand == "+":
-                            arr = FancyArrowPatch((i,h_gene),(i + step,h_gene),arrowstyle=GENE_ARROW)
+                        estart = (genestart + exonstart - start)
+                        eend = (genestart + exonstart + exonsize - start)
+                        if reverse:
+                            estart = end - (genestart + exonstart)
+                            eend = end - (genestart + exonstart + exonsize)
+                        
+                        ax.axhspan(
+                                h_gene - 0.5, 
+                                h_gene + 0.5, 
+                                estart / float(end - start), 
+                                eend / float(end - start), 
+                                color="black")
+                    
+                       
+                    step = plotwidth/ 600.0
+                    if reverse:
+                        step = -step
+                    for i in arange(gstart + step, gend - step, step):
+                        if genestrand == "-":
+                            arr = FancyArrowPatch(
+                                    (i + step,h_gene),
+                                    (i,h_gene),
+                                    arrowstyle=GENE_ARROW,
+                                    mutation_scale=14,
+                                    linewidth=0.5,
+                                    )
+
                         else:
-                            arr = FancyArrowPatch((i + step,h_gene),(i,h_gene),arrowstyle=GENE_ARROW)
+                            arr = FancyArrowPatch(
+                                    (i,h_gene),
+                                    (i + step,h_gene),
+                                    arrowstyle=GENE_ARROW,
+                                    mutation_scale=14,
+                                    linewidth=0.5,
+                                    )
                         ax.add_patch(arr)
 
     
     
     plt.savefig(fname, dpi=dpi)
     plt.close()
+
+class ProfileFigure():
+    def __init__(self, fig=None, gs=None):
+        self._panels = []
+        if not fig:
+            fig = plt.figure()
+        self.fig = fig
+        
+        if gs:
+            self.gs = gs
+        else:
+            gs = gridspec.GridSpec(1,1)
+            gs.update(left=0, right=1, wspace=0, hspace=0)
+            self.gs = gs[0]
+        
+        self.font = FontProperties(size=FONTSIZE / 1.25, family=["Nimbus Sans L", "Helvetica", "sans-serif"])
+
+    def plot(self, interval, reverse=False, scalegroups=[]):
+        for panel in self._panels:
+            panel._load_data(interval)
+
+        gs0 = gridspec.GridSpecFromSubplotSpec(
+                len(self._panels),
+                1,
+                subplot_spec=self.gs,
+                height_ratios = [p.height for p in self._panels]
+                )
+ 
+        if scalegroups and len(scalegroups) > 0:
+            for group in scalegroups:
+                ymax = max([self._panels[g].ymax for g in group])
+                for g in group:
+                    self._panels[g].ymax = ymax
+       
+        #for p in self._panels:
+        #    if hasattr(p, "ymax") and p.ymax < PROFILE_MIN_Y:
+        #        p.ymax = PROFILE_MIN_Y
+       
+        for i,panel in enumerate(self._panels):
+            ax = plt.Subplot(self.fig, gs0[i])
+            plt.subplots_adjust(bottom=0, top=1, left=0, right=1, hspace=0)
+            panel._plot(ax, interval, fig=self.fig, reverse=reverse, odd=i%2, font=self.font)
+            self.fig.add_subplot(ax)
+       
+    def add_panel(self, panel):
+        self._panels.append(panel)
+        return panel
+
+class ProfilePanel():
+    
+    def hide_axes(self, axes):
+        for ax in [axes.xaxis, axes.yaxis]:
+            ax.set_major_formatter(NullFormatter())
+            ax.set_major_locator(NullLocator())
+        
+        for s in axes.spines.values():    
+            s.set_color('none')
+
+class BamProfilePanel(ProfilePanel):
+    def __init__(self, bamfile, height=1, color=None, bgmode=None, alpha=None, fragmentsize=200, rmdup=True, rmrepeats=True):
+        self.height = height
+        self.track = TrackWrapper(bamfile)
+
+        self.bgmode = bgmode
+        
+        if color:
+            self.color = color
+        else:
+            self.color = "#a7004b"
+
+        if alpha:
+            self.alpha = alpha
+        else:
+            self.alpha = 1
+
+        self.fragmentsize = fragmentsize
+        self.rmdup = rmdup
+        self.rmrepeats = rmrepeats
+        
+    def _load_data(self, interval):
+        
+        self.profile = self.track.get_profile(
+                interval, 
+                self.fragmentsize, 
+                self.rmdup, 
+                self.rmrepeats
+                )
+
+        self.ymax = max(self.profile) * 1.10
+        
+    def _plot(self, ax, interval, reverse=False, fig=None, odd=False, font=None):
+       
+        # Background of profile
+        if self.bgmode == "stripes":
+            bgcol = {0:"white",1:(0.95,0.95,0.95)}[int(odd)]
+            ax.set_axis_bgcolor(bgcol)
+        elif self.bgmode == "color":
+            ax.set_axis_bgcolor(self.color)
+            ax.patch.set_alpha(0.07)
+        
+        chrom, start, end = interval
+        profile = self.profile
+        if reverse:
+            profile = profile[::-1]
+        
+        #r = np.split(range(start, end), np.where(profile == 0)[0])
+        #p = np.split(profile, np.where(profile == 0)[0])
+        ax.fill_between(
+                range(start, end), 
+                zeros(len(profile)), 
+                profile, 
+                edgecolor='face', 
+                facecolor=self.color, 
+                linewidth=0.5, 
+                alpha=self.alpha)
+        
+        #for i,pos in zip(profile, range(start, end)):
+        #    if i != 0:
+        #        ax.axvline(
+        #                pos, 
+        #                ymin=0, 
+        #                ymax=i,
+        #                linewidth=0.5,
+        #                color=self.color,
+        #                alpha=self.alpha,
+        #                )
+        
+        
+        ax.set_ylim(0, self.ymax)
+        
+        ax.text(0.005,0.90, 
+                int(ax.get_ylim()[-1] + 0.5), 
+                horizontalalignment='left', 
+                verticalalignment="top", 
+                transform = ax.transAxes, 
+                clip_on=False, 
+                fontproperties=font)
+        
+        ax.set_xlim(start, end)
+
+        self.hide_axes(ax)
+
+class AnnotationPanel(ProfilePanel):
+    def __init__(self, annofile, height=0.3):
+        self.annofile = annofile
+        self.height = height
+
+    def _load_data(self, interval):
+        self.gene_track = load_annotation(interval, self.annofile)
+        self.max_tracks = len(self.gene_track.keys())
+        self.height *= self.max_tracks
+
+    def _plot(self, ax, interval, reverse=False, fig=None, odd=False, font=None):
+        chrom, start, end = interval
+        ax.set_ylim(- 1 * self.max_tracks, 0)
+        for track_id, genes in self.gene_track.items():
+            for gene in genes:
+                h_gene = -1 * track_id - 0.5
+                
+                genestart = gene[1]
+                geneend = gene[2]
+                if len(gene) >= 6:
+                    genestrand = gene[5]
+                else:
+                    genestrand = "+"
+                
+                # BED12 format
+                if len(gene) == 12:
+                
+                    exonstarts = [int(x) for x in gene[11].split(",") if x]
+                    exonsizes =  [int(x) for x in gene[10].split(",") if x]
+                else:
+                    exonstarts = [0]
+                    exonsizes = [geneend - genestart]
+                
+                x1 = (genestart - start)
+                x2 = (geneend - start)
+                if reverse:
+                    x1 = end - genestart
+                    x2 = end - geneend
+                
+                gstart = x1 / float(end - start)
+                gend = x2 / float(end - start)
+                    
+                # Horizontal line for complete gene
+                ax.axhline(h_gene, 
+                           gstart, 
+                           gend, 
+                           color="black",
+                           solid_capstyle="butt",
+                           )
+                # Exons 
+                for exonstart,exonsize in zip(exonstarts, exonsizes):
+                    estart = (genestart + exonstart - start)
+                    eend = (genestart + exonstart + exonsize - start)
+                    if reverse:
+                        estart = end - (genestart + exonstart)
+                        eend = end - (genestart + exonstart + exonsize)
+                    
+                    ax.axhspan(
+                            h_gene - 0.35, 
+                            h_gene + 0.35, 
+                            estart / float(end - start), 
+                            eend / float(end - start), 
+                            linewidth=0.1,
+                            color="black")
+                
+                # Only draw arrows for BED12 entries
+                if len(gene) == 12:
+                    bbox = ax.get_window_extent().transformed(fig.dpi_scale_trans.inverted())
+                    figwidth, figheight = bbox.width, bbox.height
+                    
+                    # Scale with absolute width of figure
+                    step = 0.08 / figwidth
+                
+                    if reverse:
+                        step = -step
+                    for i in arange(gstart + step, gend - step, step):
+                        if genestrand == "-":
+                            astart = (i + step,h_gene)
+                            aend = (i,h_gene)
+                        else:
+                            astart = (i,h_gene)
+                            aend = (i + step,h_gene)
+
+                        arr = FancyArrowPatch(
+                                    astart,
+                                    aend,
+                                    arrowstyle=GENE_ARROW,
+                                    mutation_scale=(figheight * fig.dpi) / 2 / self.max_tracks,
+                                    linewidth=0.5,
+                                    )
+                        ax.add_patch(arr)
+        self.hide_axes(ax)
+
+class ScalePanel(ProfilePanel):
+    def __init__(self, height=0.3, color=None, alpha=None):
+        self.height = height
+        
+        if color:
+            self.color = color
+        else:
+            self.color = "black"
+
+        if alpha:
+            self.alpha = alpha
+        else:
+            self.alpha = 1
+
+       
+    def _load_data(self, interval):
+        pass        
+    
+    def _plot(self, ax, interval, reverse=False, fig=None, odd=False, font=None):
+        
+        chrom, start, end = interval
+        
+        # Formatting
+        for s in ax.spines.values():
+            s.set_color('none')
+        
+        ax.yaxis.set_major_formatter(NullFormatter())
+        ax.xaxis.set_major_formatter(NullFormatter())
+        ax.yaxis.set_major_locator(NullLocator())
+        ax.set_xlim(start, end)
+        #ax.set_ylim(0,1)
+        # Set font
+        
+        # Plot the numbers
+        ticks = [s for s in ax.xaxis.get_ticklocs()[:-1] if s > start and s < end]
+        xcoords = [(s - start) / (end - start) + 0.01 for s in ticks]
+
+        if reverse:
+            ticks = ticks[::-1]
+        
+        for s,x in zip(ticks[:-1], xcoords[:-1]):
+            ax.text(
+                    x, 
+                    0.5, 
+                    str(int(s)), 
+                    horizontalalignment='left', 
+                    verticalalignment='center', 
+                    transform = ax.transAxes, 
+                    fontproperties=font,
+                    color=self.color)
+
+class ConservationPanel(ProfilePanel):
+    def __init__(self, track, target, height=1):
+        self.track = track
+        self.height = height
+        self.data = []
+        self.target = target
+
+    def _load_data(self, ival1):
+        for line in open(self.track):
+            vals = line.strip().split("\t")
+            for i in [1,2,4,5]:
+                vals[i] = int(vals[i])
+            self.data.append(vals)
+    
+    def _plot(self, ax, interval, reverse=False, fig=None, odd=False, font=None):
+        chrom,start,end = interval
+        c2, s2, e2 = self.target
+        span1 = float(end - start)
+        span2 = float(e2 - s2)
+        for [chrom1, start1, end1, chrom2, start2, end2] in self.data:
+            if reverse:
+                coords = [[(start1 - start)/ span1, 1], [1 - (end2 - s2)/span2, 0], [1 - (start2 - s2)/span2, 0], [(end1 - start)/span1, 1]]
+            else:
+                coords = [[(start1 - start)/ span1, 1], [(start2 - s2)/span2, 0], [(end2 - s2)/span2, 0], [(end1 - start)/span1, 1]]
+
+            poly = Polygon(coords,
+                    facecolor="black",
+                    edgecolor='none',
+                    alpha=0.2,
+                    )
+            ax.add_patch(poly)
+        self.hide_axes(ax)
+
 
 if __name__ == "__main__":
     

@@ -8,7 +8,7 @@ import pysam
 import pybedtools
 import sys
 import os
-from numpy import zeros,min,max
+from numpy import zeros,min,max,array
 import tempfile
 import fluff
 import numpy
@@ -69,6 +69,12 @@ class TrackWrapper():
             self.htseq_track = HTSeq.BAM_Reader(fname)
             self.ftype = "bam"
             self.chroms = self.track.references
+        elif fname.endswith("bg") or fname.endswith("wig"):
+            self.htseq_track = HTSeq.WiggleReader(fname, verbose=True)
+            self.ftype = "wiggle"
+        elif fname.endswith("gz") and os.path.exists(fname + ".tbi"):
+            self.tabix_track = pysam.Tabixfile(fname)
+            self.ftype = "tabix"
         else:
             self.track = pybedtools.BedTool(fname)
             self.ftype = "bed"
@@ -167,18 +173,63 @@ class TrackWrapper():
                         plus_strand.append(int(f[1]))
                 yield (feature, min_strand, plus_strand) 
 
+    def fetch_reads(self, interval, rmdup=False, rmrepeats=False):
+        """ Generator 
+        """
+        chrom,start,end = interval
+        
+        if self.ftype == "bed":
+            raise NotImplementedError
+
+        if self.ftype == "bam":
+            if chrom in self.chroms:
+                for read in self.track.fetch(chrom, start, end):
+                    if rmdup and (read.flag & 1024):
+                        continue
+                    if rmrepeats and read.mapq < 10:
+                        continue
+                    yield read 
+    
     def close(self):
         if self.ftype == "bam":
             self.track.close()
 
-def get_profile(interval, track, fragmentsize=200):
-    chrom,start,end = interval
-    profile = zeros(end - start, dtype="i")
-    t = TrackWrapper(track)
-    for iv in t[(chrom, start, end, ".")]:
-        iv.length = fragmentsize
-        profile[iv.start - start:iv.end - start] += 1
-    return profile
+    def get_profile(self, interval, fragmentsize=200, rmdup=False, rmrepeats=False):
+        chrom,start,end = interval
+        profile = zeros(end - start, dtype="i")
+        
+        if self.ftype == "bam":
+            strand = {True:"-", False:"+"}
+        
+            for read in self.fetch_reads(interval, rmdup=rmdup, rmrepeats=rmrepeats):
+                iv = HTSeq.GenomicInterval(chrom, read.pos, read.aend, strand[read.is_reverse])
+                iv.length = fragmentsize
+                profile[iv.start - start:iv.end - start] += 1
+        elif self.ftype == "wiggle":
+            for iv,score in self.htseq_track:
+                if iv.chrom == chrom:
+                    if iv.start <= end and iv.end >= start:
+                        if iv.start < start:
+                            iv.start = start
+                        if iv.end > end:
+                            iv.end = end
+                 
+                        profile[iv.start - start:iv.end - start] = score
+        elif self.ftype == "tabix":
+            print "Readind tabix profile"
+            for f in self.tabix_track.fetch(chrom, start, end):
+                f = f.split()
+                iv = HTSeq.GenomicInterval(f[0], int(f[1]) -5 , int(f[2]) + 5, ".")
+                if iv.start <= end and iv.end >= start:
+                    if iv.start < start:
+                        iv.start = start
+                    if iv.end > end:
+                        iv.end = end
+                 
+                    profile[iv.start - start:iv.end - start] = float(f[3]) + 0.2
+
+
+        return profile
 
 def _convert_value(v):
     """
@@ -219,43 +270,48 @@ def load_cluster_data(clust_file, datafiles, bins, rpkm, rmdup, rmrepeats, fragm
         data[os.path.basename(datafile)] = dict([["{0}:{1}-{2}".format(vals[0], vals[1], vals[2]), [float(x) for x in vals[3:]]] for vals in result])
     return data
 
-def load_profile(interval, tracks, fragmentsize=200):
+def load_profile(interval, tracks, fragmentsize=200, rmdup=False, rmrepeats=False, reverse=False):
     profiles = []
     for track_group in tracks:
         if type(track_group) == type([]):
             profile_group = []
             for track in track_group:
-                profile = get_profile(interval, track, fragmentsize)
+                t = TrackWrapper(track)
+                profile = t.get_profile(interval, fragmentsize, rmdup, rmrepeats)
+                if reverse:
+                    profile = profile[::-1]
                 profile_group.append(profile)
         else:
                 track = track_group
-                profile_group = get_profile(interval, track, fragmentsize)
+                t = TrackWrapper(track)
+                profile_group = t.get_profile(interval, fragmentsize, rmdup, rmrepeats)
+                if reverse:
+                    profile_group = profile_group[::-1]
         profiles.append(profile_group)
     return profiles
 
-def get_free_track(overlap, start, end, max_end):
+def get_free_track(overlap, start, end, max_end, min_gap):
+    print len(overlap), start, end, max_end
     for i,track in enumerate(overlap):
         if max(track[start:end]) == 0:
-            track[start:end] += 1
+            track[start - min_gap * max_end:end + min_gap * max_end] += 1
             return overlap, i
     overlap.append(zeros(max_end, dtype="i"))
-    overlap[-1][start:end] += 1
+    overlap[-1][start- min_gap * max_end:end + min_gap * max_end] += 1
     return overlap, len(overlap) - 1
 
-def load_annotation(interval, fname):
+def load_annotation(interval, fname, min_gap=0.05):
     genes = []
     chrom, start, end = interval
     for line in open(fname):
         if not line.startswith("#") and not line.startswith("track"):
             vals = line.strip().split("\t")
-            if len(vals) != 12:
-                sys.stderr.write("Need BED 12 format for annotation\n")
-                sys.exit(1)
             for i in [1,2,6,7]:
-                vals[i] = int(vals[i])
+                if len(vals) > i:
+                    vals[i] = int(vals[i])
             if vals[0] == chrom:
-                if (vals[1] > start and vals[1] < end) or (vals[2] > start and vals[2] < end):
-                    sys.stderr.write("Adding {0}\n".format(vals[3]))
+                if vals[1] <= end and vals[2] >= start :
+                    #sys.stderr.write("Adding {0}\n".format(vals[3]))
                     genes.append(vals)
     if len(genes) == 0:
         return {}
@@ -264,7 +320,7 @@ def load_annotation(interval, fname):
     overlap = []
     gene_tracks = {}
     for gene in genes:
-        overlap,i = get_free_track(overlap, gene[1]  - min_start, gene[2] - min_start, max_end - min_start)    
+        overlap,i = get_free_track(overlap, gene[1] - min_start, gene[2] - min_start, max_end - min_start, min_gap)    
         if gene_tracks.has_key(i):
             gene_tracks[i].append(gene)
         else:
