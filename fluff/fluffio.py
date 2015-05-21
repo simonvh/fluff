@@ -292,7 +292,6 @@ def load_profile(interval, tracks, fragmentsize=200, rmdup=False, rmrepeats=Fals
     return profiles
 
 def get_free_track(overlap, start, end, max_end, min_gap):
-    print len(overlap), start, end, max_end
     for i,track in enumerate(overlap):
         if max(track[start:end]) == 0:
             track[start - min_gap * max_end:end + min_gap * max_end] += 1
@@ -301,7 +300,7 @@ def get_free_track(overlap, start, end, max_end, min_gap):
     overlap[-1][start- min_gap * max_end:end + min_gap * max_end] += 1
     return overlap, len(overlap) - 1
 
-def load_annotation(interval, fname, min_gap=0.05):
+def load_annotation(interval, fname, min_gap=0.05, vis="stack"):
     genes = []
     chrom, start, end = interval
     for line in open(fname):
@@ -321,7 +320,12 @@ def load_annotation(interval, fname, min_gap=0.05):
     overlap = []
     gene_tracks = {}
     for gene in genes:
-        overlap,i = get_free_track(overlap, gene[1] - min_start, gene[2] - min_start, max_end - min_start, min_gap)    
+        if vis == "stack":
+            overlap,i = get_free_track(overlap, gene[1] - min_start, gene[2] - min_start, max_end - min_start, min_gap)    
+        elif vis == "merge":
+            i = 0
+        else:
+            sys.stderr.write("Unknown visualization")
         if gene_tracks.has_key(i):
             gene_tracks[i].append(gene)
         else:

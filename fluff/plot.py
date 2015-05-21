@@ -402,7 +402,7 @@ class ProfileFigure():
         
         self.font = FontProperties(size=FONTSIZE / 1.25, family=["Nimbus Sans L", "Helvetica", "sans-serif"])
 
-    def plot(self, interval, reverse=False, scalegroups=[]):
+    def plot(self, interval, scalegroups=[], reverse=False, **kwargs):
         for panel in self._panels:
             panel._load_data(interval)
 
@@ -426,7 +426,7 @@ class ProfileFigure():
         for i,panel in enumerate(self._panels):
             ax = plt.Subplot(self.fig, gs0[i])
             plt.subplots_adjust(bottom=0, top=1, left=0, right=1, hspace=0)
-            panel._plot(ax, interval, fig=self.fig, reverse=reverse, odd=i%2, font=self.font)
+            panel._plot(ax, interval, fig=self.fig, reverse=reverse, odd=i%2, font=self.font, **kwargs)
             self.fig.add_subplot(ax)
        
     def add_panel(self, panel):
@@ -447,7 +447,8 @@ class BamProfilePanel(ProfilePanel):
     def __init__(self, bamfile, height=1, color=None, bgmode=None, alpha=None, fragmentsize=200, rmdup=True, rmrepeats=True):
         self.height = height
         self.track = TrackWrapper(bamfile)
-
+        
+        self.ymax = None
         self.bgmode = bgmode
         
         if color:
@@ -473,9 +474,10 @@ class BamProfilePanel(ProfilePanel):
                 self.rmrepeats
                 )
 
-        self.ymax = max(self.profile) * 1.10
+        if not self.ymax: 
+            self.ymax = np.nanmax(self.profile) * 1.10
         
-    def _plot(self, ax, interval, reverse=False, fig=None, odd=False, font=None):
+    def _plot(self, ax, interval, reverse=False, fig=None, odd=False, font=None, **kwargs):
        
         # Background of profile
         if self.bgmode == "stripes":
@@ -528,16 +530,18 @@ class BamProfilePanel(ProfilePanel):
         self.hide_axes(ax)
 
 class AnnotationPanel(ProfilePanel):
-    def __init__(self, annofile, height=0.3):
+    def __init__(self, annofile, height=0.3, vis="stack", color="black"):
         self.annofile = annofile
         self.height = height
+        self.vis = vis
+        self.color = color
 
     def _load_data(self, interval):
-        self.gene_track = load_annotation(interval, self.annofile)
+        self.gene_track = load_annotation(interval, self.annofile, vis=self.vis)
         self.max_tracks = len(self.gene_track.keys())
         self.height *= self.max_tracks
 
-    def _plot(self, ax, interval, reverse=False, fig=None, odd=False, font=None):
+    def _plot(self, ax, interval, reverse=False, fig=None, odd=False, font=None, **kwargs):
         chrom, start, end = interval
         ax.set_ylim(- 1 * self.max_tracks, 0)
         for track_id, genes in self.gene_track.items():
@@ -573,7 +577,7 @@ class AnnotationPanel(ProfilePanel):
                 ax.axhline(h_gene, 
                            gstart, 
                            gend, 
-                           color="black",
+                           color=self.color,
                            solid_capstyle="butt",
                            )
                 # Exons 
@@ -590,7 +594,7 @@ class AnnotationPanel(ProfilePanel):
                             estart / float(end - start), 
                             eend / float(end - start), 
                             linewidth=0.1,
-                            color="black")
+                            color=self.color)
                 
                 # Only draw arrows for BED12 entries
                 if len(gene) == 12:
@@ -616,6 +620,7 @@ class AnnotationPanel(ProfilePanel):
                                     arrowstyle=GENE_ARROW,
                                     mutation_scale=(figheight * fig.dpi) / 2 / self.max_tracks,
                                     linewidth=0.5,
+                                    color=self.color,
                                     )
                         ax.add_patch(arr)
         self.hide_axes(ax)
@@ -638,7 +643,7 @@ class ScalePanel(ProfilePanel):
     def _load_data(self, interval):
         pass        
     
-    def _plot(self, ax, interval, reverse=False, fig=None, odd=False, font=None):
+    def _plot(self, ax, interval, reverse=False, fig=None, odd=False, font=None, **kwargs):
         
         chrom, start, end = interval
         
@@ -685,16 +690,45 @@ class ConservationPanel(ProfilePanel):
                 vals[i] = int(vals[i])
             self.data.append(vals)
     
-    def _plot(self, ax, interval, reverse=False, fig=None, odd=False, font=None):
+    def _plot(self, ax, interval, reverse=False, fig=None, odd=False, font=None, **kwargs):
+        reverse_other = reverse
+        reverse_self = kwargs.get("reverse_self", False)
+        
         chrom,start,end = interval
         c2, s2, e2 = self.target
         span1 = float(end - start)
         span2 = float(e2 - s2)
         for [chrom1, start1, end1, chrom2, start2, end2] in self.data:
-            if reverse:
-                coords = [[(start1 - start)/ span1, 1], [1 - (end2 - s2)/span2, 0], [1 - (start2 - s2)/span2, 0], [(end1 - start)/span1, 1]]
+            if reverse_self:
+                if reverse_other:
+                    coords = [
+                            [1 - (end1 - start)/ span1, 1], 
+                            [1 - (end2 - s2)/span2, 0], 
+                            [1 - (start2 - s2)/span2, 0], 
+                            [1 - (start1 - start)/span1, 1]
+                            ]
+                else:
+                    coords = [
+                            [1 - (end1 - start)/ span1, 1], 
+                            [(start2 - s2)/span2, 0], 
+                            [(end2 - s2)/span2, 0], 
+                            [1 - (start1 - start)/span1, 1]
+                            ]
             else:
-                coords = [[(start1 - start)/ span1, 1], [(start2 - s2)/span2, 0], [(end2 - s2)/span2, 0], [(end1 - start)/span1, 1]]
+                if reverse_other:
+                    coords = [
+                            [(start1 - start)/ span1, 1], 
+                            [1 - (end2 - s2)/span2, 0], 
+                            [1 - (start2 - s2)/span2, 0], 
+                            [(end1 - start)/span1, 1]
+                            ]
+                else:
+                    coords = [
+                            [(start1 - start)/ span1, 1], 
+                            [(start2 - s2)/span2, 0], 
+                            [(end2 - s2)/span2, 0], 
+                            [(end1 - start)/span1, 1]
+                            ]
 
             poly = Polygon(coords,
                     facecolor="black",

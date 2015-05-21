@@ -267,6 +267,7 @@ else:
 data, regions, guard = load_data(featurefile, amount_bins, extend_dyn_up, extend_dyn_down, rmdup, rpkm, rmrepeats, fragmentsize, dynam, guard)
 # Normalize
 norm_data = normalize_data(data, DEFAULT_PERCENTILE)
+
 clus = hstack([norm_data[t] for i,t in enumerate(tracks) if (not pick or i in pick)])
 
 #Clustering

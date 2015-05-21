@@ -59,11 +59,11 @@ group1.add_option("-F", dest="fragmentsize", help="fragment length (default: rea
 group1.add_option("-r", dest="rpkm", help="use RPKM instead of read counts", metavar="", action="store_true", default=False)
 group1.add_option("-D", dest="rmdup", help="keep duplicate reads (removed by default)", metavar="", default=True, action="store_false")
 group1.add_option("-R", dest="rmrepeats", help="keep repeats (removed by default, bwa only) ", metavar="", action="store_false", default=True)
-group1.add_option("-P", dest="scalar", help="Percentile at which to extract score. Value should be in range [0,100] (default 90)", metavar="INT", default=SCALAR)
+group1.add_option("-P", dest="scalar", help="Percentile at which to extract score. Value should be in range [0,100] (default 90)", metavar="INT", default=SCALAR, type="float")
 
 parser.add_option_group(group1)
 (options, args) = parser.parse_args()
-if (0 > options.scalar) or  (options.scalar < 100):
+if (0 > options.scalar) or (options.scalar > 100):
   print "ERROR: -P value has to be between 0 and 100"
   sys.exit(1)
 else:
