@@ -444,7 +444,7 @@ class ProfilePanel():
             s.set_color('none')
 
 class BamProfilePanel(ProfilePanel):
-    def __init__(self, bamfile, height=1, color=None, bgmode=None, alpha=None, fragmentsize=200, rmdup=True, rmrepeats=True):
+    def __init__(self, bamfile, height=1, color=None, bgmode=None, alpha=None, fragmentsize=200, rmdup=True, rmrepeats=True, **kwargs):
         self.height = height
         self.track = TrackWrapper(bamfile)
         
@@ -464,7 +464,9 @@ class BamProfilePanel(ProfilePanel):
         self.fragmentsize = fragmentsize
         self.rmdup = rmdup
         self.rmrepeats = rmrepeats
-        
+      
+        self.name = kwargs.get('name')
+
     def _load_data(self, interval):
         
         self.profile = self.track.get_profile(
@@ -521,6 +523,15 @@ class BamProfilePanel(ProfilePanel):
                 int(ax.get_ylim()[-1] + 0.5), 
                 horizontalalignment='left', 
                 verticalalignment="top", 
+                transform = ax.transAxes, 
+                clip_on=False, 
+                fontproperties=font)
+        
+        if self.name:
+            ax.text(0.005,0.5, 
+                self.name, 
+                horizontalalignment='left', 
+                verticalalignment="center", 
                 transform = ax.transAxes, 
                 clip_on=False, 
                 fontproperties=font)
@@ -675,6 +686,15 @@ class ScalePanel(ProfilePanel):
                     transform = ax.transAxes, 
                     fontproperties=font,
                     color=self.color)
+        ax.text(
+                0, 
+                0.5, 
+                chrom, 
+                horizontalalignment='left', 
+                verticalalignment='center', 
+                transform = ax.transAxes, 
+                fontproperties=font,
+                color=self.color)
 
 class ConservationPanel(ProfilePanel):
     def __init__(self, track, target, height=1):

@@ -5,7 +5,7 @@
 # This script is free software. You can redistribute it and/or modify it under 
 # the terms of the MIT License
 
-from matplotlib.colors import colorConverter, LinearSegmentedColormap
+from matplotlib.colors import colorConverter, LinearSegmentedColormap, cnames
 import colorbrewer
 
 COLOR_MAP = {
@@ -14,7 +14,7 @@ COLOR_MAP = {
     "green":"#4daf4a",
     "purple":"#984ea3",
     "orange":"#ff7f00",
-    "yellow":"#ffff33",
+    "yellow":"#ebbc57",
     "brown":"#a65628",
     "pink": "#f781bf", 
     "grey": "#999999",
@@ -52,9 +52,10 @@ def parse_colors(colors):
             # Named color
             if COLOR_MAP.has_key(c):
                 parsed.append(COLOR_MAP[c])
-            
-            # c is a Colorbrewer palette name
+            elif cnames.has_key(c):
+                parsed.append(cnames[c])
             elif is_pal(c):
+                # c is a Colorbrewer palette name
                 parsed += get_pal(c)
             elif len(c.split(":")) == 2:
                 p,n = c.split(":")
