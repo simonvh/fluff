@@ -281,7 +281,7 @@ def profile_screenshot(fname, intervals, tracks, colors=None, scalegroups=[], an
                         alpha = 1
                     ax.fill_between(range(start, end), zeros(len(profile)), profile, edgecolor='face', facecolor=colors[color_index % len(colors)], linewidth=0, alpha=alpha)
                     color_index += 1
-                    maxes.append(max(profile) * 1.1)
+                    maxes.append(np.nanmax(profile) * 1.1)
                 track_maxes.append(max(maxes))
                 ax.set_ylim(0,max(maxes))
             else:
@@ -291,11 +291,10 @@ def profile_screenshot(fname, intervals, tracks, colors=None, scalegroups=[], an
                 color_index += 1
                 track_maxes.append(max(profile) * 1.1)
                 ax.set_ylim(0, max(profile) * 1.1)
-            
+        
         for i, profile_group in enumerate(profiles):
             # Get maximum for this track based on scalegroups
             ylim_max = track_maxes[i]
-            
             if scalegroups and len(scalegroups) > 0:
                 for group in scalegroups:
                     if (i + 1) in group:
