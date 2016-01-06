@@ -9,9 +9,13 @@ Welcome to fluff's documentation!
 Contents:
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 3
 
-
+    introduction
+    included
+    installation
+    configuration
+    usage
 
 Indices and tables
 ==================
