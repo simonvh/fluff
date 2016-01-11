@@ -3,7 +3,7 @@ __author__ = 'george'
 import multiprocessing
 
 ### External imports ###
-from numpy import array,hstack,arange,zeros
+from numpy import array,hstack,arange,zeros, sort
 import Pycluster
 
 ### My imports ###
@@ -16,8 +16,6 @@ from fluff.config import *
 
 
 def heatmap(args):
-
-    print 'heatmap'
     featurefile = args.featurefile
     datafiles = args.datafiles
     outfile = args.outfile
@@ -164,6 +162,7 @@ def heatmap(args):
                 (i,j) = mirror_clusters(data, labels)
 
         ind = labels.argsort()
+
         # Other cluster implementation
         #    centres, labels, dist = kmeanssample(clus, options.numclusters, len(clus) / 10,  metric=cl, maxiter=200, verbose=1, delta=0.00001)
     elif cluster_type == "h":
@@ -175,7 +174,7 @@ def heatmap(args):
         ind = arange(len(regions))
         labels = zeros(len(regions))
     f = open("{0}_clusters.bed".format(outfile), "w")
-    for (chrom,start,end,gene,strand), cluster in zip(array(regions, dtype="object")[ind], array(labels)[ind]):
+    for (chrom, start, end, gene, strand), cluster in zip(array(regions, dtype="object")[ind], array(labels)[ind]):
       if not gene:
         f.write("{0}\t{1}\t{2}\t.\t{3}\t{4}\n".format(chrom, start, end, cluster+1, strand))
       else:
@@ -197,6 +196,54 @@ def heatmap(args):
           for j in ind:
             input_file.write('{0}\t'.format(str(order[j])))
           input_file.write('\n')
+
+    readcounts = {}
+    for i, track in enumerate(tracks):
+        readcounts[track] = {}
+        readcounts[track]['sum'] = []
+        readcounts[track]['bins'] = []
+        for idx, row in enumerate(data[track]):
+             sum = 0
+             bins = ''
+             for bin in row:
+                sum += bin
+                if not bins:
+                    bins = '{0}'.format(bin)
+                else:
+                    bins = '{0};{1}'.format(bins, bin)
+             readcounts[track]['sum'].append(sum)
+             readcounts[track]['bins'].append(bins)
+
+    input_fileSum = open('{0}_readcountSum.txt'.format(outfile), 'w')
+    input_fileBins = open('{0}_readcountBins.txt'.format(outfile), 'w')
+    for i, track in enumerate(tracks):
+        input_fileSum.write('{0}\t'.format(track))
+        input_fileBins.write('{0}\t'.format(track))
+    input_fileSum.write('\n')
+    input_fileBins.write('\n')
+    for i, track in enumerate(tracks):
+        for idx in ind:
+            for i, track in enumerate(tracks):
+                input_fileSum.write('{0}\t'.format(readcounts[track]['sum'][idx]))
+                input_fileBins.write('{0}\t'.format(readcounts[track]['bins'][idx]))
+            input_fileSum.write('\n')
+            input_fileBins.write('\n')
+        break
+
+    input_fileSum.close()
+    input_fileBins.close()
+
+    # for i, track in enumerate(tracks):
+    #   for k, v in data.items():
+    #     if track == k:
+    #       order = []
+    #       for row in v:
+    #         for x in row:
+    #           order.append(x)
+    #       for j in ind:
+    #         input_file.write('{0}\t'.format(str(order[j])))
+    #       input_file.write('\n')
+
 
     #Load data for visualization if -g option was used
     if dynam:

@@ -27,7 +27,9 @@ def heatmap_plot(data, ind, outfile, tracks, titles, colors, bgcolors, scale, ts
     font = FontProperties(size=FONTSIZE / 1.25, family=["Nimbus Sans L", "Helvetica", "sans-serif"])
     
     label_ratio = 4.0
-    plot_width = 1.75 * len(tracks)
+    #space between heatmaps
+    btw_space = 0.05
+    plot_width = 1.75 * len(tracks) + btw_space * len(tracks)
     plot_height = 6 
     width_ratios = [label_ratio] * len(tracks)
     numplots = len(tracks)
@@ -66,29 +68,30 @@ def heatmap_plot(data, ind, outfile, tracks, titles, colors, bgcolors, scale, ts
         ax = plt.subplot(gs[len(tracks)])
         min_y, max_y = ylim
         s = 0
-        plt.axhline(y=1, 
+        plt.axhline(y=1,
                     color="grey",
                     linewidth=0.5,
                     alpha=0.5
         )
         labels = array(labels)
+        #Smaller cluster on the top ([::-1])
         for i in range(max(labels) + 1):
             prev = s
             s += sum(labels == i)
-            plt.axhline(y=s - 1, 
+            plt.axhline(y=s - 1,
                     color="grey",
                     linewidth=0.5,
                     alpha=0.5
             )
-            plt.text(0.5, (prev + s) / 2, 
-                     str(i+1), 
-                     verticalalignment="center", 
+            plt.text(0.5, (prev + s) / 2,
+                     str(i+1),
+                     verticalalignment="center",
                      horizontalalignment="center",
                      fontproperties=font)
         hide_axes(ax)
         ax.set_ylim(ylim)
     
-    fig.subplots_adjust(wspace=0, hspace=0)
+    fig.subplots_adjust(wspace=btw_space, hspace=0)
     ext = outfile.split(".")[-1]
     if not ext in ["png", "svg", "ps", "eps", "pdf"]:
         outfile += ".png"
@@ -291,7 +294,7 @@ def profile_screenshot(fname, intervals, tracks, colors=None, scalegroups=[], an
                 color_index += 1
                 track_maxes.append(max(profile) * 1.1)
                 ax.set_ylim(0, max(profile) * 1.1)
-        
+
         for i, profile_group in enumerate(profiles):
             # Get maximum for this track based on scalegroups
             ylim_max = track_maxes[i]
@@ -308,7 +311,7 @@ def profile_screenshot(fname, intervals, tracks, colors=None, scalegroups=[], an
                 ylim_max = scale[i]
             # Set maximum
             all_axes[i + 1].set_ylim(0, ylim_max)
-        
+
         # Label scale
             if scale:
                 all_axes[i + 1].text(0.005,0.90, int(ylim_max + 0.5), horizontalalignment='left', verticalalignment="top", transform = all_axes[i + 1].transAxes, clip_on=False, fontproperties=font)
@@ -380,7 +383,6 @@ def profile_screenshot(fname, intervals, tracks, colors=None, scalegroups=[], an
                                     )
                         ax.add_patch(arr)
 
-    
     
     plt.savefig(fname, dpi=dpi)
     plt.close()
