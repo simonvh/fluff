@@ -323,13 +323,15 @@ def profile_screenshot(fname, intervals, tracks, colors=None, scalegroups=[], an
             for track_id, genes in gene_tracks[int_num].items():
                 for gene in genes:
                     h_gene = -4 * track_id - 2
-                
+
                     genestart = gene[1]
                     geneend = gene[2]
                     exonstarts = [int(x) for x in gene[11].split(",") if x]
                     exonsizes =  [int(x) for x in gene[10].split(",") if x]
                     genestrand = gene[5]
-        
+                    genename = gene[3]
+
+
                     x1 = (genestart - start)
                     x2 = (geneend - start)
                     if reverse:
@@ -343,6 +345,9 @@ def profile_screenshot(fname, intervals, tracks, colors=None, scalegroups=[], an
                                 gstart, 
                                 gend, 
                                 color="black")
+
+                    ax.text(gstart, h_gene-2.25,  genename, fontsize=5)
+                    print genename, gstart, gend, h_gene
 
                     # Exons 
                     for exonstart,exonsize in zip(exonstarts, exonsizes):
