@@ -19,6 +19,7 @@ setup (name = 'fluff',
             "scripts/fluff_bandplot.py",
             "scripts/fluff_profile.py",
             "scripts/fluff_heatmap.py",
+            "scripts/fluff",
         ],
         data_files=[]
 )

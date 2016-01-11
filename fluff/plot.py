@@ -281,7 +281,7 @@ def profile_screenshot(fname, intervals, tracks, colors=None, scalegroups=[], an
                         alpha = 1
                     ax.fill_between(range(start, end), zeros(len(profile)), profile, edgecolor='face', facecolor=colors[color_index % len(colors)], linewidth=0, alpha=alpha)
                     color_index += 1
-                    maxes.append(np.nanmax(profile) * 1.1)
+                    maxes.append(numpy.nanmax(profile) * 1.1)
                 track_maxes.append(max(maxes))
                 ax.set_ylim(0,max(maxes))
             else:

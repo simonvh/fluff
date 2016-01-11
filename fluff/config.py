@@ -5,12 +5,13 @@ FL_VERSION = "1.462"
 DEFAULT_BINSIZE = 100
 DEFAULT_METRIC = "e"        # Euclidian, PyCluster
 FONTSIZE = 8
-DEFAULT_SCALE = "90%" 
+DEFAULT_SCALE = "90%"
 DEFAULT_EXTEND = 5000
 DEFAULT_PERCENTILE = 99
 DEFAULT_CLUSTERING = "none"
 DEFAULT_BG = "white"
 DEFAULT_DYN_EXTEND = 5000
+
 
 ######## BANDPLOT #############
 # Sizes of the plots (in inches)
@@ -23,6 +24,7 @@ PADBOTTOM = 0.05
 PADRIGHT = 0.05
 FONTSIZE = 8
 BINS = 100                                # Number of bins for profile
+SCALAR = 99
 
 ######## PROFILE #############
 BACKGROUNDS = ["white", "stripes", "color"]
