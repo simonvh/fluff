@@ -180,7 +180,7 @@ def profile_screenshot(fname, intervals, tracks, colors=None, scalegroups=[], an
     # Sizes
     plotwidth = 5
     plotheight = 0.3
-    padh = 0.1
+    padh = 0
     padw = 0.1
     padleft = 0.1
     padright = 0.1
