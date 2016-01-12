@@ -180,7 +180,7 @@ def profile_screenshot(fname, intervals, tracks, colors=None, scalegroups=[], an
     # Sizes
     plotwidth = 5
     plotheight = 0.3
-    padh = 0
+    padh = 0.1
     padw = 0.1
     padleft = 0.1
     padright = 0.1
@@ -192,7 +192,7 @@ def profile_screenshot(fname, intervals, tracks, colors=None, scalegroups=[], an
     scale_height = 0.1
     # Annotation track height
     
-    annotation_height = 0.0
+    annotation_height = 0.01
     gene_tracks = []
     if annotation:
         for interval in intervals:
@@ -210,6 +210,7 @@ def profile_screenshot(fname, intervals, tracks, colors=None, scalegroups=[], an
     # Profile plots
     hsize = padtop + (nrows * plotheight) + (padh * (nrows - 1)) + padbottom
     hsize += scale_height + padh + annotation_height + padh
+
 
     fig = plt.figure(figsize=(wsize, hsize))
     padtopfraction = padtop / hsize
@@ -388,7 +389,6 @@ def profile_screenshot(fname, intervals, tracks, colors=None, scalegroups=[], an
                                     )
                         ax.add_patch(arr)
 
-    
     plt.savefig(fname, dpi=dpi)
     plt.close()
 
