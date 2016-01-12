@@ -244,7 +244,7 @@ def profile_screenshot(fname, intervals, tracks, colors=None, scalegroups=[], an
         # Annotation axes
         ax = plt.axes([padleft / wsize + (wplotsize + wpadfraction) * int_num, 0 + padbottomfraction, wplotsize, hannotation], axisbg="white")
         all_axes.append(ax)
-    
+
         # No labels, ticks, etc.
         for axes in all_axes[1:]:
             for ax in [axes.xaxis, axes.yaxis]:
@@ -483,7 +483,7 @@ class BamProfilePanel(ProfilePanel):
                 )
 
         if not self.ymax: 
-            self.ymax = np.nanmax(self.profile) * 1.10
+            self.ymax = numpy.nanmax(self.profile) * 1.10
         
     def _plot(self, ax, interval, reverse=False, fig=None, odd=False, font=None, **kwargs):
        
