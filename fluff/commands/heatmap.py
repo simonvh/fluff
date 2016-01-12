@@ -250,4 +250,4 @@ def heatmap(args):
       data, regions, guard = load_data(featurefile, bins, extend_up, extend_down, rmdup, rpkm, rmrepeats, fragmentsize, dynam, guard)
 
     scale = get_absolute_scale(args.scale, [data[track] for track in tracks])
-    heatmap_plot(data, ind, outfile, tracks, titles, colors, bgcolors, scale, tscale, labels)
+    heatmap_plot(data, ind[::-1], outfile, tracks, titles, colors, bgcolors, scale, tscale, labels)

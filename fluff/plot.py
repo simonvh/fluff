@@ -75,7 +75,7 @@ def heatmap_plot(data, ind, outfile, tracks, titles, colors, bgcolors, scale, ts
         )
         labels = array(labels)
         #Smaller cluster on the top ([::-1])
-        for i in range(max(labels) + 1):
+        for i in range(max(labels) + 1)[::-1]:
             prev = s
             s += sum(labels == i)
             plt.axhline(y=s - 1,
@@ -171,6 +171,7 @@ def create_grid_figure(nrows, ncolumns, plotwidth=2.0, plotheight=2.0, pad=0.1, 
 
     return fig, axes
 
+
 def profile_screenshot(fname, intervals, tracks, colors=None, scalegroups=[], annotation=None, bgmode="color", fragmentsize=200, scale=False, dpi=300, rmdup=False, rmrepeats=False, reverse=False):
     # Colors
     if not colors:
@@ -254,7 +255,7 @@ def profile_screenshot(fname, intervals, tracks, colors=None, scalegroups=[], an
             for s in axes.spines.values():    
                 s.set_color('none')
         
-        chrom,start,end = interval
+        chrom, start, end = interval
         
         # Format the genomic scale
         ax = all_axes[0]
@@ -274,7 +275,6 @@ def profile_screenshot(fname, intervals, tracks, colors=None, scalegroups=[], an
         track_maxes = []
         for i, profile_group in enumerate(profiles):
             ax = all_axes[i + 1]
-            
             if type(profile_group) == type([]):
                 maxes = []
                 for profile in profile_group:
@@ -294,6 +294,7 @@ def profile_screenshot(fname, intervals, tracks, colors=None, scalegroups=[], an
                 color_index += 1
                 track_maxes.append(max(profile) * 1.1)
                 ax.set_ylim(0, max(profile) * 1.1)
+
 
         for i, profile_group in enumerate(profiles):
             # Get maximum for this track based on scalegroups
@@ -347,7 +348,6 @@ def profile_screenshot(fname, intervals, tracks, colors=None, scalegroups=[], an
                                 color="black")
 
                     ax.text(gstart, h_gene-2.25,  genename, fontsize=5)
-                    print genename, gstart, gend, h_gene
 
                     # Exons 
                     for exonstart,exonsize in zip(exonstarts, exonsizes):
@@ -525,12 +525,12 @@ class BamProfilePanel(ProfilePanel):
         
         ax.set_ylim(0, self.ymax)
         
-        ax.text(0.005,0.90, 
-                int(ax.get_ylim()[-1] + 0.5), 
-                horizontalalignment='left', 
-                verticalalignment="top", 
-                transform = ax.transAxes, 
-                clip_on=False, 
+        ax.text(0.005,0.90,
+                int(ax.get_ylim()[-1] + 0.5),
+                horizontalalignment='left',
+                verticalalignment="top",
+                transform = ax.transAxes,
+                clip_on=False,
                 fontproperties=font)
         
         if self.name:
