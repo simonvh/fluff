@@ -192,13 +192,15 @@ def profile_screenshot(fname, intervals, tracks, colors=None, scalegroups=[], an
     gene_tracks = []
     if annotation:
         for interval in intervals:
-            gene_tracks.append(load_annotation(interval, annotation))
+            ann = load_annotation(interval, annotation)
+            gene_tracks.append(ann)
         if gene_tracks[0]:
             max_tracks =  max([len(x.keys()) for x in gene_tracks])
             annotation_height = 0.2 * max_tracks
         else:
             annotation = False
     #
+    
     ncolumns = len(intervals)
     nrows = len(tracks)
 
@@ -628,7 +630,7 @@ class AnnotationPanel(ProfilePanel):
                                     astart,
                                     aend,
                                     arrowstyle=GENE_ARROW,
-                                    mutation_scale=(figheight * fig.dpi) / 2 / self.max_tracks,
+                                    mutation_scale=(figheight * fig.dpi) / 2 / self.max_tracks * 1.5,
                                     linewidth=0.5,
                                     color=self.color,
                                     )
