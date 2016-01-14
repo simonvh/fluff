@@ -176,6 +176,7 @@ class TrackWrapper():
     def fetch_reads(self, interval, rmdup=False, rmrepeats=False):
         """ Generator 
         """
+        print interval, rmdup, rmrepeats
         chrom,start,end = interval
         
         if self.ftype == "bed":
@@ -292,12 +293,18 @@ def load_profile(interval, tracks, fragmentsize=200, rmdup=False, rmrepeats=Fals
     return profiles
 
 def get_free_track(overlap, start, end, max_end, min_gap):
+    
+    first = start - min_gap * max_end
+    if first < 0:
+        first = 0
+    
     for i,track in enumerate(overlap):
         if max(track[start:end]) == 0:
-            track[start - min_gap * max_end:end + min_gap * max_end] += 1
+            track[first:end + min_gap * max_end] += 1
             return overlap, i
+    
     overlap.append(np.zeros(max_end, dtype="i"))
-    overlap[-1][start- min_gap * max_end:end + min_gap * max_end] += 1
+    overlap[-1][first:end + min_gap * max_end] += 1
     return overlap, len(overlap) - 1
 
 def load_annotation(interval, fname, min_gap=0.05, vis="stack"):
@@ -319,7 +326,7 @@ def load_annotation(interval, fname, min_gap=0.05, vis="stack"):
     max_end = max([gene[2] for gene in genes])
     overlap = []
     gene_tracks = {}
-    for gene in genes:
+    for gene in sorted(genes, key=lambda x: x[1]):
         if vis == "stack":
             overlap,i = get_free_track(overlap, gene[1] - min_start, gene[2] - min_start, max_end - min_start, min_gap)    
         elif vis == "merge":
