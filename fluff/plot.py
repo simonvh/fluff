@@ -68,7 +68,7 @@ def heatmap_plot(data, ind, outfile, tracks, titles, colors, bgcolors, scale, ts
         ax = plt.subplot(gs[len(tracks)])
         min_y, max_y = ylim
         s = 0
-        plt.axhline(y=1,
+        plt.axhline(y=0,
                     color="grey",
                     linewidth=0.5,
                     alpha=0.5
@@ -78,7 +78,7 @@ def heatmap_plot(data, ind, outfile, tracks, titles, colors, bgcolors, scale, ts
         for i in range(max(labels) + 1)[::-1]:
             prev = s
             s += sum(labels == i)
-            plt.axhline(y=s - 1,
+            plt.axhline(y=s+1 - 1,
                     color="grey",
                     linewidth=0.5,
                     alpha=0.5

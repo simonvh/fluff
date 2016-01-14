@@ -184,19 +184,7 @@ def heatmap(args):
     if not cluster_type == "k":
         labels = None
 
-    #Save read count matrix
-    input_file = open('{0}_readcount.txt'.format(outfile), 'w')
-    for i, track in enumerate(tracks):
-      for k, v in data.items():
-        if track == k:
-          order = []
-          for row in v:
-            for x in row:
-              order.append(x)
-          for j in ind:
-            input_file.write('{0}\t'.format(str(order[j])))
-          input_file.write('\n')
-
+    #Save read counts
     readcounts = {}
     for i, track in enumerate(tracks):
         readcounts[track] = {}
@@ -216,6 +204,8 @@ def heatmap(args):
 
     input_fileSum = open('{0}_readcountSum.txt'.format(outfile), 'w')
     input_fileBins = open('{0}_readcountBins.txt'.format(outfile), 'w')
+    input_fileSum.write('Regions\t'.format(track))
+    input_fileBins.write('Regions\t'.format(track))
     for i, track in enumerate(tracks):
         input_fileSum.write('{0}\t'.format(track))
         input_fileBins.write('{0}\t'.format(track))
@@ -223,6 +213,8 @@ def heatmap(args):
     input_fileBins.write('\n')
     for i, track in enumerate(tracks):
         for idx in ind:
+            input_fileSum.write('{0}:{1}-{2}\t'.format(regions[idx][0], regions[idx][1], regions[idx][2]))
+            input_fileBins.write('{0}:{1}-{2}\t'.format(regions[idx][0], regions[idx][1], regions[idx][2]))
             for i, track in enumerate(tracks):
                 input_fileSum.write('{0}\t'.format(readcounts[track]['sum'][idx]))
                 input_fileBins.write('{0}\t'.format(readcounts[track]['bins'][idx]))
@@ -232,18 +224,6 @@ def heatmap(args):
 
     input_fileSum.close()
     input_fileBins.close()
-
-    # for i, track in enumerate(tracks):
-    #   for k, v in data.items():
-    #     if track == k:
-    #       order = []
-    #       for row in v:
-    #         for x in row:
-    #           order.append(x)
-    #       for j in ind:
-    #         input_file.write('{0}\t'.format(str(order[j])))
-    #       input_file.write('\n')
-
 
     #Load data for visualization if -g option was used
     if dynam:
