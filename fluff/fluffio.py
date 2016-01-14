@@ -271,7 +271,8 @@ def load_cluster_data(clust_file, datafiles, bins, rpkm, rmdup, rmrepeats, fragm
         data[os.path.basename(datafile)] = dict([["{0}:{1}-{2}".format(vals[0], vals[1], vals[2]), [float(x) for x in vals[3:]]] for vals in result])
     return data
 
-def load_profile(interval, tracks, fragmentsize=200, rmdup=False, rmrepeats=False, reverse=False):
+
+def load_profile(interval, tracks, fragmentsize = 200, rmdup = False, rmrepeats = False, reverse = False):
     profiles = []
     for track_group in tracks:
         if type(track_group) == type([]):

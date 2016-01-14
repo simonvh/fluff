@@ -27,7 +27,9 @@ def heatmap_plot(data, ind, outfile, tracks, titles, colors, bgcolors, scale, ts
     font = FontProperties(size=FONTSIZE / 1.25, family=["Nimbus Sans L", "Helvetica", "sans-serif"])
     
     label_ratio = 4.0
-    plot_width = 1.75 * len(tracks)
+    #space between heatmaps
+    btw_space = 0.05
+    plot_width = 1.75 * len(tracks) + btw_space * len(tracks)
     plot_height = 6 
     width_ratios = [label_ratio] * len(tracks)
     numplots = len(tracks)
@@ -66,29 +68,30 @@ def heatmap_plot(data, ind, outfile, tracks, titles, colors, bgcolors, scale, ts
         ax = plt.subplot(gs[len(tracks)])
         min_y, max_y = ylim
         s = 0
-        plt.axhline(y=1, 
+        plt.axhline(y=1,
                     color="grey",
                     linewidth=0.5,
                     alpha=0.5
         )
         labels = array(labels)
-        for i in range(max(labels) + 1):
+        #Smaller cluster on the top ([::-1])
+        for i in range(max(labels) + 1)[::-1]:
             prev = s
             s += sum(labels == i)
-            plt.axhline(y=s - 1, 
+            plt.axhline(y=s - 1,
                     color="grey",
                     linewidth=0.5,
                     alpha=0.5
             )
-            plt.text(0.5, (prev + s) / 2, 
-                     str(i+1), 
-                     verticalalignment="center", 
+            plt.text(0.5, (prev + s) / 2,
+                     str(i+1),
+                     verticalalignment="center",
                      horizontalalignment="center",
                      fontproperties=font)
         hide_axes(ax)
         ax.set_ylim(ylim)
     
-    fig.subplots_adjust(wspace=0, hspace=0)
+    fig.subplots_adjust(wspace=btw_space, hspace=0)
     ext = outfile.split(".")[-1]
     if not ext in ["png", "svg", "ps", "eps", "pdf"]:
         outfile += ".png"
@@ -168,6 +171,7 @@ def create_grid_figure(nrows, ncolumns, plotwidth=2.0, plotheight=2.0, pad=0.1, 
 
     return fig, axes
 
+
 def profile_screenshot(fname, intervals, tracks, colors=None, scalegroups=[], annotation=None, bgmode="color", fragmentsize=200, scale=False, dpi=300, rmdup=False, rmrepeats=False, reverse=False):
     # Colors
     if not colors:
@@ -188,7 +192,7 @@ def profile_screenshot(fname, intervals, tracks, colors=None, scalegroups=[], an
     scale_height = 0.1
     # Annotation track height
     
-    annotation_height = 0.0
+    annotation_height = 0.01
     gene_tracks = []
     if annotation:
         for interval in intervals:
@@ -208,6 +212,7 @@ def profile_screenshot(fname, intervals, tracks, colors=None, scalegroups=[], an
     # Profile plots
     hsize = padtop + (nrows * plotheight) + (padh * (nrows - 1)) + padbottom
     hsize += scale_height + padh + annotation_height + padh
+
 
     fig = plt.figure(figsize=(wsize, hsize))
     padtopfraction = padtop / hsize
@@ -242,7 +247,7 @@ def profile_screenshot(fname, intervals, tracks, colors=None, scalegroups=[], an
         # Annotation axes
         ax = plt.axes([padleft / wsize + (wplotsize + wpadfraction) * int_num, 0 + padbottomfraction, wplotsize, hannotation], axisbg="white")
         all_axes.append(ax)
-    
+
         # No labels, ticks, etc.
         for axes in all_axes[1:]:
             for ax in [axes.xaxis, axes.yaxis]:
@@ -253,7 +258,7 @@ def profile_screenshot(fname, intervals, tracks, colors=None, scalegroups=[], an
             for s in axes.spines.values():    
                 s.set_color('none')
         
-        chrom,start,end = interval
+        chrom, start, end = interval
         
         # Format the genomic scale
         ax = all_axes[0]
@@ -273,7 +278,6 @@ def profile_screenshot(fname, intervals, tracks, colors=None, scalegroups=[], an
         track_maxes = []
         for i, profile_group in enumerate(profiles):
             ax = all_axes[i + 1]
-            
             if type(profile_group) == type([]):
                 maxes = []
                 for profile in profile_group:
@@ -283,7 +287,7 @@ def profile_screenshot(fname, intervals, tracks, colors=None, scalegroups=[], an
                         alpha = 1
                     ax.fill_between(range(start, end), zeros(len(profile)), profile, edgecolor='face', facecolor=colors[color_index % len(colors)], linewidth=0, alpha=alpha)
                     color_index += 1
-                    maxes.append(np.nanmax(profile) * 1.1)
+                    maxes.append(numpy.nanmax(profile) * 1.1)
                 track_maxes.append(max(maxes))
                 ax.set_ylim(0,max(maxes))
             else:
@@ -293,7 +297,8 @@ def profile_screenshot(fname, intervals, tracks, colors=None, scalegroups=[], an
                 color_index += 1
                 track_maxes.append(max(profile) * 1.1)
                 ax.set_ylim(0, max(profile) * 1.1)
-        
+
+
         for i, profile_group in enumerate(profiles):
             # Get maximum for this track based on scalegroups
             ylim_max = track_maxes[i]
@@ -310,7 +315,7 @@ def profile_screenshot(fname, intervals, tracks, colors=None, scalegroups=[], an
                 ylim_max = scale[i]
             # Set maximum
             all_axes[i + 1].set_ylim(0, ylim_max)
-        
+
         # Label scale
             if scale:
                 all_axes[i + 1].text(0.005,0.90, int(ylim_max + 0.5), horizontalalignment='left', verticalalignment="top", transform = all_axes[i + 1].transAxes, clip_on=False, fontproperties=font)
@@ -322,13 +327,15 @@ def profile_screenshot(fname, intervals, tracks, colors=None, scalegroups=[], an
             for track_id, genes in gene_tracks[int_num].items():
                 for gene in genes:
                     h_gene = -4 * track_id - 2
-                
+
                     genestart = gene[1]
                     geneend = gene[2]
                     exonstarts = [int(x) for x in gene[11].split(",") if x]
                     exonsizes =  [int(x) for x in gene[10].split(",") if x]
                     genestrand = gene[5]
-        
+                    genename = gene[3]
+
+
                     x1 = (genestart - start)
                     x2 = (geneend - start)
                     if reverse:
@@ -342,6 +349,8 @@ def profile_screenshot(fname, intervals, tracks, colors=None, scalegroups=[], an
                                 gstart, 
                                 gend, 
                                 color="black")
+
+                    ax.text(gstart, h_gene-2.25,  genename, fontsize=5)
 
                     # Exons 
                     for exonstart,exonsize in zip(exonstarts, exonsizes):
@@ -382,8 +391,6 @@ def profile_screenshot(fname, intervals, tracks, colors=None, scalegroups=[], an
                                     )
                         ax.add_patch(arr)
 
-    
-    
     plt.savefig(fname, dpi=dpi)
     plt.close()
 
@@ -478,7 +485,7 @@ class BamProfilePanel(ProfilePanel):
                 )
 
         if not self.ymax: 
-            self.ymax = np.nanmax(self.profile) * 1.10
+            self.ymax = numpy.nanmax(self.profile) * 1.10
         
     def _plot(self, ax, interval, reverse=False, fig=None, odd=False, font=None, **kwargs):
        
@@ -520,12 +527,12 @@ class BamProfilePanel(ProfilePanel):
         
         ax.set_ylim(0, self.ymax)
         
-        ax.text(0.005,0.90, 
-                int(ax.get_ylim()[-1] + 0.5), 
-                horizontalalignment='left', 
-                verticalalignment="top", 
-                transform = ax.transAxes, 
-                clip_on=False, 
+        ax.text(0.005,0.90,
+                int(ax.get_ylim()[-1] + 0.5),
+                horizontalalignment='left',
+                verticalalignment="top",
+                transform = ax.transAxes,
+                clip_on=False,
                 fontproperties=font)
         
         if self.name:
