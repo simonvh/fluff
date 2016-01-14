@@ -175,7 +175,6 @@ class TrackWrapper():
     def fetch_reads(self, interval, rmdup=False, rmrepeats=False):
         """ Generator 
         """
-        print interval, rmdup, rmrepeats
         chrom,start,end = interval
         
         if self.ftype == "bed":
@@ -303,7 +302,7 @@ def get_free_track(overlap, start, end, max_end, min_gap):
             track[first:end + min_gap * max_end] += 1
             return overlap, i
     
-    overlap.append(np.zeros(max_end, dtype="i"))
+    overlap.append(numpy.zeros(max_end, dtype="i"))
     overlap[-1][first:end + min_gap * max_end] += 1
     #overlap[-1][start- min_gap * max_end:end + min_gap * max_end] += 1
     return overlap, len(overlap) - 1
