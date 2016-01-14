@@ -13,7 +13,8 @@ setup (name = 'fluff',
         author_email='s.vanheeringen@ncmls.ru.nl',
         license='MIT',
         packages=[
-            'fluff'
+            'fluff',
+            'fluff/commands'
         ],
         scripts=[
             "scripts/fluff_bandplot.py",
