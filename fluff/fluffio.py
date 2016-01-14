@@ -8,10 +8,9 @@ import pysam
 import pybedtools
 import sys
 import os
-import numpy as np
+import numpy
 import tempfile
 import fluff
-import numpy
 
 def is_equal_feature(feature, vals):
     if not vals:
@@ -197,8 +196,8 @@ class TrackWrapper():
 
     def get_profile(self, interval, fragmentsize=200, rmdup=False, rmrepeats=False):
         chrom,start,end = interval
-        profile = np.zeros(end - start, dtype="f")
-        profile.fill(np.nan)
+        profile = numpy.zeros(end - start, dtype="f")
+        profile.fill(numpy.nan)
         
         if self.ftype == "bam":
             strand = {True:"-", False:"+"}
@@ -207,7 +206,7 @@ class TrackWrapper():
                 iv = HTSeq.GenomicInterval(chrom, read.pos, read.aend, strand[read.is_reverse])
                 iv.length = fragmentsize
                 region = profile[iv.start - start:iv.end - start]
-                region[np.isnan(region)] = 0
+                region[numpy.isnan(region)] = 0
                 region += 1
         elif self.ftype == "wiggle":
             for iv,score in self.htseq_track:
@@ -305,6 +304,7 @@ def get_free_track(overlap, start, end, max_end, min_gap):
     
     overlap.append(np.zeros(max_end, dtype="i"))
     overlap[-1][first:end + min_gap * max_end] += 1
+    #overlap[-1][start- min_gap * max_end:end + min_gap * max_end] += 1
     return overlap, len(overlap) - 1
 
 def load_annotation(interval, fname, min_gap=0.05, vis="stack"):
@@ -483,5 +483,5 @@ def load_heatmap_data(featurefile, datafile, bins=100, up=5000, down=5000, rmdup
     tmp.flush()
     result = fluff.fluffio.get_binned_stats(tmp.name, datafile, bins, rpkm=rpkm, rmdup=rmdup, rmrepeats=rmrepeats, fragmentsize=fragmentsize)
     # Retrieve original order
-    r_data = np.array([[float(x) for x in row.split("\t")[3:]] for row in result])
+    r_data = numpy.array([[float(x) for x in row.split("\t")[3:]] for row in result])
     return os.path.basename(datafile), regions, r_data, guard#[r_order]
