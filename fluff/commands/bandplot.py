@@ -7,7 +7,7 @@ from pylab import savefig
 ### My imports ###
 from fluff.plot import *
 from fluff.util import *
-from fluff.color import DEFAULT_COLORS,parse_colors
+from fluff.color import parse_colors
 from fluff.config import *
 
 font = FontProperties(size=FONTSIZE / 1.25, family=["Nimbus Sans L", "Helvetica", "sans-serif"])
@@ -18,22 +18,28 @@ def bandplot(args):
       sys.exit(1)
     else:
       scalar = args.scalar
-    for opt in [args.clust_file, args.datafiles, args.outfile]:
-        if not opt:
-            args.print_help()
-            sys.exit()
+
+    if not args.datafiles and not args.readCount:
+        print 'You should provide data file(s) or the read counts file.'
+        sys.exit()
+    if args.datafiles and args.readCount:
+        print 'You should choose only ONE option. Either data file(s) or the read counts file.'
+        sys.exit()
+
 
     clust_file = args.clust_file
-    for x in args.datafiles:
-      if '.bam' in x and not os.path.isfile("{0}.bai".format(x)):
-        print "Data file '{0}' does not have an index file".format(x)
-        print "Creating an index file for {0}".format(x)
-        pysam.index(x)
-        print "Done!"
-    datafiles = [x.strip() for x in args.datafiles]
+
+    if args.datafiles:
+        for x in args.datafiles:
+          if '.bam' in x and not os.path.isfile("{0}.bai".format(x)):
+            print "Data file '{0}' does not have an index file".format(x)
+            print "Creating an index file for {0}".format(x)
+            pysam.index(x)
+            print "Done!"
+        datafiles = [x.strip() for x in args.datafiles]
+
+
     fragmentsize = args.fragmentsize
-    tracks = [os.path.basename(x) for x in datafiles]
-    titles = [os.path.splitext(x)[0] for x in tracks]
     colors = parse_colors(args.colors)
     scalegroups = process_groups(args.scalegroups)
     percs = [int(x) for x in args.percs.split(",")]
@@ -43,7 +49,15 @@ def bandplot(args):
     bins = args.bins
     summary = args.summary
     # Calculate the profile data
-    data = load_cluster_data(clust_file, datafiles, bins, rpkm, rmdup, rmrepeats, fragmentsize=fragmentsize)
+    if args.datafiles:
+        data = load_cluster_data(clust_file, datafiles, bins, rpkm, rmdup, rmrepeats, fragmentsize=fragmentsize)
+        tracks = [os.path.basename(x) for x in datafiles]
+        titles = [os.path.splitext(x)[0] for x in tracks]
+    else:
+        data = load_read_counts(args.readCount)
+        tracks = [x for x in data]
+        titles = [x for x in tracks]
+
     # Get cluster information
     cluster_data = load_bed_clusters(clust_file)
     clusters = cluster_data.keys()

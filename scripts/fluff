@@ -1,15 +1,11 @@
 #!/usr/bin/env python
-__author__ = 'george'
-
-import os
-import sys
+# __author__ = 'george'
 import argparse
 
 from fluff import commands
-
-from fluff.fluffio import *
 from fluff.color import DEFAULT_COLORS
 from fluff.config import *
+from fluff.fluffio import *
 
 description = """
 fluff v{0}
@@ -20,10 +16,11 @@ commands:
     heatmap      Produce a heatmap
     bandplot     Show the profiles as bandplots
     profile      Genome Browser screenshot
+
 type `fluff <command> -h` for more details
 """
 
-usage = "%(prog)s [-h] <subcommand> [options]"
+usage = "%(prog)s [-h] [options]"
 
 parser = argparse.ArgumentParser(
         usage=usage,
@@ -31,11 +28,10 @@ parser = argparse.ArgumentParser(
         epilog=epilog,
         formatter_class=argparse.RawDescriptionHelpFormatter
 )
-
 subparsers = parser.add_subparsers()
-
-p = subparsers.add_parser('heatmap')
-
+# heatmap subparser
+p = subparsers.add_parser('heatmap', add_help=False)
+# heatmap Required arguments
 req_grp = p.add_argument_group(title='Required arguments')
 req_grp.add_argument("-f",
                      required=True,
@@ -55,97 +51,101 @@ req_grp.add_argument("-o",
                      help="output file (type determined by extension)",
                      metavar="name",
                      default=None)
-
-# Optional arguments
-p.add_argument("-p",
-               dest="pick",
-               help="pick specific data files to use for clustering",
-               default=None,
-               type=str)
-p.add_argument("-C",
-               dest="clustering",
-               help="kmeans, hierarchical or none",
-               default=DEFAULT_CLUSTERING,
-               metavar="METHOD")
-p.add_argument("-k",
-               dest="numclusters",
-               help="number of clusters",
-               metavar="INT",
-               type=int,
-               default=1)
-p.add_argument("-m",
-               dest="merge_mirrored",
-               help="merge mirrored clusters (only with kmeans and without -g option)",
-               default=False,
-               action="store_true")
-p.add_argument("-c",
-               dest="colors",
-               help="color(s) (name, colorbrewer profile or hex code)",
-               metavar="NAME(S)",
-               default=DEFAULT_COLORS)
-p.add_argument("-B",
-               dest="bgcolors",
-               help="background color(s) (name, colorbrewer profile or hex code)",
-               metavar="NAME(S)",
-               default=DEFAULT_BG)
-p.add_argument("-e",
-               dest="extend",
-               help="extend (in bp. Default: {0})".format(DEFAULT_EXTEND),
-               metavar="INT",
-               type=int,
-               default=DEFAULT_EXTEND)
-p.add_argument("-b",
-               dest="binsize",
-               help="bin size (default {0})".format(DEFAULT_BINSIZE),
-               metavar="INT",
-               type=int,
-               default=DEFAULT_BINSIZE)
-p.add_argument("-s",
-               dest="scale",
-               help="scale (absolute or percentage)",
-               type=str,
-               default=DEFAULT_SCALE)
-p.add_argument("-F",
-               dest="fragmentsize",
-               help="Fragment length (default: read length)",
-               type=int,
-               default=None)
-p.add_argument("-r",
-               dest="rpkm",
-               help="use RPKM instead of read counts",
-               action="store_true",
-               default=False)
-p.add_argument("-D",
-               dest="rmdup",
-               help="keep duplicate reads (removed by default)",
-               default=True,
-               action="store_false")
-p.add_argument("-R",
-               dest="rmrepeats",
-               help="keep repeats (removed by default, bwa only) ",
-               action="store_false",
-               default=True)
-p.add_argument("-P",
-               dest="cpus",
-               help="number of CPUs (default: 4)",
-               metavar="INT",
-               type=int,
-               default=4)
-p.add_argument("-M",
-               dest="distancefunction",
-               help="Euclidean or Pearson (default: Euclidean)",
-               default=DEFAULT_METRIC,
-               metavar="METHOD")
-p.add_argument("-g",
-               dest="graphdynamics",
-               help="Identify dynamics by extending features 1kb up/down stream(just for clustering), cluster as 1 bin, "
-                    "diplay as original number of bins and with the default extend values",
-               action="store_true",
-               default=False)
+# heatmap Optional arguments
+opt_grp = p.add_argument_group(title='Optional arguments')
+opt_grp.add_argument("-h", "--help",
+                     dest="help",
+                     help="show this help message and exit",
+                     action="help")
+opt_grp.add_argument("-C",
+                     dest="clustering",
+                     help="kmeans, hierarchical or none",
+                     default=DEFAULT_CLUSTERING,
+                     metavar="METHOD")
+opt_grp.add_argument("-k",
+                     dest="numclusters",
+                     help="number of clusters",
+                     metavar="INT",
+                     type=int,
+                     default=1)
+opt_grp.add_argument("-M",
+                     dest="distancefunction",
+                     help="Euclidean or Pearson (default: Euclidean)",
+                     default=DEFAULT_METRIC,
+                     metavar="METHOD")
+opt_grp.add_argument("-g",
+                     dest="graphdynamics",
+                     help="Identify dynamics",
+                     action="store_true",
+                     default=False)
+opt_grp.add_argument("-p",
+                     dest="pick",
+                     help="pick specific data files to use for clustering",
+                     default=None,
+                     type=str)
+opt_grp.add_argument("-e",
+                     dest="extend",
+                     help="extend (in bp. Default: {0})".format(DEFAULT_EXTEND),
+                     metavar="INT",
+                     type=int,
+                     default=DEFAULT_EXTEND)
+opt_grp.add_argument("-b",
+                     dest="binsize",
+                     help="bin size (default {0})".format(DEFAULT_BINSIZE),
+                     metavar="INT",
+                     type=int,
+                     default=DEFAULT_BINSIZE)
+opt_grp.add_argument("-F",
+                     dest="fragmentsize",
+                     help="Fragment length (default: read length)",
+                     type=int,
+                     default=None)
+opt_grp.add_argument("-r",
+                     dest="rpkm",
+                     help="use RPKM instead of read counts",
+                     action="store_true",
+                     default=False)
+opt_grp.add_argument("-D",
+                     dest="rmdup",
+                     help="keep duplicate reads (removed by default)",
+                     default=True,
+                     action="store_false")
+opt_grp.add_argument("-R",
+                     dest="rmrepeats",
+                     help="keep repeats (removed by default, bwa only) ",
+                     action="store_false",
+                     default=True)
+opt_grp.add_argument("-m",
+                     dest="merge_mirrored",
+                     help="merge mirrored clusters (only with kmeans and without -g option)",
+                     default=False,
+                     action="store_true")
+opt_grp.add_argument("-s",
+                     dest="scale",
+                     help="scale (absolute or percentage)",
+                     type=str,
+                     default=DEFAULT_SCALE)
+opt_grp.add_argument("-c",
+                     dest="colors",
+                     help="color(s) (name, colorbrewer profile or hex code)",
+                     metavar="NAME(S)",
+                     default=DEFAULT_COLORS)
+opt_grp.add_argument("-B",
+                     dest="bgcolors",
+                     help="background color(s) (name, colorbrewer profile or hex code)",
+                     metavar="NAME(S)",
+                     default=DEFAULT_BG)
+opt_grp.add_argument("-P",
+                     dest="cpus",
+                     help="number of CPUs (default: 4)",
+                     metavar="INT",
+                     type=int,
+                     default=4)
 p.set_defaults(func=commands.heatmap)
 
-
-p = subparsers.add_parser('bandplot')
+# bandplot subparser
+p = subparsers.add_parser('bandplot', add_help=False)
+# bandplot Required arguments
 req_grp = p.add_argument_group(title='Required arguments')
 req_grp.add_argument("-f",
                      required=True,
@@ -154,11 +154,18 @@ req_grp.add_argument("-f",
                      metavar="FILE",
                      default=None)
 req_grp.add_argument("-d",
-                     required=True,
                      dest="datafiles",
                      help="data files (reads in BAM or BED format)",
                      metavar="FILE",
-                     nargs='*')
+                     nargs='*',
+                     default=None)
+
+req_grp.add_argument("-counts",
+                     dest="readCount",
+                     help="Read Counts",
+                     metavar="FILE",
+                     default=None)
+
 req_grp.add_argument("-o",
                      required=True,
                      dest="outfile",
@@ -166,50 +173,58 @@ req_grp.add_argument("-o",
                      metavar="name",
                      default=None)
 
-p.add_argument("-S", dest="summary",
-               help="create summary graphs",
-               default=False,
-               action="store_true")
-p.add_argument("-c", dest="colors",
-               help="color(s) (name, colorbrewer profile or hex code)",
-               metavar="NAME(S)",
-               default=DEFAULT_COLORS)
-p.add_argument("-b", dest="bins",
-               help="number of bins",
-               metavar="INT",
-               default=BINS,
-               type=int)
-p.add_argument("-s", dest="scalegroups",
-               help="scale groups",
-               metavar="GROUPS")
-p.add_argument("-p", dest="percs",
-               help="range of percentiles (default 50,90)",
-               metavar="INT,INT", default="50,90")
-p.add_argument("-F", dest="fragmentsize",
-               help="fragment length (default: read length)",
-               type=int,
-               default=None)
-p.add_argument("-r", dest="rpkm",
-               help="use RPKM instead of read counts",
-               action="store_true",
-               default=False)
-p.add_argument("-D", dest="rmdup",
-               help="keep duplicate reads (removed by default)",
-               default=True,
-               action="store_false")
-p.add_argument("-R", dest="rmrepeats",
-               help="keep repeats (removed by default, bwa only) ",
-               action="store_false",
-               default=True)
-p.add_argument("-P", dest="scalar",
-               help="Percentile at which to extract score. Value should be in range [0,100] (default 90)",
-               metavar="INT",
-               default=SCALAR,
-               type=float)
+# bandplot Optional arguments
+opt_grp = p.add_argument_group(title='Optional arguments')
+opt_grp.add_argument("-h", "--help",
+                     dest="help",
+                     help="show this help message and exit",
+                     action="help")
+opt_grp.add_argument("-S",
+                     dest="summary",
+                     help="create summary graphs",
+                     default=False,
+                     action="store_true")
+opt_grp.add_argument("-b", dest="bins",
+                     help="number of bins",
+                     metavar="INT",
+                     default=BINS,
+                     type=int)
+opt_grp.add_argument("-F", dest="fragmentsize",
+                     help="fragment length (default: read length)",
+                     type=int,
+                     default=None)
+opt_grp.add_argument("-r", dest="rpkm",
+                     help="use RPKM instead of read counts",
+                     action="store_true",
+                     default=False)
+opt_grp.add_argument("-D", dest="rmdup",
+                     help="keep duplicate reads (removed by default)",
+                     default=True,
+                     action="store_false")
+opt_grp.add_argument("-R", dest="rmrepeats",
+                     help="keep repeats (removed by default, bwa only) ",
+                     action="store_false",
+                     default=True)
+opt_grp.add_argument("-s", dest="scalegroups",
+                     help="scale groups",
+                     metavar="GROUPS")
+opt_grp.add_argument("-p", dest="percs",
+                     help="range of percentiles (default 50,90)",
+                     metavar="INT,INT", default="50,90")
+opt_grp.add_argument("-P", dest="scalar",
+                     help="Percentile at which to extract score. Value should be in range [0,100] (default 90)",
+                     metavar="INT",
+                     default=SCALAR,
+                     type=float)
+opt_grp.add_argument("-c", dest="colors",
+                     help="color(s) (name, colorbrewer profile or hex code)",
+                     metavar="NAME(S)",
+                     default=DEFAULT_COLORS)
 p.set_defaults(func=commands.bandplot)
 
-
-p = subparsers.add_parser('profile')
+# profile subparser
+p = subparsers.add_parser('profile', add_help=False)
+# profile Required arguments
 req_grp = p.add_argument_group(title='Required arguments')
 req_grp.add_argument("-i",
                      dest="intervals",
@@ -227,55 +242,59 @@ req_grp.add_argument("-o",
                      help="output file (type determined by extension)",
                      metavar="name",
                      default=None)
-
-p.add_argument("-a", dest="annotation",
-               help="annotation in BED12 format",
-               metavar="FILE")
-p.add_argument("-c", dest="colors",
-               help="color(s) (name, colorbrewer profile or hex code)",
-               metavar="NAME(S)",
-               default=DEFAULT_COLORS)
-p.add_argument("-t",
-               dest="trackgroups",
-               help="track groups",
-               metavar="GROUPS")
-p.add_argument("-s",
-               dest="scalegroups",
-               help="scale groups",
-               metavar="GROUPS")
-p.add_argument("-S", dest="scale",
-               help="scale: 'auto' (default), 'off' or int for each track",
-               metavar="SCALE",
-               default="auto")
-p.add_argument("-b", dest="background",
-               help="background color: white | color | stripes",
-               default="white")
-p.add_argument("-f", dest="fragmentsize",
-               help="fragment length (default: %s)" % FRAGMENTLENGTH,
-               type=int,
-               default=FRAGMENTLENGTH)
-p.add_argument("-D",
-                  dest="rmdup",
-                  help="keep duplicate reads (removed by default)",
-                  default=True,
-                  action="store_false")
-p.add_argument("-R",
-                  dest="rmrepeats",
-                  help="keep repeats (removed by default, bwa only) ",
-                  action="store_false",
-                  default=True)
-p.add_argument("-r",
-                  dest="reverse",
-                  help="reverse ",
-                  action="store_true",
-                  default=False)
-
+# profile Optional arguments
+opt_grp = p.add_argument_group(title='Optional arguments')
+opt_grp.add_argument("-h", "--help",
+                     dest="help",
+                     help="show this help message and exit",
+                     action="help")
+opt_grp.add_argument("-a", dest="annotation",
+                     help="annotation in BED12 format",
+                     metavar="FILE")
+opt_grp.add_argument("-t",
+                     dest="trackgroups",
+                     help="track groups",
+                     metavar="GROUPS")
+opt_grp.add_argument("-s",
+                     dest="scalegroups",
+                     help="scale groups",
+                     metavar="GROUPS")
+opt_grp.add_argument("-S", dest="scale",
+                     help="scale: 'auto' (default), 'off' or int for each track",
+                     metavar="SCALE",
+                     default="auto")
+opt_grp.add_argument("-f", dest="fragmentsize",
+                     help="fragment length (default: %s)" % FRAGMENTLENGTH,
+                     type=int,
+                     default=FRAGMENTLENGTH)
+opt_grp.add_argument("-D",
+                     dest="rmdup",
+                     help="keep duplicate reads (removed by default)",
+                     default=True,
+                     action="store_false")
+opt_grp.add_argument("-R",
+                     dest="rmrepeats",
+                     help="keep repeats (removed by default, bwa only) ",
+                     action="store_false",
+                     default=True)
+opt_grp.add_argument("-r",
+                     dest="reverse",
+                     help="reverse ",
+                     action="store_true",
+                     default=False)
+opt_grp.add_argument("-c", dest="colors",
+                     help="color(s) (name, colorbrewer profile or hex code)",
+                     metavar="NAME(S)",
+                     default=DEFAULT_COLORS)
+opt_grp.add_argument("-b", dest="background",
+                     help="background color: white | color | stripes",
+                     default="white")
 p.set_defaults(func=commands.profile)
 
 if len(sys.argv) == 1:
     parser.print_help()
 else:
     if len(sys.argv) == 2:
-        print "\033[93mtype `gimme {} -h` for more details\033[0m\n".format(sys.argv[-1])
+        print "\033[93mtype `fluff {} -h` for more details\033[0m\n".format(sys.argv[-1])
     args = parser.parse_args()
     args.func(args)

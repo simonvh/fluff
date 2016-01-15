@@ -5,25 +5,27 @@
 # This script is free software. You can redistribute it and/or modify it under 
 # the terms of the MIT License
 
-from matplotlib.colors import colorConverter, LinearSegmentedColormap, cnames
 import colorbrewer
+from matplotlib.colors import colorConverter, LinearSegmentedColormap, cnames
 
 COLOR_MAP = {
-    "red":"#e41a1c",
-    "blue":"#377eb8",
-    "green":"#4daf4a",
-    "purple":"#984ea3",
-    "orange":"#ff7f00",
-    "yellow":"#ebbc57",
-    "brown":"#a65628",
-    "pink": "#f781bf", 
+    "red": "#e41a1c",
+    "blue": "#377eb8",
+    "green": "#4daf4a",
+    "purple": "#984ea3",
+    "orange": "#ff7f00",
+    "yellow": "#ebbc57",
+    "brown": "#a65628",
+    "pink": "#f781bf",
     "grey": "#999999",
     "white": "#ffffff",
     "black": "#000000",
 }
 
+
 def is_pal(name):
     return colorbrewer.__dict__.has_key(name)
+
 
 def get_pal(name, n=None):
     ns = colorbrewer.__dict__[name].keys()
@@ -33,19 +35,21 @@ def get_pal(name, n=None):
         n_index = min(ns)
     else:
         n_index = n
-    
+
     pal = colorbrewer.__dict__[name][n_index][:n]
     for i in range(len(pal)):
-        pal[i] = [x/255.0 for x in pal[i]]
-        
+        pal[i] = [x / 255.0 for x in pal[i]]
+
     return pal
 
+
 DEFAULT_COLORS = get_pal("Set1")
+
 
 def parse_colors(colors):
     if type("") == type(colors):
         colors = [x.strip() for x in colors.split(",")]
-    
+
     parsed = []
     for c in colors:
         if type("") == type(c):
@@ -58,7 +62,7 @@ def parse_colors(colors):
                 # c is a Colorbrewer palette name
                 parsed += get_pal(c)
             elif len(c.split(":")) == 2:
-                p,n = c.split(":")
+                p, n = c.split(":")
                 if is_pal(p):
                     parsed += get_pal(p, int(n))
                 else:

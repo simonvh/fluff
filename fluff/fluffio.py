@@ -3,14 +3,17 @@
 # This script is free software. You can redistribute it and/or modify it under 
 # the terms of the MIT License
 # 
-import HTSeq
-import pysam
-import pybedtools
-import sys
 import os
-import numpy
+import sys
 import tempfile
+
+import HTSeq
+import numpy
+import pybedtools
+import pysam
+
 import fluff
+
 
 def is_equal_feature(feature, vals):
     if not vals:
@@ -23,10 +26,11 @@ def is_equal_feature(feature, vals):
         return False
     return True
 
+
 def get_features_by_feature(track_a, track_b):
     """ Takes two BedTool tracks as input, returns overlapping features
     """
-    if track_a.file_type != "bed" or  track_b.file_type != "bed":
+    if track_a.file_type != "bed" or track_b.file_type != "bed":
         raise ValueError, "Need BED files"
     for f in track_a:
         field_len_a = len(f.fields)
@@ -40,7 +44,7 @@ def get_features_by_feature(track_a, track_b):
     tmp.flush()
     last = None
     features = []
-    for line in tmp.readlines(): 
+    for line in tmp.readlines():
         vals = line.strip().split("\t")
         if field_len_a >= 6:
             feature = pybedtools.Interval(vals[0], int(vals[1]), int(vals[2]), strand=vals[5])
@@ -48,18 +52,19 @@ def get_features_by_feature(track_a, track_b):
             feature = pybedtools.Interval(vals[0], int(vals[1]), int(vals[2]))
         if str(feature) != str(last):
             if len(features) > 0:
-                if len(features) == 1 and features[0][1:3] == ['-1','-1']:
+                if len(features) == 1 and features[0][1:3] == ['-1', '-1']:
                     yield last, []
                 else:
-                    yield last, features  
+                    yield last, features
             features = []
             last = feature
-        features.append(vals[field_len_a:]) 
-    if len(features) == 1 and features[0][1:3] == ['-1','-1']:
+        features.append(vals[field_len_a:])
+    if len(features) == 1 and features[0][1:3] == ['-1', '-1']:
         yield feature, []
     else:
         yield feature, features
     tmp.close()
+
 
 class TrackWrapper():
     def __init__(self, fname):
@@ -77,7 +82,7 @@ class TrackWrapper():
         else:
             self.track = pybedtools.BedTool(fname)
             self.ftype = "bed"
-            #self.tabix_track = self.track.tabix()     
+            # self.tabix_track = self.track.tabix()
 
     def __getitem__(self, window):
         """ 
@@ -93,7 +98,7 @@ class TrackWrapper():
             window = HTSeq.GenomicInterval(chrom, start, end, strand)
             for almnt in self.htseq_track[window]:
                 if almnt and almnt.iv:
-                    #ailmnt.iv.length = almn.iv
+                    # ailmnt.iv.length = almn.iv
                     if strand == "." or strand == almnt.iv.strand:
                         intervals.append(almnt.iv)
         elif self.ftype == "bed":
@@ -105,7 +110,7 @@ class TrackWrapper():
                 s = True
             for read in self.track.intersect(feature, u=True, stream=True, s=s):
                 intervals.append(HTSeq.GenomicInterval(chrom, read.start, read.end, read.strand))
-        return intervals            
+        return intervals
 
     def count(self, rmdup=False, rmrepeats=False):
         if self.ftype == "bam":
@@ -114,7 +119,8 @@ class TrackWrapper():
             c = 0
             for read in self.track:
                 if (not rmdup or not read.flag & 0x0400):
-                    if (not rmrepeats or ('X0', 1) in read.tags or not 'X0' in [x[0] for x in read.tags]):
+                    # if (not rmrepeats or ('X0', 1) in read.tags or not 'X0' in [x[0] for x in read.tags]):
+                    if (not rmrepeats) or read.mapq > 0:
                         c += 1
             return c
         if self.ftype == "bed":
@@ -131,7 +137,7 @@ class TrackWrapper():
         if self.ftype == "bed":
             for read in self.track:
                 return read.end - read.start
-    
+
     def fetch_to_counts(self, track, rmdup=False, rmrepeats=False):
         """ Generator 
         """
@@ -146,12 +152,14 @@ class TrackWrapper():
                     feature.start = 0
                 if feature.chrom in self.chroms:
                     for read in self.track.fetch(feature.chrom, feature.start, feature.end):
-                        if (not rmrepeats) or (('X0',1) in read.tags or not 'X0' in [x[0] for x in read.tags]):
+                        # print read, read.mapq, read.tags
+                        # if (not rmrepeats) or (('X0',1) in read.tags or not 'X0' in [x[0] for x in read.tags]):
+                        if (not rmrepeats) or read.mapq > 0:
                             if read.is_reverse:
-                                 min_strand.append(read.pos)
+                                min_strand.append(read.pos)
                             else:
                                 plus_strand.append(read.pos)
-                    
+
                     # Remove duplicates
                     if rmdup:
                         min_strand = sorted(set(min_strand))
@@ -170,14 +178,13 @@ class TrackWrapper():
                         min_strand.append(int(f[1]))
                     else:
                         plus_strand.append(int(f[1]))
-                yield (feature, min_strand, plus_strand) 
+                yield (feature, min_strand, plus_strand)
 
     def fetch_reads(self, interval, rmdup=False, rmrepeats=False):
         """ Generator 
         """
-        print interval, rmdup, rmrepeats
-        chrom,start,end = interval
-        
+        chrom, start, end = interval
+
         if self.ftype == "bed":
             raise NotImplementedError
 
@@ -188,20 +195,20 @@ class TrackWrapper():
                         continue
                     if rmrepeats and read.mapq < 10:
                         continue
-                    yield read 
-    
+                    yield read
+
     def close(self):
         if self.ftype == "bam":
             self.track.close()
 
     def get_profile(self, interval, fragmentsize=200, rmdup=False, rmrepeats=False):
-        chrom,start,end = interval
+        chrom, start, end = interval
         profile = numpy.zeros(end - start, dtype="f")
         profile.fill(numpy.nan)
-        
+
         if self.ftype == "bam":
-            strand = {True:"-", False:"+"}
-        
+            strand = {True: "-", False: "+"}
+
             for read in self.fetch_reads(interval, rmdup=rmdup, rmrepeats=rmrepeats):
                 iv = HTSeq.GenomicInterval(chrom, read.pos, read.aend, strand[read.is_reverse])
                 iv.length = fragmentsize
@@ -209,28 +216,29 @@ class TrackWrapper():
                 region[numpy.isnan(region)] = 0
                 region += 1
         elif self.ftype == "wiggle":
-            for iv,score in self.htseq_track:
+            for iv, score in self.htseq_track:
                 if iv.chrom == chrom:
                     if iv.start <= end and iv.end >= start:
                         if iv.start < start:
                             iv.start = start
                         if iv.end > end:
                             iv.end = end
-                 
+
                         profile[iv.start - start:iv.end - start] = score
         elif self.ftype == "tabix":
             for f in self.tabix_track.fetch(chrom, start, end):
                 f = f.split()
-                iv = HTSeq.GenomicInterval(f[0], int(f[1]) -5 , int(f[2]) + 5, ".")
+                iv = HTSeq.GenomicInterval(f[0], int(f[1]) - 5, int(f[2]) + 5, ".")
                 if iv.start <= end and iv.end >= start:
                     if iv.start < start:
                         iv.start = start
                     if iv.end > end:
                         iv.end = end
-                 
-                    profile[iv.start - start:iv.end - start] = float(f[3]) 
+
+                    profile[iv.start - start:iv.end - start] = float(f[3])
 
         return profile
+
 
 def _convert_value(v):
     """
@@ -244,6 +252,7 @@ def _convert_value(v):
             return v
     return 0
 
+
 def load_bed_clusters(bedfile):
     """
     Reads a BED file, using the fourth column as cluster number
@@ -256,23 +265,43 @@ def load_bed_clusters(bedfile):
         cluster_data.setdefault(_convert_value(f.score), []).append("{0}:{1}-{2}".format(f.chrom, f.start, f.end))
     return cluster_data
 
+
 def load_cluster_data(clust_file, datafiles, bins, rpkm, rmdup, rmrepeats, fragmentsize=None):
     data = {}
     for datafile in datafiles:
         result = []
-        result = get_binned_stats(clust_file, 
-                                  datafile, 
-                                  bins, 
-                                  rpkm=rpkm, 
-                                  rmdup=rmdup, 
+        result = get_binned_stats(clust_file,
+                                  datafile,
+                                  bins,
+                                  rpkm=rpkm,
+                                  rmdup=rmdup,
                                   rmrepeats=rmrepeats,
                                   fragmentsize=fragmentsize)
-        result =  [row.split("\t") for row in result]
-        data[os.path.basename(datafile)] = dict([["{0}:{1}-{2}".format(vals[0], vals[1], vals[2]), [float(x) for x in vals[3:]]] for vals in result])
+        result = [row.split("\t") for row in result]
+        data[os.path.basename(datafile)] = dict(
+                [["{0}:{1}-{2}".format(vals[0], vals[1], vals[2]), [float(x) for x in vals[3:]]] for vals in result])
     return data
 
 
-def load_profile(interval, tracks, fragmentsize = 200, rmdup = False, rmrepeats = False, reverse = False):
+def load_read_counts(readCounts):
+    data = {}
+    indexes = {}
+    for line in open(readCounts):
+        if line.startswith('Regions'):
+            idx = 0
+            for datafile in line.split('\t')[1:]:
+                if datafile.strip():
+                    data[datafile] = {}
+                    indexes[idx] = datafile
+                    idx += 1
+        else:
+            for idx, binSline in enumerate(line.split('\t')[1:]):
+                if binSline.strip():
+                    data[indexes[idx]][line.split('\t')[0]] = [float(x) for x in binSline.split(';')]
+    return data
+
+
+def load_profile(interval, tracks, fragmentsize=200, rmdup=False, rmrepeats=False, reverse=False):
     profiles = []
     for track_group in tracks:
         if type(track_group) == type([]):
@@ -284,29 +313,30 @@ def load_profile(interval, tracks, fragmentsize = 200, rmdup = False, rmrepeats 
                     profile = profile[::-1]
                 profile_group.append(profile)
         else:
-                track = track_group
-                t = TrackWrapper(track)
-                profile_group = t.get_profile(interval, fragmentsize, rmdup, rmrepeats)
-                if reverse:
-                    profile_group = profile_group[::-1]
+            track = track_group
+            t = TrackWrapper(track)
+            profile_group = t.get_profile(interval, fragmentsize, rmdup, rmrepeats)
+            if reverse:
+                profile_group = profile_group[::-1]
         profiles.append(profile_group)
     return profiles
 
+
 def get_free_track(overlap, start, end, max_end, min_gap):
-    
     first = start - min_gap * max_end
     if first < 0:
         first = 0
-    
-    for i,track in enumerate(overlap):
+
+    for i, track in enumerate(overlap):
         if max(track[start:end]) == 0:
             track[first:end + min_gap * max_end] += 1
             return overlap, i
-    
-    overlap.append(np.zeros(max_end, dtype="i"))
+
+    overlap.append(numpy.zeros(max_end, dtype="i"))
     overlap[-1][first:end + min_gap * max_end] += 1
-    #overlap[-1][start- min_gap * max_end:end + min_gap * max_end] += 1
+    # overlap[-1][start- min_gap * max_end:end + min_gap * max_end] += 1
     return overlap, len(overlap) - 1
+
 
 def load_annotation(interval, fname, min_gap=0.05, vis="stack"):
     genes = []
@@ -314,12 +344,12 @@ def load_annotation(interval, fname, min_gap=0.05, vis="stack"):
     for line in open(fname):
         if not line.startswith("#") and not line.startswith("track"):
             vals = line.strip().split("\t")
-            for i in [1,2,6,7]:
+            for i in [1, 2, 6, 7]:
                 if len(vals) > i:
                     vals[i] = int(vals[i])
             if vals[0] == chrom:
-                if vals[1] <= end and vals[2] >= start :
-                    #sys.stderr.write("Adding {0}\n".format(vals[3]))
+                if vals[1] <= end and vals[2] >= start:
+                    # sys.stderr.write("Adding {0}\n".format(vals[3]))
                     genes.append(vals)
     if len(genes) == 0:
         return {}
@@ -329,7 +359,7 @@ def load_annotation(interval, fname, min_gap=0.05, vis="stack"):
     gene_tracks = {}
     for gene in sorted(genes, key=lambda x: x[1]):
         if vis == "stack":
-            overlap,i = get_free_track(overlap, gene[1] - min_start, gene[2] - min_start, max_end - min_start, min_gap)    
+            overlap, i = get_free_track(overlap, gene[1] - min_start, gene[2] - min_start, max_end - min_start, min_gap)
         elif vis == "merge":
             i = 0
         else:
@@ -340,6 +370,7 @@ def load_annotation(interval, fname, min_gap=0.05, vis="stack"):
             gene_tracks[i] = [gene]
     return gene_tracks
 
+
 class SimpleFeature():
     def __init__(self, chrom, start, end, value, strand):
         self.chrom = chrom
@@ -347,6 +378,8 @@ class SimpleFeature():
         self.end = end
         self.value = value
         self.strand = strand
+
+
 class SimpleBed():
     def __init__(self, fname):
         self.f = open(fname)
@@ -365,12 +398,12 @@ class SimpleBed():
                 value = vals[3]
             else:
                 value = 0
-            if len(vals)>5:
+            if len(vals) > 5:
                 if not (vals[5] is '+') or (vals[5] is '-'):
                     return SimpleFeature(vals[0], start, end, value, '+')
                 else:
                     return SimpleFeature(vals[0], start, end, value, vals[5])
-            elif len(vals)>4:
+            elif len(vals) > 4:
                 if not (vals[4] is '+') or (vals[4] is '-'):
                     return SimpleFeature(vals[0], start, end, value, '+')
                 else:
@@ -381,7 +414,9 @@ class SimpleBed():
             self.f.close()
             raise StopIteration
 
-def get_binned_stats(in_fname, data_fname, nbins, rpkm=False, rmdup=False, rmrepeats=False, fragmentsize=None, split=False):
+
+def get_binned_stats(in_fname, data_fname, nbins, rpkm=False, rmdup=False, rmrepeats=False, fragmentsize=None,
+                     split=False):
     track = TrackWrapper(data_fname)
     readlength = track.read_length()
     if not fragmentsize:
@@ -390,7 +425,7 @@ def get_binned_stats(in_fname, data_fname, nbins, rpkm=False, rmdup=False, rmrep
     if rpkm:
         total_reads = track.count(rmdup, rmrepeats) / 1000000.0
     ret = []
-    count = 1    
+    count = 1
     # Only use a BedTool if really necessary, as BedTools does not close open files
     # on object deletion
     if track.ftype == "bam":
@@ -414,7 +449,7 @@ def get_binned_stats(in_fname, data_fname, nbins, rpkm=False, rmdup=False, rmrep
                 num_reads += 1
                 i += 1
             min_strand = min_strand[c:]
-            
+
             i = 0
             c = 0
             while i < len(plus_strand) and plus_strand[i] <= int(bin_start + binsize + 0.5):
@@ -423,16 +458,16 @@ def get_binned_stats(in_fname, data_fname, nbins, rpkm=False, rmdup=False, rmrep
                 num_reads += 1
                 i += 1
             plus_strand = plus_strand[c:]
-       
+
             if rpkm:
                 per_kb = num_reads * (1000.0 / binsize)
                 row.append(per_kb / total_reads)
             else:
-                row.append(num_reads)           
+                row.append(num_reads)
             bin_start += binsize
         if feature.strand == "-":
             row = row[::-1]
-        ret.append( [feature.chrom, feature.start, feature.end] + row)
+        ret.append([feature.chrom, feature.start, feature.end] + row)
         count += 1
     track.close()
     del in_track
@@ -441,19 +476,21 @@ def get_binned_stats(in_fname, data_fname, nbins, rpkm=False, rmdup=False, rmrep
     else:
         return ["\t".join([str(x) for x in row]) for row in ret]
 
-def load_heatmap_data(featurefile, datafile, bins=100, up=5000, down=5000, rmdup=True, rpkm=False, rmrepeats=True, fragmentsize=None, dynam=False, guard=[]):
+
+def load_heatmap_data(featurefile, datafile, bins=100, up=5000, down=5000, rmdup=True, rpkm=False, rmrepeats=True,
+                      fragmentsize=None, dynam=False, guard=[]):
     tmp = tempfile.NamedTemporaryFile(delete=False, prefix="fluff")
     regions = []
     order = {}
     count = 0
     hashcounter = 0
     if not guard and dynam:
-      filt  = True
+        filt = True
     else:
-      filt = False
+        filt = False
     for i, line in enumerate(open(featurefile)):
         if line.startswith("#") or line[:5] == "track":
-	    hashcounter += 1
+            hashcounter += 1
             continue
         vals = line.strip().split("\t")
         strand = "+"
@@ -463,7 +500,7 @@ def load_heatmap_data(featurefile, datafile, bins=100, up=5000, down=5000, rmdup
         if len(vals) >= 4:
             gene = vals[3]
         middle = (int(vals[2]) + int(vals[1])) / 2
-        start,end = middle, middle
+        start, end = middle, middle
         if strand == "+":
             start -= up
             end += down
@@ -476,13 +513,14 @@ def load_heatmap_data(featurefile, datafile, bins=100, up=5000, down=5000, rmdup
             else:
                 guard.append(False)
         if not filt and start >= 0:
-            if not dynam or guard[i-hashcounter]:
+            if not dynam or guard[i - hashcounter]:
                 regions.append([vals[0], start, end, gene, strand])
                 order["{0}:{1}-{2}".format(vals[0], start, end)] = count
                 count += 1
                 tmp.write("{0}\t{1}\t{2}\t{3}\t0\t{4}\n".format(vals[0], start, end, gene, strand))
     tmp.flush()
-    result = fluff.fluffio.get_binned_stats(tmp.name, datafile, bins, rpkm=rpkm, rmdup=rmdup, rmrepeats=rmrepeats, fragmentsize=fragmentsize)
+    result = fluff.fluffio.get_binned_stats(tmp.name, datafile, bins, rpkm=rpkm, rmdup=rmdup, rmrepeats=rmrepeats,
+                                            fragmentsize=fragmentsize)
     # Retrieve original order
     r_data = numpy.array([[float(x) for x in row.split("\t")[3:]] for row in result])
-    return os.path.basename(datafile), regions, r_data, guard#[r_order]
+    return os.path.basename(datafile), regions, r_data, guard  # [r_order]

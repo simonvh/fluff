@@ -11,11 +11,11 @@ Contents:
 .. toctree::
    :maxdepth: 3
 
-    introduction
-    included
-    installation
-    configuration
-    usage
+   introduction
+   included
+   installation
+   configuration
+   usage
 
 Indices and tables
 ==================

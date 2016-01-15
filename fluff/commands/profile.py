@@ -1,9 +1,10 @@
 __author__ = 'george'
 
 ### My imports ###
+from fluff.color import parse_colors
 from fluff.plot import profile_screenshot
 from fluff.util import *
-from fluff.color import parse_colors
+
 
 def profile(args):
     intervals = [x.strip() for x in args.intervals.split(",")]
@@ -44,13 +45,13 @@ def profile(args):
 
     # Create the image
     profile_screenshot(outfile, intervals, tracks,
-        annotation=annotation,
-        scalegroups=scalegroups,
-        colors=colors,
-        bgmode=args.background,
-        fragmentsize=args.fragmentsize,
-        scale=scale,
-        rmdup=args.rmdup,
-        rmrepeats=args.rmrepeats,
-        reverse=args.reverse,
-        )
+                       annotation=annotation,
+                       scalegroups=scalegroups,
+                       colors=colors,
+                       bgmode=args.background,
+                       fragmentsize=args.fragmentsize,
+                       scale=scale,
+                       rmdup=args.rmdup,
+                       rmrepeats=args.rmrepeats,
+                       reverse=args.reverse,
+                       )
