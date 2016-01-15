@@ -147,23 +147,31 @@ p = subparsers.add_parser('bandplot', add_help=False)
 #bandplot Required arguments
 req_grp = p.add_argument_group(title='Required arguments')
 req_grp.add_argument("-f",
-                     required=True,
+                     required = True,
                      dest="clust_file",
                      help="BED file with cluster in 5th column",
                      metavar="FILE",
                      default=None)
 req_grp.add_argument("-d",
-                     required=True,
                      dest="datafiles",
                      help="data files (reads in BAM or BED format)",
                      metavar="FILE",
-                     nargs='*')
+                     nargs='*',
+                     default=None)
+
+req_grp.add_argument("-counts",
+                     dest="readCount",
+                     help="Read Counts",
+                     metavar="FILE",
+                     default=None)
+
 req_grp.add_argument("-o",
                      required=True,
                      dest="outfile",
                      help="output file (type determined by extension)",
                      metavar="name",
                      default=None)
+
 #bandplot Optional arguments
 opt_grp = p.add_argument_group(title='Optional arguments')
 opt_grp.add_argument("-h", "--help",
@@ -212,6 +220,7 @@ opt_grp.add_argument("-c", dest="colors",
                      metavar="NAME(S)",
                      default=DEFAULT_COLORS)
 p.set_defaults(func=commands.bandplot)
+
 
 #profile subparser
 p = subparsers.add_parser('profile', add_help=False)

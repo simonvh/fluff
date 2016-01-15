@@ -12,6 +12,7 @@ import numpy
 import tempfile
 import fluff
 
+
 def is_equal_feature(feature, vals):
     if not vals:
         return False
@@ -22,6 +23,7 @@ def is_equal_feature(feature, vals):
     if feature.end != int(vals[2]):
         return False
     return True
+
 
 def get_features_by_feature(track_a, track_b):
     """ Takes two BedTool tracks as input, returns overlapping features
@@ -61,6 +63,7 @@ def get_features_by_feature(track_a, track_b):
         yield feature, features
     tmp.close()
 
+
 class TrackWrapper():
     def __init__(self, fname):
         if fname.endswith("bam"):
@@ -78,6 +81,7 @@ class TrackWrapper():
             self.track = pybedtools.BedTool(fname)
             self.ftype = "bed"
             #self.tabix_track = self.track.tabix()     
+
 
     def __getitem__(self, window):
         """ 
@@ -107,6 +111,7 @@ class TrackWrapper():
                 intervals.append(HTSeq.GenomicInterval(chrom, read.start, read.end, read.strand))
         return intervals            
 
+
     def count(self, rmdup=False, rmrepeats=False):
         if self.ftype == "bam":
             if (not rmdup and not rmrepeats):
@@ -114,7 +119,8 @@ class TrackWrapper():
             c = 0
             for read in self.track:
                 if (not rmdup or not read.flag & 0x0400):
-                    if (not rmrepeats or ('X0', 1) in read.tags or not 'X0' in [x[0] for x in read.tags]):
+                    #if (not rmrepeats or ('X0', 1) in read.tags or not 'X0' in [x[0] for x in read.tags]):
+                    if (not rmrepeats) or read.mapq > 0:
                         c += 1
             return c
         if self.ftype == "bed":
@@ -131,7 +137,8 @@ class TrackWrapper():
         if self.ftype == "bed":
             for read in self.track:
                 return read.end - read.start
-    
+
+
     def fetch_to_counts(self, track, rmdup=False, rmrepeats=False):
         """ Generator 
         """
@@ -146,7 +153,9 @@ class TrackWrapper():
                     feature.start = 0
                 if feature.chrom in self.chroms:
                     for read in self.track.fetch(feature.chrom, feature.start, feature.end):
-                        if (not rmrepeats) or (('X0',1) in read.tags or not 'X0' in [x[0] for x in read.tags]):
+                        #print read, read.mapq, read.tags
+                        #if (not rmrepeats) or (('X0',1) in read.tags or not 'X0' in [x[0] for x in read.tags]):
+                        if (not rmrepeats) or read.mapq > 0:
                             if read.is_reverse:
                                  min_strand.append(read.pos)
                             else:
@@ -231,6 +240,7 @@ class TrackWrapper():
 
         return profile
 
+
 def _convert_value(v):
     """
     Returns 0 if v is not specified, otherwise try int
@@ -243,6 +253,7 @@ def _convert_value(v):
             return v
     return 0
 
+
 def load_bed_clusters(bedfile):
     """
     Reads a BED file, using the fourth column as cluster number
@@ -254,6 +265,7 @@ def load_bed_clusters(bedfile):
     for f in track:
         cluster_data.setdefault(_convert_value(f.score), []).append("{0}:{1}-{2}".format(f.chrom, f.start, f.end))
     return cluster_data
+
 
 def load_cluster_data(clust_file, datafiles, bins, rpkm, rmdup, rmrepeats, fragmentsize=None):
     data = {}
@@ -270,6 +282,22 @@ def load_cluster_data(clust_file, datafiles, bins, rpkm, rmdup, rmrepeats, fragm
         data[os.path.basename(datafile)] = dict([["{0}:{1}-{2}".format(vals[0], vals[1], vals[2]), [float(x) for x in vals[3:]]] for vals in result])
     return data
 
+def load_read_counts(readCounts):
+    data = {}
+    indexes = {}
+    for line in open(readCounts):
+        if line.startswith('Regions'):
+            idx = 0
+            for datafile in line.split('\t')[1:]:
+                if datafile.strip():
+                    data[datafile] = {}
+                    indexes[idx] =  datafile
+                    idx += 1
+        else:
+            for idx, binSline in enumerate(line.split('\t')[1:]):
+                if binSline.strip():
+                    data[indexes[idx]][line.split('\t')[0]] =  [float(x) for x in binSline.split(';')]
+    return data
 
 def load_profile(interval, tracks, fragmentsize = 200, rmdup = False, rmrepeats = False, reverse = False):
     profiles = []
@@ -291,6 +319,7 @@ def load_profile(interval, tracks, fragmentsize = 200, rmdup = False, rmrepeats 
         profiles.append(profile_group)
     return profiles
 
+
 def get_free_track(overlap, start, end, max_end, min_gap):
     
     first = start - min_gap * max_end
@@ -306,6 +335,7 @@ def get_free_track(overlap, start, end, max_end, min_gap):
     overlap[-1][first:end + min_gap * max_end] += 1
     #overlap[-1][start- min_gap * max_end:end + min_gap * max_end] += 1
     return overlap, len(overlap) - 1
+
 
 def load_annotation(interval, fname, min_gap=0.05, vis="stack"):
     genes = []
@@ -339,6 +369,7 @@ def load_annotation(interval, fname, min_gap=0.05, vis="stack"):
             gene_tracks[i] = [gene]
     return gene_tracks
 
+
 class SimpleFeature():
     def __init__(self, chrom, start, end, value, strand):
         self.chrom = chrom
@@ -346,6 +377,7 @@ class SimpleFeature():
         self.end = end
         self.value = value
         self.strand = strand
+
 class SimpleBed():
     def __init__(self, fname):
         self.f = open(fname)
@@ -379,6 +411,7 @@ class SimpleBed():
         else:
             self.f.close()
             raise StopIteration
+
 
 def get_binned_stats(in_fname, data_fname, nbins, rpkm=False, rmdup=False, rmrepeats=False, fragmentsize=None, split=False):
     track = TrackWrapper(data_fname)
@@ -439,6 +472,7 @@ def get_binned_stats(in_fname, data_fname, nbins, rpkm=False, rmdup=False, rmrep
         return ret
     else:
         return ["\t".join([str(x) for x in row]) for row in ret]
+
 
 def load_heatmap_data(featurefile, datafile, bins=100, up=5000, down=5000, rmdup=True, rpkm=False, rmrepeats=True, fragmentsize=None, dynam=False, guard=[]):
     tmp = tempfile.NamedTemporaryFile(delete=False, prefix="fluff")
