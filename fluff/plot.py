@@ -1,4 +1,5 @@
 import sys
+import os
 
 import matplotlib.gridspec as gridspec
 import matplotlib.pyplot as plt
@@ -12,7 +13,7 @@ from fluff.color import create_colormap
 from fluffio import *
 
 DEFAULT_COLORS = ["#e41a1c", "#4daf4a", "#377eb8"]
-FONTSIZE = 8
+FONTSIZE = 8 
 PROFILE_MIN_Y = 75
 GENE_ARROW = "->"
 GENE_ARROW = ArrowStyle._Curve(beginarrow=False, endarrow=True, head_length=.4, head_width=.4)
@@ -174,8 +175,10 @@ def profile_screenshot(fname, intervals, tracks, colors=None, scalegroups=[], an
     if not colors:
         colors = DEFAULT_COLORS
 
+    font = FontProperties(size=FONTSIZE / 1.25, family=["Nimbus Sans L", "Helvetica", "sans-serif"])
+    
     # Sizes
-    plotwidth = 5
+    plotwidth = 7
     plotheight = 0.3
     padh = 0
     padw = 0.1
@@ -220,12 +223,16 @@ def profile_screenshot(fname, intervals, tracks, colors=None, scalegroups=[], an
     hannotation = annotation_height / hsize
     hscale = scale_height / hsize
 
+    rellabelsize = 6.0
+
     for int_num, interval in enumerate(intervals):
         all_axes = []
 
         # Scale ax
-        ax = plt.axes([padleft / wsize + (wplotsize + wpadfraction) * int_num, 1 - hscale - padtopfraction, wplotsize,
-                       hscale], axisbg="white")
+        ax = plt.axes([padleft / wsize + (wplotsize + wpadfraction) * int_num + wplotsize / rellabelsize, 
+            1 - hscale - padtopfraction, 
+            wplotsize - wplotsize / rellabelsize,
+            hscale], axisbg="white")
         all_axes.append(ax)
 
         # Profile axes
@@ -235,9 +242,20 @@ def profile_screenshot(fname, intervals, tracks, colors=None, scalegroups=[], an
                 bgcol = {0: "white", 1: (0.95, 0.95, 0.95)}[i % 2]
             elif bgmode == "color":
                 bgcol = colors[i % len(colors)]
-
-            ax = plt.axes([padleft / wsize + (wplotsize + wpadfraction) * int_num,
-                           1 - hscale - padtopfraction - (i + 1) * (hplotsize + hpadfraction), wplotsize, hplotsize],
+            
+            xleft = padleft / wsize + (wplotsize + wpadfraction) * int_num
+            ax = plt.axes([xleft,
+                           1 - hscale - padtopfraction - (i + 1) * (hplotsize + hpadfraction), 
+                           wplotsize / rellabelsize, 
+                           hplotsize],
+                          axisbg=bgcol)
+            hide_axes(ax)
+            ax.text(0.95, 0.5, os.path.splitext(tracks[i][0])[0], fontproperties=font, horizontalalignment="right", verticalalignment="center")
+            if bgmode == "color":
+                ax.patch.set_alpha(0.07)
+            
+            ax = plt.axes([padleft / wsize + (wplotsize + wpadfraction) * int_num + wplotsize / rellabelsize,
+                           1 - hscale - padtopfraction - (i + 1) * (hplotsize + hpadfraction), wplotsize - wplotsize / rellabelsize, hplotsize],
                           axisbg=bgcol)
             if bgmode == "color":
                 ax.patch.set_alpha(0.07)
@@ -245,7 +263,10 @@ def profile_screenshot(fname, intervals, tracks, colors=None, scalegroups=[], an
 
         # Annotation axes
         ax = plt.axes(
-                [padleft / wsize + (wplotsize + wpadfraction) * int_num, 0 + padbottomfraction, wplotsize, hannotation],
+                [padleft / wsize + (wplotsize + wpadfraction) * int_num + wplotsize / rellabelsize, 
+                    0 + padbottomfraction, 
+                    wplotsize - wplotsize / rellabelsize, 
+                    hannotation],
                 axisbg="white")
         all_axes.append(ax)
 
@@ -267,7 +288,7 @@ def profile_screenshot(fname, intervals, tracks, colors=None, scalegroups=[], an
         ax.xaxis.set_major_formatter(NullFormatter())
         ax.yaxis.set_major_locator(NullLocator())
         ax.set_xlim(start, end)
-        font = FontProperties(size=FONTSIZE / 1.25, family=["Nimbus Sans L", "Helvetica", "sans-serif"])
+        
         for s in [s for s in ax.xaxis.get_ticklocs()[:-1] if s > start and s < end][:-1]:
             plt.text((s - start) / (end - start) + 0.01, 0.5, str(int(s)), horizontalalignment='left',
                      verticalalignment='center', transform=ax.transAxes, fontproperties=font)
@@ -394,7 +415,10 @@ def profile_screenshot(fname, intervals, tracks, colors=None, scalegroups=[], an
                                     linewidth=0.5,
                             )
                         ax.add_patch(arr)
+        
 
+    
+            
     plt.savefig(fname, dpi=dpi)
     plt.close()
 
