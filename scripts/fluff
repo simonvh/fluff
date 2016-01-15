@@ -70,12 +70,12 @@ opt_grp.add_argument("-k",
                      default=1)
 opt_grp.add_argument("-M",
                      dest="distancefunction",
-                     help="Euclidean or Pearson (default: Euclidean)",
+                     help="cluster metric: Euclidean or Pearson (default: Euclidean)",
                      default=DEFAULT_METRIC,
                      metavar="METHOD")
 opt_grp.add_argument("-g",
                      dest="graphdynamics",
-                     help="Identify dynamics",
+                     help="identify dynamics",
                      action="store_true",
                      default=False)
 opt_grp.add_argument("-p",
@@ -85,19 +85,19 @@ opt_grp.add_argument("-p",
                      type=str)
 opt_grp.add_argument("-e",
                      dest="extend",
-                     help="extend (in bp. Default: {0})".format(DEFAULT_EXTEND),
+                     help="extend (in bp, default: {0})".format(DEFAULT_EXTEND),
                      metavar="INT",
                      type=int,
                      default=DEFAULT_EXTEND)
 opt_grp.add_argument("-b",
                      dest="binsize",
-                     help="bin size (default {0})".format(DEFAULT_BINSIZE),
+                     help="bin size (default: {0})".format(DEFAULT_BINSIZE),
                      metavar="INT",
                      type=int,
                      default=DEFAULT_BINSIZE)
 opt_grp.add_argument("-F",
                      dest="fragmentsize",
-                     help="Fragment length (default: read length)",
+                     help="fragment length (default: read length)",
                      type=int,
                      default=None)
 opt_grp.add_argument("-r",
@@ -112,7 +112,7 @@ opt_grp.add_argument("-D",
                      action="store_false")
 opt_grp.add_argument("-R",
                      dest="rmrepeats",
-                     help="keep repeats (removed by default, bwa only) ",
+                     help="keep reads with mapq 0 (removed by default) ",
                      action="store_false",
                      default=True)
 opt_grp.add_argument("-m",
@@ -162,7 +162,7 @@ req_grp.add_argument("-d",
 
 req_grp.add_argument("-counts",
                      dest="readCount",
-                     help="Read Counts",
+                     help="read counts table (instead of data files)",
                      metavar="FILE",
                      default=None)
 
@@ -202,7 +202,7 @@ opt_grp.add_argument("-D", dest="rmdup",
                      default=True,
                      action="store_false")
 opt_grp.add_argument("-R", dest="rmrepeats",
-                     help="keep repeats (removed by default, bwa only) ",
+                     help="keep repeats with mapq 0 (removed by default) ",
                      action="store_false",
                      default=True)
 opt_grp.add_argument("-s", dest="scalegroups",
@@ -212,7 +212,7 @@ opt_grp.add_argument("-p", dest="percs",
                      help="range of percentiles (default 50,90)",
                      metavar="INT,INT", default="50,90")
 opt_grp.add_argument("-P", dest="scalar",
-                     help="Percentile at which to extract score. Value should be in range [0,100] (default 90)",
+                     help="percentile at which to extract score (should be in range [0,100], default: 90)",
                      metavar="INT",
                      default=SCALAR,
                      type=float)
@@ -274,7 +274,7 @@ opt_grp.add_argument("-D",
                      action="store_false")
 opt_grp.add_argument("-R",
                      dest="rmrepeats",
-                     help="keep repeats (removed by default, bwa only) ",
+                     help="keep repeats with mapq 0 (removed by default) ",
                      action="store_false",
                      default=True)
 opt_grp.add_argument("-r",
@@ -287,8 +287,8 @@ opt_grp.add_argument("-c", dest="colors",
                      metavar="NAME(S)",
                      default=DEFAULT_COLORS)
 opt_grp.add_argument("-b", dest="background",
-                     help="background color: white | color | stripes",
-                     default="white")
+                     help="background color: stripes | white | color",
+                     default="stripes")
 p.set_defaults(func=commands.profile)
 
 if len(sys.argv) == 1:
