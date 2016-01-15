@@ -7,7 +7,7 @@ from pylab import savefig
 ### My imports ###
 from fluff.plot import *
 from fluff.util import *
-from fluff.color import DEFAULT_COLORS,parse_colors
+from fluff.color import parse_colors
 from fluff.config import *
 
 font = FontProperties(size=FONTSIZE / 1.25, family=["Nimbus Sans L", "Helvetica", "sans-serif"])

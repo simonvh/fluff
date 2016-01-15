@@ -4,67 +4,131 @@ Usage
 .. _quick-example:
 
 fluff heatmap
----------------------------
-
+-------------
 ::
 
-    fluff_heatmap.py
+    fluff heatmap
 
 Options
-~~~~~~~~~~~~~~~~
+~~~~~~~
 
--  ``-f``
-    BED file containing features
+Required arguments:
+~~~~~~~~~~~~~~~~~~~
 
--  ``-d``
-    data files (reads in BAM or BED format)
+-  ``-f`` FILE               BED file containing features
 
--  ``-o`` FILE            output file (type determined by extension)
+-  ``-d`` [FILE [FILE ...]]  data files (reads in BAM or BED format)
 
--  ``-p`` PICK          pick specific data files to use for clustering
+-  ``-o`` name               output file (type determined by extension)
 
--  ``-C`` METHOD        kmeans, hierarchical or none
+Optional arguments:
+~~~~~~~~~~~~~~~~~~~
 
--  ``-k`` INT           number of clusters
+-  ``-h``                    show this help message and exit
 
--  ``-m``               merge mirrored clusters (only with kmeans and without -g option)
+-  ``-C`` METHOD             kmeans, hierarchical or none
 
--  ``-c`` NAME(S)       color(s) (name, colorbrewer profile or hex code)
+-  ``-k`` INT                number of clusters
 
--  ``-B`` NAME(S)       background color(s) (name, colorbrewer profile or hex code)
+-  ``-M`` METHOD             Euclidean or Pearson (default: Euclidean)
 
--  ``-e`` INT           extend (in bp. Default: 5000)
+-  ``-g``                    Identify dynamics
 
--  ``-b`` INT           bin size (default 100)
+-  ``-p`` PICK               pick specific data files to use for clustering
 
--  ``-s`` SCALE         scale (absolute or percentage)
+-  ``-e`` INT                extend (in bp. Default: 5000)
 
--  ``-F`` FRAGMENTSIZE  Fragment length (default: read length)
+-  ``-b`` INT                bin size (default 100)
 
--  ``-r``               use RPKM instead of read counts
+-  ``-F`` FRAGMENTSIZE       Fragment length (default: read length)
 
--  ``-D``               keep duplicate reads (removed by default)
+-  ``-r``                    use RPKM instead of read counts
 
--  ``-R``               keep repeats (removed by default, bwa only)
+-  ``-D``                    keep duplicate reads (removed by default)
 
--  ``-P`` INT           number of CPUs (default: 4)
+-  ``-R``                    keep repeats (removed by default, bwa only)
 
--  ``-M`` METHOD        Euclidean or Pearson (default: Euclidean)
+-  ``-m``                    merge mirrored clusters (only with kmeans and without -g option)
 
--  ``-g``               Identify dynamics by extending features 1kb up/down stream(just for clustering), cluster as 1 bin, diplay as original number of bins and with the default extend values
+-  ``-s`` SCALE              scale (absolute or percentage)
+
+-  ``-c`` NAME(S)            color(s) (name, colorbrewer profile or hex code)
+
+-  ``-B`` NAME(S)            background color(s) (name, colorbrewer profile or hex code)
+
+-  ``-P`` INT                number of CPUs (default: 4)
+
 
 
 fluff bandplot
--------------------------
+--------------
 
 ::
 
-    fluff_bandplot.py
+    fluff bandplot
+
+
+
+Options
+~~~~~~~
+
+Required arguments:
+~~~~~~~~~~~~~~~~~~~
+
+-  ``-f`` FILE               BED file with cluster in 5th column
+-  ``-d`` [FILE [FILE ...]]  data files (reads in BAM or BED format)
+-  ``-counts`` FILE          Read Counts
+-  ``-o`` name               output file (type determined by extension)
+
+Optional arguments:
+~~~~~~~~~~~~~~~~~~~
+
+-  ``-h``                  show this help message and exit
+-  ``-S``                    create summary graphs
+-  ``-b`` INT                number of bins
+-  ``-F`` FRAGMENTSIZE       fragment length (default: read length)
+-  ``-r``                    use RPKM instead of read counts
+-  ``-D``                    keep duplicate reads (removed by default)
+-  ``-R``                    keep repeats (removed by default, bwa only)
+-  ``-s`` GROUPS             scale groups
+-  ``-p`` INT,INT            range of percentiles (default 50,90)
+-  ``-P`` INT                Percentile at which to extract score. Value should be in range [0,100] (default 90)
+-  ``-c`` NAME(S)            color(s) (name, colorbrewer profile or hex code)
+
+
+
+
 
 fluff profile
--------------------------
+-------------
 
 ::
 
-    fluff_profile.py
+    fluff profile
 
+
+
+Options
+~~~~~~~
+
+Required arguments:
+~~~~~~~~~~~~~~~~~~~
+
+-  ``i`` INTERVAL(S)        one or more genomic intervals (chrom:start-end)
+-  ``d`` [FILE [FILE ...]]  data files (reads in BAM or BED format)
+-  ``o`` name               output file (type determined by extension)
+
+Optional arguments:
+~~~~~~~~~~~~~~~~~~~
+
+-  ``h``                    show this help message and exit
+-  ``a`` FILE               annotation in BED12 format
+-  ``t`` GROUPS             track groups
+-  ``s`` GROUPS             scale groups
+-  ``S`` SCALE              scale: 'auto' (default), 'off' or int for each track
+-  ``f`` FRAGMENTSIZE       fragment length (default: 200)
+-  ``D``                    keep duplicate reads (removed by default)
+-  ``R``                    keep repeats (removed by default, bwa only)
+-  ``r``                    reverse
+-  ``c`` NAME(S)            color(s) (name, colorbrewer profile or hex code)
+-  ``b`` BACKGROUND         background color: white | color | stripes

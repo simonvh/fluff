@@ -1,13 +1,15 @@
-from numpy import *
-import matplotlib.pyplot as plt
-from matplotlib.ticker import NullFormatter, NullLocator
-from matplotlib.font_manager import fontManager, FontProperties
-from matplotlib.patches import FancyArrowPatch, ArrowStyle, Polygon
-import matplotlib.gridspec as gridspec
-from fluffio import *
 import sys
+
+import matplotlib.gridspec as gridspec
+import matplotlib.pyplot as plt
+from matplotlib.font_manager import FontProperties
+from matplotlib.patches import FancyArrowPatch, ArrowStyle, Polygon
+from matplotlib.ticker import NullFormatter, NullLocator
+from numpy import *
 from scipy.stats import scoreatpercentile
+
 from fluff.color import create_colormap
+from fluffio import *
 
 DEFAULT_COLORS = ["#e41a1c", "#4daf4a", "#377eb8"]
 FONTSIZE = 8
