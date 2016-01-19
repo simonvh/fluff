@@ -89,9 +89,9 @@ def heatmap_plot(data, ind, outfile, tracks, titles, colors, bgcolors, scale, ts
     ext = outfile.split(".")[-1]
     if not ext in ["png", "svg", "ps", "eps", "pdf"]:
         outfile += ".png"
-    sys.stderr.write("Saving image\n")
+    sys.stderr.write("Saving figure\n")
     if outfile.endswith("png"):
-        plt.savefig(outfile, dpi=300, bbox_inches='tight')
+        plt.savefig(outfile, dpi=600, bbox_inches='tight')
     else:
         plt.savefig(outfile)
 
@@ -169,7 +169,7 @@ def create_grid_figure(nrows, ncolumns, plotwidth=2.0, plotheight=2.0, pad=0.1, 
 
 
 def profile_screenshot(fname, intervals, tracks, colors=None, scalegroups=[], annotation=None, bgmode="color",
-                       fragmentsize=200, scale=False, dpi=300, rmdup=False, rmrepeats=False, reverse=False):
+                       fragmentsize=200, scale=False, dpi=600, rmdup=False, rmrepeats=False, reverse=False):
     # Colors
     if not colors:
         colors = DEFAULT_COLORS
@@ -394,7 +394,7 @@ def profile_screenshot(fname, intervals, tracks, colors=None, scalegroups=[], an
                                     linewidth=0.5,
                             )
                         ax.add_patch(arr)
-
+    print 'Saving figure'
     plt.savefig(fname, dpi=dpi)
     plt.close()
 

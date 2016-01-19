@@ -112,7 +112,7 @@ opt_grp.add_argument("-D",
                      action="store_false")
 opt_grp.add_argument("-R",
                      dest="rmrepeats",
-                     help="keep repeats (removed by default, bwa only) ",
+                     help="keep repeats",
                      action="store_false",
                      default=True)
 opt_grp.add_argument("-m",
@@ -202,7 +202,7 @@ opt_grp.add_argument("-D", dest="rmdup",
                      default=True,
                      action="store_false")
 opt_grp.add_argument("-R", dest="rmrepeats",
-                     help="keep repeats (removed by default, bwa only) ",
+                     help="keep repeats",
                      action="store_false",
                      default=True)
 opt_grp.add_argument("-s", dest="scalegroups",
@@ -274,7 +274,7 @@ opt_grp.add_argument("-D",
                      action="store_false")
 opt_grp.add_argument("-R",
                      dest="rmrepeats",
-                     help="keep repeats (removed by default, bwa only) ",
+                     help="keep repeats",
                      action="store_false",
                      default=True)
 opt_grp.add_argument("-r",
