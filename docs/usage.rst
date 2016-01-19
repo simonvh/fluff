@@ -7,7 +7,7 @@ fluff heatmap
 -------------
 ::
 
-    fluff heatmap
+    fluff heatmap -f <BED> -d <BAM> <BAM> -o <NAME>
 
 Options
 ~~~~~~~
@@ -15,9 +15,11 @@ Options
 Required arguments:
 ~~~~~~~~~~~~~~~~~~~
 
--  ``-f`` FILE               BED file containing features
+-  ``-f`` FILE
+BED file containing features
 
--  ``-d`` [FILE [FILE ...]]  data files (reads in BAM or BED format)
+-  ``-d`` [FILE [FILE ...]]
+data files (reads in BAM or BED format)
 
 -  ``-o`` name               output file (type determined by extension)
 
@@ -60,7 +62,7 @@ Optional arguments:
 
 
 
-fluff bandplot
+fluff bandplot -f <BED> -d <BAM> <BAM> -o <NAME>
 --------------
 
 ::
@@ -104,7 +106,7 @@ fluff profile
 
 ::
 
-    fluff profile
+    fluff profile -i <GENOMIC LOCATION> -d <BAM> <BAM> -o <NAME>
 
 
 
