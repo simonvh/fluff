@@ -178,7 +178,7 @@ def profile_screenshot(fname, intervals, tracks, colors=None, scalegroups=[], an
     font = FontProperties(size=FONTSIZE / 1.25, family=["Nimbus Sans L", "Helvetica", "sans-serif"])
 
     # Sizes
-    plotwidth = 7
+    plotwidth = 6
     plotheight = 0.3
     padh = 0
     padw = 0.1
@@ -223,7 +223,7 @@ def profile_screenshot(fname, intervals, tracks, colors=None, scalegroups=[], an
     hannotation = annotation_height / hsize
     hscale = scale_height / hsize
 
-    rellabelsize = 6.0
+    rellabelsize = 10.0
 
     for int_num, interval in enumerate(intervals):
         all_axes = []
@@ -250,7 +250,7 @@ def profile_screenshot(fname, intervals, tracks, colors=None, scalegroups=[], an
                            hplotsize],
                           axisbg=bgcol)
             hide_axes(ax)
-            ax.text(0.95, 0.5, os.path.splitext(tracks[i][0])[0], fontproperties=font, horizontalalignment="right", verticalalignment="center")
+            ax.text(0.95, 0.5, os.path.splitext(os.path.basename(tracks[i][0]))[0].strip(), fontproperties=font, horizontalalignment="right", verticalalignment="center")
             if bgmode == "color":
                 ax.patch.set_alpha(0.07)
 
