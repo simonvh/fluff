@@ -82,14 +82,15 @@ def parse_colors(colors):
             parsed.append(c)
     return parsed
 
-
-def create_colormap(col1, col2):
-    c1 = colorConverter.to_rgb(col1)
-    c2 = colorConverter.to_rgb(col2)
-
+def create_colormap(*args):
+    col = [colorConverter.to_rgb(c) for c in args]
+    
+    step = 1.0 / (len(col) - 1)
+    
     cdict = {
-        'red': ((0., c1[0], c1[0]), (1., c2[0], c2[0])),
-        'green': ((0., c1[1], c1[1]), (1., c2[1], c2[1])),
-        'blue': ((0., c1[2], c1[2]), (1., c2[2], c2[2]))
-    }
+            'red': [[i * step, col[i][0], col[i][0]] for i in range(len(col))],
+            'green': [[i * step, col[i][1], col[i][1]] for i in range(len(col))],
+            'blue': [[i * step, col[i][2], col[i][2]] for i in range(len(col))]
+            }
+    
     return LinearSegmentedColormap('custom', cdict, 256)
