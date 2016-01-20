@@ -162,47 +162,47 @@ Options
 Required arguments:
 ~~~~~~~~~~~~~~~~~~~
 
--  ``i`` INTERVAL(S)
+-  ``-i`` INTERVAL(S)
 one or more genomic intervals (chrom:start-end)
 
--  ``d`` [FILE [FILE ...]]
+-  ``-d`` [FILE [FILE ...]]
 data files (reads in BAM or BED format)
 
--  ``o`` name
+-  ``-o`` name
 output file (type determined by extension)
 
 Optional arguments:
 ~~~~~~~~~~~~~~~~~~~
 
--  ``h``
+-  ``-h``
 show this help message and exit
 
--  ``a`` FILE
+-  ``-a`` FILE
 annotation in BED12 format
 
--  ``t`` GROUPS
+-  ``-t`` GROUPS
 track groups
 
--  ``s`` GROUPS
+-  ``-s`` GROUPS
 scale groups
 
--  ``S`` SCALE
+-  ``-S`` SCALE
 scale: 'auto' (default), 'off' or int for each track
 
--  ``f`` FRAGMENTSIZE
+-  ``-f`` FRAGMENTSIZE
 fragment length (default: 200)
 
--  ``D``
+-  ``-D``
 keep duplicate reads (removed by default)
 
--  ``R``
+-  ``-R``
 keep repeats (removed by default, bwa only)
 
--  ``r``
+-  ``-r``
 reverse
 
--  ``c`` NAME(S)
+-  ``-c`` NAME(S)
 color(s) (name, colorbrewer profile or hex code)
 
--  ``b`` BACKGROUND
+-  ``-b`` BACKGROUND
 background color: white | color | stripes
