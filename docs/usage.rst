@@ -37,7 +37,7 @@ kmeans, hierarchical or none
 number of clusters
 
 -  ``-M`` METHOD
-Euclidean or Pearson (default: Euclidean)
+cluster metric: Euclidean or Pearson (default: Euclidean)
 
 -  ``-g``
 Identify dynamics
@@ -61,7 +61,7 @@ use RPKM instead of read counts
 keep duplicate reads (removed by default)
 
 -  ``-R``
-keep repeats (removed by default, bwa only)
+keep reads with mapq 0 (removed by default)
 
 -  ``-m``
 merge mirrored clusters (only with kmeans and without -g option)
@@ -97,10 +97,13 @@ Required arguments:
 
 -  ``-f`` FILE
 BED file with cluster in 5th column
+
 -  ``-d`` [FILE [FILE ...]]
 data files (reads in BAM or BED format)
+
 -  ``-counts`` FILE
-Read Counts
+read counts table (instead of data files)
+
 -  ``-o`` name
 output file (type determined by extension)
 
@@ -109,24 +112,34 @@ Optional arguments:
 
 -  ``-h``
 show this help message and exit
+
 -  ``-S``
 create summary graphs
+
 -  ``-b`` INT
 number of bins
+
 -  ``-F`` FRAGMENTSIZE
 fragment length (default: read length)
--  ``-r``
-use RPKM instead of read counts
+
 -  ``-D``
 keep duplicate reads (removed by default)
+
+-  ``-r``
+keep repeats with mapq 0 (removed by default)
+
 -  ``-R``
 keep repeats (removed by default, bwa only)
+
 -  ``-s`` GROUPS
 scale groups
+
 -  ``-p`` INT,INT
 range of percentiles (default 50,90)
+
 -  ``-P`` INT
 Percentile at which to extract score. Value should be in range [0,100] (default 90)
+
 -  ``-c`` NAME(S)
 color(s) (name, colorbrewer profile or hex code)
 
@@ -151,8 +164,10 @@ Required arguments:
 
 -  ``i`` INTERVAL(S)
 one or more genomic intervals (chrom:start-end)
+
 -  ``d`` [FILE [FILE ...]]
 data files (reads in BAM or BED format)
+
 -  ``o`` name
 output file (type determined by extension)
 
@@ -161,23 +176,33 @@ Optional arguments:
 
 -  ``h``
 show this help message and exit
+
 -  ``a`` FILE
 annotation in BED12 format
+
 -  ``t`` GROUPS
 track groups
+
 -  ``s`` GROUPS
 scale groups
+
 -  ``S`` SCALE
 scale: 'auto' (default), 'off' or int for each track
+
 -  ``f`` FRAGMENTSIZE
 fragment length (default: 200)
+
 -  ``D``
 keep duplicate reads (removed by default)
+
 -  ``R``
 keep repeats (removed by default, bwa only)
+
 -  ``r``
 reverse
+
 -  ``c`` NAME(S)
 color(s) (name, colorbrewer profile or hex code)
+
 -  ``b`` BACKGROUND
 background color: white | color | stripes
