@@ -12,28 +12,40 @@ Installation on Mac OSX
 ~~~~~~~~~~~~~~~~~~~~~~~
 
 Additional items
--  |Xcode
+-  Xcode
+
 ::
+
 free on mac app store
 
--  |Homebrew 
+-  Homebrew 
+
 ::
+
 ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
 
--  |pip
+-  pip
+
 ::
+
 http://pip.readthedocs.org/en/stable/installing/
 
--  |gfortran
+-  gfortran
+
 ::
+
 https://cran.r-project.org/bin/macosx/tools/
 
--  |bedtools2
+-  bedtools2
+
 ::
+
 https://github.com/arq5x/bedtools2
 
--  |Cython
+-  Cython
+
 ::
+
 http://cython.org/
 
 
