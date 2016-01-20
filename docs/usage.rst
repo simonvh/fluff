@@ -80,12 +80,12 @@ number of CPUs (default: 4)
 
 
 
-fluff bandplot -f <BED> -d <BAM> <BAM> -o <NAME>
+fluff bandplot
 --------------
 
 ::
 
-    fluff bandplot
+    fluff bandplot -f <BED> -d <BAM> <BAM> -o <NAME>
 
 
 
