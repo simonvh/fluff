@@ -52,95 +52,101 @@ req_grp.add_argument("-o",
                      metavar="name",
                      default=None)
 # heatmap Optional arguments
-opt_grp = p.add_argument_group(title='Optional arguments')
-opt_grp.add_argument("-h", "--help",
-                     dest="help",
-                     help="show this help message and exit",
-                     action="help")
-opt_grp.add_argument("-C",
+clu_grp = p.add_argument_group(title='Clustering')
+clu_grp.add_argument("-C",
                      dest="clustering",
                      help="kmeans, hierarchical or none",
                      default=DEFAULT_CLUSTERING,
                      metavar="METHOD")
-opt_grp.add_argument("-k",
+clu_grp.add_argument("-k",
                      dest="numclusters",
                      help="number of clusters",
                      metavar="INT",
                      type=int,
                      default=1)
-opt_grp.add_argument("-M",
-                     dest="distancefunction",
-                     help="cluster metric: Euclidean or Pearson (default: Euclidean)",
-                     default=DEFAULT_METRIC,
-                     metavar="METHOD")
-opt_grp.add_argument("-g",
+clu_grp.add_argument("-g",
                      dest="graphdynamics",
                      help="identify dynamics",
                      action="store_true",
                      default=False)
-opt_grp.add_argument("-p",
+clu_grp.add_argument("-M",
+                     dest="distancefunction",
+                     help="cluster metric: Euclidean or Pearson (default: Euclidean)",
+                     default=DEFAULT_METRIC,
+                     metavar="METHOD")
+clu_grp.add_argument("-p",
                      dest="pick",
                      help="pick specific data files to use for clustering",
                      default=None,
                      type=str)
-opt_grp.add_argument("-e",
+
+dap_grp = p.add_argument_group(title='Data processing')
+dap_grp.add_argument("-e",
                      dest="extend",
                      help="extend (in bp, default: {0})".format(DEFAULT_EXTEND),
                      metavar="INT",
                      type=int,
                      default=DEFAULT_EXTEND)
-opt_grp.add_argument("-b",
+dap_grp.add_argument("-b",
                      dest="binsize",
                      help="bin size (default: {0})".format(DEFAULT_BINSIZE),
                      metavar="INT",
                      type=int,
                      default=DEFAULT_BINSIZE)
-opt_grp.add_argument("-F",
+dap_grp.add_argument("-F",
                      dest="fragmentsize",
                      help="fragment length (default: read length)",
                      type=int,
                      default=None)
-opt_grp.add_argument("-r",
+dap_grp.add_argument("-r",
                      dest="rpkm",
                      help="use RPKM instead of read counts",
                      action="store_true",
                      default=False)
-opt_grp.add_argument("-D",
+dap_grp.add_argument("-D",
                      dest="rmdup",
                      help="keep duplicate reads (removed by default)",
                      default=True,
                      action="store_false")
-opt_grp.add_argument("-R",
+dap_grp.add_argument("-R",
                      dest="rmrepeats",
                      help="keep reads with mapq 0 (removed by default) ",
                      action="store_false",
                      default=True)
-opt_grp.add_argument("-m",
+dap_grp.add_argument("-m",
                      dest="merge_mirrored",
                      help="merge mirrored clusters (only with kmeans and without -g option)",
                      default=False,
                      action="store_true")
-opt_grp.add_argument("-s",
+dap_grp.add_argument("-s",
                      dest="scale",
                      help="scale (absolute or percentage)",
                      type=str,
                      default=DEFAULT_SCALE)
-opt_grp.add_argument("-c",
+
+vis_grp = p.add_argument_group(title='Visualization')
+vis_grp.add_argument("-c",
                      dest="colors",
                      help="color(s) (name, colorbrewer profile or hex code)",
                      metavar="NAME(S)",
                      default=DEFAULT_COLORS)
-opt_grp.add_argument("-B",
+vis_grp.add_argument("-B",
                      dest="bgcolors",
                      help="background color(s) (name, colorbrewer profile or hex code)",
                      metavar="NAME(S)",
                      default=DEFAULT_BG)
+opt_grp = p.add_argument_group(title='Other')
 opt_grp.add_argument("-P",
                      dest="cpus",
                      help="number of CPUs (default: 4)",
                      metavar="INT",
                      type=int,
                      default=4)
+opt_grp.add_argument("-h", "--help",
+                     dest="help",
+                     help="show this help message and exit",
+                     action="help")
+
 p.set_defaults(func=commands.heatmap)
 
 # bandplot subparser
@@ -174,52 +180,55 @@ req_grp.add_argument("-o",
                      default=None)
 
 # bandplot Optional arguments
-opt_grp = p.add_argument_group(title='Optional arguments')
-opt_grp.add_argument("-h", "--help",
-                     dest="help",
-                     help="show this help message and exit",
-                     action="help")
-opt_grp.add_argument("-S",
+dap_grp = p.add_argument_group(title='Data processing')
+dap_grp.add_argument("-S",
                      dest="summary",
                      help="create summary graphs",
                      default=False,
                      action="store_true")
-opt_grp.add_argument("-b", dest="bins",
+dap_grp.add_argument("-b", dest="bins",
                      help="number of bins",
                      metavar="INT",
                      default=BINS,
                      type=int)
-opt_grp.add_argument("-F", dest="fragmentsize",
+dap_grp.add_argument("-F", dest="fragmentsize",
                      help="fragment length (default: read length)",
                      type=int,
                      default=None)
-opt_grp.add_argument("-r", dest="rpkm",
+dap_grp.add_argument("-r", dest="rpkm",
                      help="use RPKM instead of read counts",
                      action="store_true",
                      default=False)
-opt_grp.add_argument("-D", dest="rmdup",
+dap_grp.add_argument("-D", dest="rmdup",
                      help="keep duplicate reads (removed by default)",
                      default=True,
                      action="store_false")
-opt_grp.add_argument("-R", dest="rmrepeats",
+dap_grp.add_argument("-R", dest="rmrepeats",
                      help="keep repeats with mapq 0 (removed by default) ",
                      action="store_false",
                      default=True)
-opt_grp.add_argument("-s", dest="scalegroups",
+dap_grp.add_argument("-s", dest="scalegroups",
                      help="scale groups",
                      metavar="GROUPS")
-opt_grp.add_argument("-p", dest="percs",
+dap_grp.add_argument("-p", dest="percs",
                      help="range of percentiles (default 50,90)",
                      metavar="INT,INT", default="50,90")
-opt_grp.add_argument("-P", dest="scalar",
+dap_grp.add_argument("-P", dest="scalar",
                      help="percentile at which to extract score (should be in range [0,100], default: 90)",
                      metavar="INT",
                      default=SCALAR,
                      type=float)
-opt_grp.add_argument("-c", dest="colors",
+vis_grp = p.add_argument_group(title='Visualization')
+vis_grp.add_argument("-c", dest="colors",
                      help="color(s) (name, colorbrewer profile or hex code)",
                      metavar="NAME(S)",
                      default=DEFAULT_COLORS)
+opt_grp = p.add_argument_group(title='Other')
+opt_grp.add_argument("-h", "--help",
+                     dest="help",
+                     help="show this help message and exit",
+                     action="help")
+
 p.set_defaults(func=commands.bandplot)
 
 # profile subparser
@@ -243,52 +252,54 @@ req_grp.add_argument("-o",
                      metavar="name",
                      default=None)
 # profile Optional arguments
+dap_grp = p.add_argument_group(title='Data processing')
+dap_grp.add_argument("-a", dest="annotation",
+                     help="annotation in BED12 format",
+                     metavar="FILE")
+dap_grp.add_argument("-t",
+                     dest="trackgroups",
+                     help="track groups",
+                     metavar="GROUPS")
+dap_grp.add_argument("-s",
+                     dest="scalegroups",
+                     help="scale groups",
+                     metavar="GROUPS")
+dap_grp.add_argument("-S", dest="scale",
+                     help="scale: 'auto' (default), 'off' or int for each track",
+                     metavar="SCALE",
+                     default="auto")
+dap_grp.add_argument("-f", dest="fragmentsize",
+                     help="fragment length (default: %s)" % FRAGMENTLENGTH,
+                     type=int,
+                     default=FRAGMENTLENGTH)
+dap_grp.add_argument("-D",
+                     dest="rmdup",
+                     help="keep duplicate reads (removed by default)",
+                     default=True,
+                     action="store_false")
+dap_grp.add_argument("-R",
+                     dest="rmrepeats",
+                     help="keep repeats with mapq 0 (removed by default) ",
+                     action="store_false",
+                     default=True)
+dap_grp.add_argument("-r",
+                     dest="reverse",
+                     help="reverse ",
+                     action="store_true",
+                     default=False)
+vis_grp = p.add_argument_group(title='Visualization')
+vis_grp.add_argument("-c", dest="colors",
+                     help="color(s) (name, colorbrewer profile or hex code)",
+                     metavar="NAME(S)",
+                     default=DEFAULT_COLORS)
+vis_grp.add_argument("-b", dest="background",
+                     help="background color: stripes | white | color",
+                     default="stripes")
 opt_grp = p.add_argument_group(title='Optional arguments')
 opt_grp.add_argument("-h", "--help",
                      dest="help",
                      help="show this help message and exit",
                      action="help")
-opt_grp.add_argument("-a", dest="annotation",
-                     help="annotation in BED12 format",
-                     metavar="FILE")
-opt_grp.add_argument("-t",
-                     dest="trackgroups",
-                     help="track groups",
-                     metavar="GROUPS")
-opt_grp.add_argument("-s",
-                     dest="scalegroups",
-                     help="scale groups",
-                     metavar="GROUPS")
-opt_grp.add_argument("-S", dest="scale",
-                     help="scale: 'auto' (default), 'off' or int for each track",
-                     metavar="SCALE",
-                     default="auto")
-opt_grp.add_argument("-f", dest="fragmentsize",
-                     help="fragment length (default: %s)" % FRAGMENTLENGTH,
-                     type=int,
-                     default=FRAGMENTLENGTH)
-opt_grp.add_argument("-D",
-                     dest="rmdup",
-                     help="keep duplicate reads (removed by default)",
-                     default=True,
-                     action="store_false")
-opt_grp.add_argument("-R",
-                     dest="rmrepeats",
-                     help="keep repeats with mapq 0 (removed by default) ",
-                     action="store_false",
-                     default=True)
-opt_grp.add_argument("-r",
-                     dest="reverse",
-                     help="reverse ",
-                     action="store_true",
-                     default=False)
-opt_grp.add_argument("-c", dest="colors",
-                     help="color(s) (name, colorbrewer profile or hex code)",
-                     metavar="NAME(S)",
-                     default=DEFAULT_COLORS)
-opt_grp.add_argument("-b", dest="background",
-                     help="background color: stripes | white | color",
-                     default="stripes")
 p.set_defaults(func=commands.profile)
 
 if len(sys.argv) == 1:

@@ -1,6 +1,3 @@
-import sys
-import os
-
 import matplotlib.gridspec as gridspec
 import matplotlib.pyplot as plt
 from matplotlib.font_manager import FontProperties
@@ -32,7 +29,7 @@ def heatmap_plot(data, ind, outfile, tracks, titles, colors, bgcolors, scale, ts
 
     label_ratio = 4.0
     # space between heatmaps
-    btw_space = 0.05
+    btw_space = 0
     plot_width = 1.75 * len(tracks) + btw_space * len(tracks)
     plot_height = 6
     width_ratios = [label_ratio] * len(tracks)
@@ -51,9 +48,8 @@ def heatmap_plot(data, ind, outfile, tracks, titles, colors, bgcolors, scale, ts
     for i, track in enumerate(tracks):
         c = create_colormap(bgcolors[i % len(bgcolors)], colors[i % len(colors)])
         ax = plt.subplot(gs[i])
-        ax.set_title(titles[i], fontproperties=font)
+        ax.set_title(titles[i], fontproperties=font, y=0.96, x=0.5 - (len(titles[i])) * 0.01)
         axes.append(ax)
-
         ax.pcolormesh(data[track][ind], cmap=c, vmin=0, vmax=scale * tscale[i])
         print "%s\t%s\t%s\t%s" % (track, tscale[i] * scale, mean(data[track][ind][:, 0:20]), median(data[track][ind]))
         hide_axes(ax)

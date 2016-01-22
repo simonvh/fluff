@@ -206,27 +206,19 @@ def heatmap(args):
             readcounts[track]['sum'].append(sum)
             readcounts[track]['bins'].append(bins)
 
-    input_fileSum = open('{0}_readcountSum.txt'.format(outfile), 'w')
-    input_fileBins = open('{0}_readcountBins.txt'.format(outfile), 'w')
-    input_fileSum.write('Regions\t'.format(track))
+    input_fileBins = open('{0}_readCounts.txt'.format(outfile), 'w')
     input_fileBins.write('Regions\t'.format(track))
     for i, track in enumerate(tracks):
-        input_fileSum.write('{0}\t'.format(track))
         input_fileBins.write('{0}\t'.format(track))
-    input_fileSum.write('\n')
     input_fileBins.write('\n')
     for i, track in enumerate(tracks):
         for idx in ind:
-            input_fileSum.write('{0}:{1}-{2}\t'.format(regions[idx][0], regions[idx][1], regions[idx][2]))
             input_fileBins.write('{0}:{1}-{2}\t'.format(regions[idx][0], regions[idx][1], regions[idx][2]))
             for i, track in enumerate(tracks):
-                input_fileSum.write('{0}\t'.format(readcounts[track]['sum'][idx]))
                 input_fileBins.write('{0}\t'.format(readcounts[track]['bins'][idx]))
-            input_fileSum.write('\n')
             input_fileBins.write('\n')
         break
 
-    input_fileSum.close()
     input_fileBins.close()
 
     # Load data for visualization if -g option was used

@@ -295,9 +295,9 @@ def load_read_counts(readCounts):
                     indexes[idx] = datafile
                     idx += 1
         else:
-            for idx, binSline in enumerate(line.split('\t')[1:]):
-                if binSline.strip():
-                    data[indexes[idx]][line.split('\t')[0]] = [float(x) for x in binSline.split(';')]
+            for idx, binsline in enumerate(line.split('\t')[1:]):
+                if binsline.strip():
+                    data[indexes[idx]][line.split('\t')[0]] = [float(x) for x in binsline.split(';')]
     return data
 
 
