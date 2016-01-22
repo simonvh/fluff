@@ -7,7 +7,9 @@ fluff heatmap
 -------------
 ::
 
-    fluff heatmap
+fluff heatmap -f <BED> -d <BAM> <BAM> -o <NAME>
+
+
 
 Options
 ~~~~~~~
@@ -15,48 +17,79 @@ Options
 Required arguments:
 ~~~~~~~~~~~~~~~~~~~
 
--  ``-f`` FILE               BED file containing features
+-  ``-f`` FILE
+BED file containing features
 
--  ``-d`` [FILE [FILE ...]]  data files (reads in BAM or BED format)
+-  ``-d`` [FILE [FILE ...]]
+data files (reads in BAM or BED format)
 
--  ``-o`` name               output file (type determined by extension)
+-  ``-o`` name
+output file (type determined by extension)
 
-Optional arguments:
-~~~~~~~~~~~~~~~~~~~
+Clustering:
+~~~~~~~~~~~
 
--  ``-h``                    show this help message and exit
+-  ``-C`` METHOD
+kmeans, hierarchical or none
 
--  ``-C`` METHOD             kmeans, hierarchical or none
+-  ``-k`` INT
+number of clusters
 
--  ``-k`` INT                number of clusters
+-  ``-M`` METHOD
+cluster metric: Euclidean or Pearson (default: Euclidean)
 
--  ``-M`` METHOD             Euclidean or Pearson (default: Euclidean)
+-  ``-g``
+Identify dynamics
 
--  ``-g``                    Identify dynamics
+-  ``-p`` PICK
+pick specific data files to use for clustering
 
--  ``-p`` PICK               pick specific data files to use for clustering
 
--  ``-e`` INT                extend (in bp. Default: 5000)
+Data processing:
+~~~~~~~~~~~~~~~~
 
--  ``-b`` INT                bin size (default 100)
+-  ``-e`` INT
+extend (in bp. Default: 5000)
 
--  ``-F`` FRAGMENTSIZE       Fragment length (default: read length)
+-  ``-b`` INT
+bin size (default 100)
 
--  ``-r``                    use RPKM instead of read counts
+-  ``-F`` FRAGMENTSIZE
+Fragment length (default: read length)
 
--  ``-D``                    keep duplicate reads (removed by default)
+-  ``-r``
+use RPKM instead of read counts
 
--  ``-R``                    keep repeats (removed by default, bwa only)
+-  ``-D``
+keep duplicate reads (removed by default)
 
--  ``-m``                    merge mirrored clusters (only with kmeans and without -g option)
+-  ``-R``
+keep reads with mapq 0 (removed by default)
 
--  ``-s`` SCALE              scale (absolute or percentage)
+-  ``-m``
+merge mirrored clusters (only with kmeans and without -g option)
 
--  ``-c`` NAME(S)            color(s) (name, colorbrewer profile or hex code)
+-  ``-s`` SCALE
+scale (absolute or percentage)
 
--  ``-B`` NAME(S)            background color(s) (name, colorbrewer profile or hex code)
 
--  ``-P`` INT                number of CPUs (default: 4)
+Visualization:
+~~~~~~~~~~~~~~
+
+-  ``-c`` NAME(S)
+color(s) (name, colorbrewer profile or hex code)
+
+-  ``-B`` NAME(S)
+background color(s) (name, colorbrewer profile or hex code)
+
+Other:
+~~~~~~
+
+-  ``-h``
+show this help message and exit
+
+-  ``-P`` INT
+number of CPUs (default: 4)
 
 
 
@@ -65,7 +98,7 @@ fluff bandplot
 
 ::
 
-    fluff bandplot
+fluff bandplot -f <BED> -d <BAM> <BAM> -o <NAME>
 
 
 
@@ -75,25 +108,53 @@ Options
 Required arguments:
 ~~~~~~~~~~~~~~~~~~~
 
--  ``-f`` FILE               BED file with cluster in 5th column
--  ``-d`` [FILE [FILE ...]]  data files (reads in BAM or BED format)
--  ``-counts`` FILE          Read Counts
--  ``-o`` name               output file (type determined by extension)
+-  ``-f`` FILE
+BED file with cluster in 5th column
+
+-  ``-d`` [FILE [FILE ...]]
+data files (reads in BAM or BED format)
+
+-  ``-counts`` FILE
+read counts table (instead of data files)
+
+-  ``-o`` name
+output file (type determined by extension)
 
 Optional arguments:
 ~~~~~~~~~~~~~~~~~~~
 
--  ``-h``                  show this help message and exit
--  ``-S``                    create summary graphs
--  ``-b`` INT                number of bins
--  ``-F`` FRAGMENTSIZE       fragment length (default: read length)
--  ``-r``                    use RPKM instead of read counts
--  ``-D``                    keep duplicate reads (removed by default)
--  ``-R``                    keep repeats (removed by default, bwa only)
--  ``-s`` GROUPS             scale groups
--  ``-p`` INT,INT            range of percentiles (default 50,90)
--  ``-P`` INT                Percentile at which to extract score. Value should be in range [0,100] (default 90)
--  ``-c`` NAME(S)            color(s) (name, colorbrewer profile or hex code)
+-  ``-h``
+show this help message and exit
+
+-  ``-S``
+create summary graphs
+
+-  ``-b`` INT
+number of bins
+
+-  ``-F`` FRAGMENTSIZE
+fragment length (default: read length)
+
+-  ``-D``
+keep duplicate reads (removed by default)
+
+-  ``-r``
+keep repeats with mapq 0 (removed by default)
+
+-  ``-R``
+keep repeats (removed by default, bwa only)
+
+-  ``-s`` GROUPS
+scale groups
+
+-  ``-p`` INT,INT
+range of percentiles (default 50,90)
+
+-  ``-P`` INT
+Percentile at which to extract score. Value should be in range [0,100] (default 90)
+
+-  ``-c`` NAME(S)
+color(s) (name, colorbrewer profile or hex code)
 
 
 
@@ -104,7 +165,7 @@ fluff profile
 
 ::
 
-    fluff profile
+fluff profile -i <GENOMIC LOCATION> -d <BAM> <BAM> -o <NAME>
 
 
 
@@ -114,21 +175,47 @@ Options
 Required arguments:
 ~~~~~~~~~~~~~~~~~~~
 
--  ``i`` INTERVAL(S)        one or more genomic intervals (chrom:start-end)
--  ``d`` [FILE [FILE ...]]  data files (reads in BAM or BED format)
--  ``o`` name               output file (type determined by extension)
+-  ``-i`` INTERVAL(S)
+one or more genomic intervals (chrom:start-end)
+
+-  ``-d`` [FILE [FILE ...]]
+data files (reads in BAM or BED format)
+
+-  ``-o`` name
+output file (type determined by extension)
 
 Optional arguments:
 ~~~~~~~~~~~~~~~~~~~
 
--  ``h``                    show this help message and exit
--  ``a`` FILE               annotation in BED12 format
--  ``t`` GROUPS             track groups
--  ``s`` GROUPS             scale groups
--  ``S`` SCALE              scale: 'auto' (default), 'off' or int for each track
--  ``f`` FRAGMENTSIZE       fragment length (default: 200)
--  ``D``                    keep duplicate reads (removed by default)
--  ``R``                    keep repeats (removed by default, bwa only)
--  ``r``                    reverse
--  ``c`` NAME(S)            color(s) (name, colorbrewer profile or hex code)
--  ``b`` BACKGROUND         background color: white | color | stripes
+-  ``-h``
+show this help message and exit
+
+-  ``-a`` FILE
+annotation in BED12 format
+
+-  ``-t`` GROUPS
+track groups
+
+-  ``-s`` GROUPS
+scale groups
+
+-  ``-S`` SCALE
+scale: 'auto' (default), 'off' or int for each track
+
+-  ``-f`` FRAGMENTSIZE
+fragment length (default: 200)
+
+-  ``-D``
+keep duplicate reads (removed by default)
+
+-  ``-R``
+keep repeats (removed by default, bwa only)
+
+-  ``-r``
+reverse
+
+-  ``-c`` NAME(S)
+color(s) (name, colorbrewer profile or hex code)
+
+-  ``-b`` BACKGROUND
+background color: white | color | stripes
