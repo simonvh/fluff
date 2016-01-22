@@ -6,7 +6,7 @@ Usage
 fluff heatmap
 -------------
 
-![fluff heatmap example](../examples/H3K4me3_kmeans3.png)
+.. image:: ../examples/H3K4me3_kmeans3.png
 
 ::
 
