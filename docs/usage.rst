@@ -7,9 +7,7 @@ fluff heatmap
 -------------
 ::
 
-fluff heatmap -f <BED> -d <BAM> <BAM> -o <NAME>
-
-
+    fluff heatmap -f <BED> -d <BAM> <BAM> -o <NAME>
 
 Options
 ~~~~~~~
@@ -86,7 +84,7 @@ Other:
 ~~~~~~
 
 -  ``-h``
-show this help message and exit
+show help message
 
 -  ``-P`` INT
 number of CPUs (default: 4)
@@ -98,8 +96,7 @@ fluff bandplot
 
 ::
 
-fluff bandplot -f <BED> -d <BAM> <BAM> -o <NAME>
-
+    fluff bandplot -f <BED> -d <BAM> <BAM> -o <NAME>
 
 
 Options
@@ -120,11 +117,9 @@ read counts table (instead of data files)
 -  ``-o`` name
 output file (type determined by extension)
 
-Optional arguments:
-~~~~~~~~~~~~~~~~~~~
 
--  ``-h``
-show this help message and exit
+Data processing:
+~~~~~~~~~~~~~~~~
 
 -  ``-S``
 create summary graphs
@@ -153,10 +148,19 @@ range of percentiles (default 50,90)
 -  ``-P`` INT
 Percentile at which to extract score. Value should be in range [0,100] (default 90)
 
+
+Visualization:
+~~~~~~~~~~~~~~
+
 -  ``-c`` NAME(S)
 color(s) (name, colorbrewer profile or hex code)
 
 
+Other:
+~~~~~~
+
+-  ``-h``
+show help message
 
 
 
@@ -165,8 +169,7 @@ fluff profile
 
 ::
 
-fluff profile -i <GENOMIC LOCATION> -d <BAM> <BAM> -o <NAME>
-
+    fluff profile -i <GENOMIC LOCATION> -d <BAM> <BAM> -o <NAME>
 
 
 Options
@@ -184,11 +187,9 @@ data files (reads in BAM or BED format)
 -  ``-o`` name
 output file (type determined by extension)
 
-Optional arguments:
-~~~~~~~~~~~~~~~~~~~
 
--  ``-h``
-show this help message and exit
+Data processing:
+~~~~~~~~~~~~~~~~
 
 -  ``-a`` FILE
 annotation in BED12 format
@@ -214,8 +215,19 @@ keep repeats (removed by default, bwa only)
 -  ``-r``
 reverse
 
+
+Visualization:
+~~~~~~~~~~~~~~
+
 -  ``-c`` NAME(S)
 color(s) (name, colorbrewer profile or hex code)
 
 -  ``-b`` BACKGROUND
 background color: white | color | stripes
+
+
+Other:
+~~~~~~
+
+-  ``-h``
+show help message
