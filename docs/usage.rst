@@ -5,6 +5,9 @@ Usage
 
 fluff heatmap
 -------------
+
+![fluff heatmap example](../examples/H3K4me3_kmeans3.png)
+
 ::
 
     fluff heatmap -f <BED> -d <BAM> <BAM> -o <NAME>
@@ -16,31 +19,31 @@ Required arguments:
 ~~~~~~~~~~~~~~~~~~~
 
 -  ``-f`` FILE
-BED file containing features
+This need to be a BED file containing features. BED-fomatted files need to contain at least three tab-seperated columns describing chromosome name, start and end.
 
 -  ``-d`` [FILE [FILE ...]]
-data files (reads in BAM or BED format)
+This option is for the data files. They should be aligned sequence data in BAM or BED format.
 
 -  ``-o`` name
-output file (type determined by extension)
+This option defines the name of the output files (type determined by extension)
 
 Clustering:
 ~~~~~~~~~~~
 
 -  ``-C`` METHOD
-kmeans, hierarchical or none
+By default, fluff heatmap will preserve the order of the features in the input BED file. This is equivalent to specifying -C none. Alternatively, one of two basic clustering methods can be specified using the -C parameter: hierarchical and kmeans. If kmeans is selected the number of clusters (-k) is mandatory.
 
 -  ``-k`` INT
-number of clusters
+Select the number of clusters (Mandatory with kmeans clustering)
 
 -  ``-M`` METHOD
-cluster metric: Euclidean or Pearson (default: Euclidean)
+There are two options for distance metrics. Euclidean or Pearson (default: Euclidean)
 
 -  ``-g``
-Identify dynamics
+Identify dynamics between different time points or conditions. This should be used with Pearson correlation coefficient as distance metric
 
 -  ``-p`` PICK
-pick specific data files to use for clustering
+Pick specific data file(s) to use for clustering. You can select using its position e.g -p 1 for first file or -p1,3 for first and third files.
 
 
 Data processing:
