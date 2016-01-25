@@ -1,10 +1,8 @@
 #!/usr/bin/python
 __author__ = 'george'
-import multiprocessing
-
 ### External imports ###
-from numpy import array, hstack, arange, zeros
 import Pycluster
+from numpy import array, hstack, arange, zeros
 
 ### My imports ###
 from fluff.util import *
@@ -15,10 +13,7 @@ from fluff.config import *
 
 
 def heatmap(args):
-    featurefile = args.featurefile
     datafiles = args.datafiles
-    outfile = args.outfile
-
     for x in args.datafiles:
         if not os.path.isfile(x):
             print "ERROR: Data file '{0}' does not exist".format(x)
@@ -51,10 +46,6 @@ def heatmap(args):
     distancefunction = args.distancefunction[0].lower()
     dynam = args.graphdynamics
 
-    # Check for given number of processors
-    if (ncpus > multiprocessing.cpu_count()):
-        print "ERROR: You can use only up to {0} processors!".format(multiprocessing.cpu_count())
-        sys.exit(1)
     # Check for mutually exclusive parameters
     if merge_mirrored and dynam:
         print "ERROR: -m and -g option CANNOT be used together"
