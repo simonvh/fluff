@@ -11,7 +11,7 @@ fluff heatmap
     fluff heatmap -f <BED> -d <BAM> <BAM> -o <NAME>
 
 
-.. image:: ../examples/H3K4me3_kmeans3.png
+.. image:: H3K4me3_kmeans3.png
     :height: 400px
     :alt: fluff heatmap
 
