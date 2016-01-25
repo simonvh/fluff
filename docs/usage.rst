@@ -8,7 +8,7 @@ fluff heatmap
 
 .. image:: ../examples/H3K4me3_kmeans3.png
 :height: 300px
-   :width: 105 px
+  :width: 105 px
 
 
 ::
