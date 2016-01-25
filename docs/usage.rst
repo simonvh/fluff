@@ -10,6 +10,12 @@ fluff heatmap
 
     fluff heatmap -f <BED> -d <BAM> <BAM> -o <NAME>
 
+
+.. image:: ../examples/H3K4me3_kmeans3.png
+:width: 400px
+    :alt: fluff heatmap
+
+
 Options
 ~~~~~~~
 
