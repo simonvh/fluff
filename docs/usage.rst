@@ -12,7 +12,7 @@ fluff heatmap
 
 
 .. image:: H3K4me3_kmeans3.png
-    :height: 400px
+:scale: 10 %
     :alt: fluff heatmap
 
 
