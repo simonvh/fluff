@@ -1,0 +1,10 @@
+setuptools
+pysam
+pybedtools
+HTSeq
+matplotlib
+numpy
+scipy
+colorbrewer
+Pycluster
+pp
