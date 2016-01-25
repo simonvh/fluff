@@ -12,7 +12,7 @@ fluff heatmap
 
 
 .. image:: ../examples/H3K4me3_kmeans3.png
-:width: 400px
+    :width: 400px
     :alt: fluff heatmap
 
 
