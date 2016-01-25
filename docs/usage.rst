@@ -7,7 +7,7 @@ fluff heatmap
 -------------
 
 .. image:: ../examples/H3K4me3_kmeans3.png
-  :scale: 50 %
+:scale: 25 %
 
 ::
 
