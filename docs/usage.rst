@@ -7,8 +7,8 @@ fluff heatmap
 -------------
 
 .. image:: ../examples/H3K4me3_kmeans3.png
-:scale: 25 %
-
+:height: 300px
+   :width: 105 px
 ::
 
     fluff heatmap -f <BED> -d <BAM> <BAM> -o <NAME>
