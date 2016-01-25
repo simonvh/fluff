@@ -24,6 +24,7 @@ setup(name='fluff',
       ],
       data_files=[],
       install_requires=[
+          "setuptools",
           "pysam",
           "pybedtools",
           "HTSeq",
