@@ -57,6 +57,11 @@ def bandplot(args):
         data = load_read_counts(args.readCount)
         tracks = [x for x in data]
         titles = [x for x in tracks]
+        for x in data:
+            for i in data[x]:
+                bins = len(data[x][i])
+                break
+            break
 
     # Get cluster information
     cluster_data = load_bed_clusters(clust_file)

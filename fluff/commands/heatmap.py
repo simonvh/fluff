@@ -168,6 +168,15 @@ def heatmap(args):
     else:
         ind = arange(len(regions))
         labels = zeros(len(regions))
+
+    if not cluster_type == "k":
+        labels = None
+
+    # Load data for visualization if -g option was used
+    if dynam:
+        data, regions, guard = load_data(featurefile, bins, extend_up, extend_down, rmdup, rpkm, rmrepeats,
+                                         fragmentsize, dynam, guard)
+
     f = open("{0}_clusters.bed".format(outfile), "w")
     for (chrom, start, end, gene, strand), cluster in zip(array(regions, dtype="object")[ind], array(labels)[ind]):
         if not gene:
@@ -176,25 +185,18 @@ def heatmap(args):
             f.write("{0}\t{1}\t{2}\t{3}\t{4}\t{5}\n".format(chrom, start, end, gene, cluster + 1, strand))
     f.close()
 
-    if not cluster_type == "k":
-        labels = None
-
     # Save read counts
     readcounts = {}
     for i, track in enumerate(tracks):
         readcounts[track] = {}
-        readcounts[track]['sum'] = []
         readcounts[track]['bins'] = []
         for idx, row in enumerate(data[track]):
-            sum = 0
             bins = ''
             for bin in row:
-                sum += bin
                 if not bins:
                     bins = '{0}'.format(bin)
                 else:
                     bins = '{0};{1}'.format(bins, bin)
-            readcounts[track]['sum'].append(sum)
             readcounts[track]['bins'].append(bins)
 
     input_fileBins = open('{0}_readCounts.txt'.format(outfile), 'w')
@@ -211,11 +213,6 @@ def heatmap(args):
         break
 
     input_fileBins.close()
-
-    # Load data for visualization if -g option was used
-    if dynam:
-        data, regions, guard = load_data(featurefile, bins, extend_up, extend_down, rmdup, rpkm, rmrepeats,
-                                         fragmentsize, dynam, guard)
 
     scale = get_absolute_scale(args.scale, [data[track] for track in tracks])
     heatmap_plot(data, ind[::-1], outfile, tracks, titles, colors, bgcolors, scale, tscale, labels)
