@@ -2,26 +2,9 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="9b2f1bf8-4c89-4069-aed8-b8a6d29f7ccb" name="Default" comment="examples and data">
-      <change type="DELETED" beforePath="$PROJECT_DIR$/examples/bandplot.png" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/examples/heatmap.png" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/examples/profile.png" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/examples/test.png" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/tests/data/H3K4me3.bam" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/tests/data/H3K4me3.bam.bai" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/tests/data/H3K4me3.bed" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/tests/data/heatmap_clusters.pickle" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/tests/data/heatmap_data.pickle" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/tests/data/testfragment.bed" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/tests/data/testfragments3.bed" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/tests/data/testfragments6.bed" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/tests/data/testregion.bed" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/tests/data/threeregions3.bed" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/tests/data/threeregions6.bed" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/tests/data/tss.bed" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/tests/data/tss_scaffold_1_nostrand.bed" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/tests/test_io.py" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/tests/test_mirror.py" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/tests/test_util.py" afterPath="" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/docs/commands.rst" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/docs/usage.html" afterPath="" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/usage.rst" afterPath="$PROJECT_DIR$/docs/usage.rst" />
     </list>
     <list id="7bc7498b-e56e-421f-98e6-632b0db1a0f1" name="Failed commit: Default" comment="examples and data" />
@@ -47,8 +30,18 @@
       <file leaf-file-name="fluff" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/scripts/fluff">
           <provider selected="true" editor-type-id="text-editor">
+            <state vertical-scroll-proportion="-31.428572">
+              <caret line="168" column="0" selection-start-line="168" selection-start-column="0" selection-end-line="172" selection-end-column="34" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="commands.rst" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/docs/commands.rst">
+          <provider selected="true" editor-type-id="text-editor">
             <state vertical-scroll-proportion="0.0">
-              <caret line="294" column="45" selection-start-line="294" selection-start-column="45" selection-end-line="294" selection-end-column="45" />
+              <caret line="17" column="9" selection-start-line="17" selection-start-column="3" selection-end-line="17" selection-end-column="9" />
               <folding />
             </state>
           </provider>
@@ -57,28 +50,18 @@
       <file leaf-file-name="usage.rst" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/docs/usage.rst">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.20153551">
-              <caret line="14" column="0" selection-start-line="14" selection-start-column="0" selection-end-line="14" selection-end-column="0" />
+            <state vertical-scroll-proportion="0.6017192">
+              <caret line="42" column="180" selection-start-line="42" selection-start-column="180" selection-end-line="42" selection-end-column="180" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="README.md" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/README.md">
-          <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="-1.7307693">
-              <caret line="3" column="8" selection-start-line="3" selection-start-column="8" selection-end-line="3" selection-end-column="8" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="profile.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/fluff/commands/profile.py">
+      <file leaf-file-name="H3K4me3_clusters.bed" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/examples/H3K4me3_clusters.bed">
           <provider selected="true" editor-type-id="text-editor">
             <state vertical-scroll-proportion="0.0">
-              <caret line="32" column="20" selection-start-line="32" selection-start-column="20" selection-end-line="32" selection-end-column="20" />
+              <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
               <folding />
             </state>
           </provider>
@@ -94,31 +77,43 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="installation.rst" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/docs/installation.rst">
+      <file leaf-file-name="profile.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/fluff/commands/profile.py">
           <provider selected="true" editor-type-id="text-editor">
             <state vertical-scroll-proportion="0.0">
-              <caret line="26" column="6" selection-start-line="26" selection-start-column="6" selection-end-line="26" selection-end-column="6" />
+              <caret line="66" column="0" selection-start-line="66" selection-start-column="0" selection-end-line="66" selection-end-column="0" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="configuration.rst" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/docs/configuration.rst">
+      <file leaf-file-name="heatmap.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/fluff/commands/heatmap.py">
           <provider selected="true" editor-type-id="text-editor">
             <state vertical-scroll-proportion="0.0">
-              <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+              <caret line="161" column="136" selection-start-line="161" selection-start-column="0" selection-end-line="162" selection-end-column="0" />
+              <folding>
+                <element signature="e#65#81#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="bandplot.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/fluff/commands/bandplot.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state vertical-scroll-proportion="-25.714285">
+              <caret line="48" column="20" selection-start-line="48" selection-start-column="11" selection-end-line="48" selection-end-column="20" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="index.rst" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/docs/index.rst">
+      <file leaf-file-name="plot.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/fluff/plot.py">
           <provider selected="true" editor-type-id="text-editor">
             <state vertical-scroll-proportion="0.0">
-              <caret line="26" column="0" selection-start-line="26" selection-start-column="0" selection-end-line="26" selection-end-column="0" />
+              <caret line="95" column="17" selection-start-line="95" selection-start-column="4" selection-end-line="95" selection-end-column="17" />
               <folding />
             </state>
           </provider>
@@ -130,6 +125,7 @@
     <option name="RECENT_TEMPLATES">
       <list>
         <option value="Python Script" />
+        <option value="Setup Script" />
       </list>
     </option>
   </component>
@@ -160,16 +156,10 @@
         <option value="$PROJECT_DIR$/scripts/__init__.py" />
         <option value="$PROJECT_DIR$/fluff/util.py" />
         <option value="$PROJECT_DIR$/fluff/color.py" />
-        <option value="$PROJECT_DIR$/fluff/commands/profile.py" />
         <option value="$PROJECT_DIR$/fluff/commands/__init__.py" />
         <option value="$PROJECT_DIR$/docs/index.html" />
         <option value="$PROJECT_DIR$/fluff.egg-info/PKG-INFO" />
         <option value="$PROJECT_DIR$/fluff.egg-info/SOURCES.txt" />
-        <option value="$PROJECT_DIR$/setup.py" />
-        <option value="$PROJECT_DIR$/README.md" />
-        <option value="$PROJECT_DIR$/fluff/fluffio.py" />
-        <option value="$PROJECT_DIR$/fluff/commands/bandplot.py" />
-        <option value="$PROJECT_DIR$/fluff/commands/heatmap.py" />
         <option value="$PROJECT_DIR$/fluff/config.py" />
         <option value="$PROJECT_DIR$/scripts/fluff_bandplot.py" />
         <option value="$PROJECT_DIR$/scripts/fluff_heatmap.py" />
@@ -179,14 +169,41 @@
         <option value="$PROJECT_DIR$/docs/index.rst" />
         <option value="$PROJECT_DIR$/docs/installation.rst" />
         <option value="$PROJECT_DIR$/docs/introduction.rst" />
+        <option value="$PROJECT_DIR$/requirements.txt" />
+        <option value="$PROJECT_DIR$/setup.py" />
+        <option value="$PROJECT_DIR$/README.md" />
+        <option value="$PROJECT_DIR$/fluff/commands/heatmap.py" />
+        <option value="$PROJECT_DIR$/fluff/fluffio.py" />
         <option value="$PROJECT_DIR$/fluff/plot.py" />
+        <option value="$PROJECT_DIR$/fluff/commands/bandplot.py" />
+        <option value="$PROJECT_DIR$/fluff/commands/profile.py" />
+        <option value="$PROJECT_DIR$/docs/usage.html" />
+        <option value="$PROJECT_DIR$/docs/commands.rst" />
         <option value="$PROJECT_DIR$/docs/usage.rst" />
       </list>
     </option>
   </component>
   <component name="ProjectFrameBounds">
-    <option name="width" value="1906" />
-    <option name="height" value="1165" />
+    <option name="x" value="-2" />
+    <option name="y" value="-3" />
+    <option name="width" value="1924" />
+    <option name="height" value="1172" />
+  </component>
+  <component name="ProjectInspectionProfilesVisibleTreeState">
+    <entry key="Project Default">
+      <profile-state>
+        <expanded-state>
+          <State>
+            <id />
+          </State>
+        </expanded-state>
+        <selected-state>
+          <State>
+            <id>Buildout</id>
+          </State>
+        </selected-state>
+      </profile-state>
+    </entry>
   </component>
   <component name="ProjectLevelVcsManager" settingsEditedManually="false">
     <OptionsSetting value="true" id="Add" />
@@ -242,6 +259,84 @@
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
             <PATH_ELEMENT>
+              <option name="myItemId" value="scripts" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="fluff" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="fluff" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="fluff" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="fluff" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="fluff" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="fluff" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="commands" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="fluff" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="fluff" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="examples" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="fluff" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="fluff" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="examples" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="data" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="fluff" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="fluff" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
               <option name="myItemId" value="docs" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
@@ -260,13 +355,46 @@
     <property name="settings.editor.selected.configurable" value="preferences.sourceCode" />
     <property name="settings.editor.splitter.proportion" value="0.2" />
   </component>
+  <component name="PyConsoleOptionsProvider">
+    <option name="myPythonConsoleState">
+      <console-settings module-name="fluff" is-module-sdk="true">
+        <option name="myUseModuleSdk" value="true" />
+        <option name="myModuleName" value="fluff" />
+      </console-settings>
+    </option>
+  </component>
   <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/docs" />
+    </key>
     <key name="MoveFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$/fluff" />
       <recent name="$PROJECT_DIR$/scripts/commands" />
     </key>
   </component>
-  <component name="RunManager">
+  <component name="RunManager" selected="Python tests.Unittests in setup">
+    <configuration default="false" name="Unittests in setup" type="tests" factoryName="Unittests" temporary="true" nameIsGenerated="true">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="fluff" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/setup.py" />
+      <option name="CLASS_NAME" value="" />
+      <option name="METHOD_NAME" value="" />
+      <option name="FOLDER_NAME" value="" />
+      <option name="TEST_TYPE" value="TEST_SCRIPT" />
+      <option name="PATTERN" value="" />
+      <option name="USE_PATTERN" value="false" />
+      <option name="PUREUNITTEST" value="true" />
+      <option name="PARAMS" value="" />
+      <option name="USE_PARAM" value="false" />
+      <method />
+    </configuration>
     <configuration default="true" type="PythonConfigurationType" factoryName="Python">
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -406,6 +534,14 @@
       <option name="USE_KEYWORD" value="false" />
       <method />
     </configuration>
+    <list size="1">
+      <item index="0" class="java.lang.String" itemvalue="Python tests.Unittests in setup" />
+    </list>
+    <recent_temporary>
+      <list size="1">
+        <item index="0" class="java.lang.String" itemvalue="Python tests.Unittests in setup" />
+      </list>
+    </recent_temporary>
   </component>
   <component name="ShelveChangesManager" show_recycled="false" />
   <component name="SvnConfiguration">
@@ -586,33 +722,152 @@
       <option name="project" value="LOCAL" />
       <updated>1453475584488</updated>
     </task>
-    <option name="localTasksCounter" value="29" />
+    <task id="LOCAL-00029" summary="examples and data">
+      <created>1453716175355</created>
+      <option name="number" value="00029" />
+      <option name="project" value="LOCAL" />
+      <updated>1453716175355</updated>
+    </task>
+    <task id="LOCAL-00030" summary="examples and data">
+      <created>1453716588220</created>
+      <option name="number" value="00030" />
+      <option name="project" value="LOCAL" />
+      <updated>1453716588220</updated>
+    </task>
+    <task id="LOCAL-00031" summary="setup dependencies">
+      <created>1453716655071</created>
+      <option name="number" value="00031" />
+      <option name="project" value="LOCAL" />
+      <updated>1453716655071</updated>
+    </task>
+    <task id="LOCAL-00032" summary="setup">
+      <created>1453717263914</created>
+      <option name="number" value="00032" />
+      <option name="project" value="LOCAL" />
+      <updated>1453717263914</updated>
+    </task>
+    <task id="LOCAL-00033" summary="requirements">
+      <created>1453719311207</created>
+      <option name="number" value="00033" />
+      <option name="project" value="LOCAL" />
+      <updated>1453719311207</updated>
+    </task>
+    <task id="LOCAL-00034" summary="setup">
+      <created>1453728533110</created>
+      <option name="number" value="00034" />
+      <option name="project" value="LOCAL" />
+      <updated>1453728533110</updated>
+    </task>
+    <task id="LOCAL-00035" summary="usage">
+      <created>1453730258799</created>
+      <option name="number" value="00035" />
+      <option name="project" value="LOCAL" />
+      <updated>1453730258799</updated>
+    </task>
+    <task id="LOCAL-00036" summary="examples and data">
+      <created>1453730591418</created>
+      <option name="number" value="00036" />
+      <option name="project" value="LOCAL" />
+      <updated>1453730591418</updated>
+    </task>
+    <task id="LOCAL-00037" summary="examples and data">
+      <created>1453730624952</created>
+      <option name="number" value="00037" />
+      <option name="project" value="LOCAL" />
+      <updated>1453730624952</updated>
+    </task>
+    <task id="LOCAL-00038" summary="usage">
+      <created>1453730727022</created>
+      <option name="number" value="00038" />
+      <option name="project" value="LOCAL" />
+      <updated>1453730727022</updated>
+    </task>
+    <task id="LOCAL-00039" summary="usage">
+      <created>1453730878523</created>
+      <option name="number" value="00039" />
+      <option name="project" value="LOCAL" />
+      <updated>1453730878523</updated>
+    </task>
+    <task id="LOCAL-00040" summary="examples and data">
+      <created>1453730905031</created>
+      <option name="number" value="00040" />
+      <option name="project" value="LOCAL" />
+      <updated>1453730905031</updated>
+    </task>
+    <task id="LOCAL-00041" summary="examples and data">
+      <created>1453730978489</created>
+      <option name="number" value="00041" />
+      <option name="project" value="LOCAL" />
+      <updated>1453730978489</updated>
+    </task>
+    <task id="LOCAL-00042" summary="examples and data">
+      <created>1453731023065</created>
+      <option name="number" value="00042" />
+      <option name="project" value="LOCAL" />
+      <updated>1453731023065</updated>
+    </task>
+    <task id="LOCAL-00043" summary="examples and data">
+      <created>1453731239658</created>
+      <option name="number" value="00043" />
+      <option name="project" value="LOCAL" />
+      <updated>1453731239658</updated>
+    </task>
+    <task id="LOCAL-00044" summary="examples and data">
+      <created>1453731594786</created>
+      <option name="number" value="00044" />
+      <option name="project" value="LOCAL" />
+      <updated>1453731594786</updated>
+    </task>
+    <task id="LOCAL-00045" summary="examples and data">
+      <created>1453731637539</created>
+      <option name="number" value="00045" />
+      <option name="project" value="LOCAL" />
+      <updated>1453731637539</updated>
+    </task>
+    <task id="LOCAL-00046" summary="bin size bandplot">
+      <created>1453820677033</created>
+      <option name="number" value="00046" />
+      <option name="project" value="LOCAL" />
+      <updated>1453820677033</updated>
+    </task>
+    <task id="LOCAL-00047" summary="index bam files in profile">
+      <created>1453972485360</created>
+      <option name="number" value="00047" />
+      <option name="project" value="LOCAL" />
+      <updated>1453972485360</updated>
+    </task>
+    <option name="localTasksCounter" value="48" />
     <servers />
   </component>
+  <component name="TestHistory">
+    <history-entry file="Unittests_in_setup - 2016.01.25 at 14h 26m 07s.xml">
+      <configuration name="Unittests in setup" configurationId="tests" />
+    </history-entry>
+  </component>
   <component name="ToolWindowManager">
-    <frame x="0" y="0" width="1906" height="1165" extended-state="4" />
-    <editor active="false" />
+    <frame x="-2" y="-3" width="1924" height="1172" extended-state="6" />
+    <editor active="true" />
     <layout>
-      <window_info id="Project" active="true" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.12776025" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.1640625" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
-      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.19702603" sideWeight="0.50416666" order="13" side_tool="true" content_ui="tabs" />
-      <window_info id="Python Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32961932" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" />
+      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32914162" sideWeight="0.49666667" order="8" side_tool="false" content_ui="tabs" />
+      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.16573557" sideWeight="0.50208336" order="13" side_tool="true" content_ui="tabs" />
+      <window_info id="Python Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3292797" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.16573557" sideWeight="0.49791667" order="9" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.19682887" sideWeight="0.4925" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="12" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
+      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.39850327" sideWeight="0.49791667" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
-      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3292797" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="SLIDING" type="SLIDING" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Application Servers" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="10" side_tool="false" content_ui="tabs" />
       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.39962825" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.19702603" sideWeight="0.49583334" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Thumbnails" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32961932" sideWeight="0.5" order="11" side_tool="false" content_ui="tabs" />
       <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
       <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32961932" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.39850327" sideWeight="0.49791667" order="3" side_tool="false" content_ui="tabs" />
     </layout>
   </component>
   <component name="Vcs.Log.UiProperties">
@@ -627,7 +882,7 @@
     <option name="myLimit" value="2678400000" />
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="heatmap, bandplot, profile as commands" />
+    <option name="CHECK_COMMIT_MESSAGE_SPELLING" value="false" />
     <MESSAGE value="read counts" />
     <MESSAGE value="profile - gene names" />
     <MESSAGE value="fixed order of clusters in heatmaps" />
@@ -644,11 +899,16 @@
     <MESSAGE value="Mark old scripts as obselete" />
     <MESSAGE value="documentation" />
     <MESSAGE value="grouped options" />
-    <MESSAGE value="usage" />
     <MESSAGE value="doc" />
     <MESSAGE value="docs" />
+    <MESSAGE value="setup dependencies" />
+    <MESSAGE value="requirements" />
+    <MESSAGE value="setup" />
+    <MESSAGE value="usage" />
     <MESSAGE value="examples and data" />
-    <option name="LAST_COMMIT_MESSAGE" value="examples and data" />
+    <MESSAGE value="bin size bandplot" />
+    <MESSAGE value="index bam files in profile" />
+    <option name="LAST_COMMIT_MESSAGE" value="index bam files in profile" />
     <option name="OPTIMIZE_IMPORTS_BEFORE_PROJECT_COMMIT" value="true" />
     <option name="REFORMAT_BEFORE_PROJECT_COMMIT" value="true" />
   </component>
@@ -667,11 +927,13 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
           <caret line="294" column="45" selection-start-line="294" selection-start-column="45" selection-end-line="294" selection-end-column="45" />
-          <folding />
+          <folding>
+            <element signature="e#46#61#0" expanded="false" />
+          </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/docs/usage.rst">
+    <entry file="file://$PROJECT_DIR$/docs/commands.rst">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
           <caret line="12" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="236" selection-end-column="17" />
@@ -691,7 +953,9 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
           <caret line="32" column="20" selection-start-line="32" selection-start-column="20" selection-end-line="32" selection-end-column="20" />
-          <folding />
+          <folding>
+            <element signature="e#53#89#0" expanded="false" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -731,7 +995,9 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
+          <folding>
+            <element signature="e#46#61#0" expanded="false" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -739,11 +1005,13 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
           <caret line="294" column="45" selection-start-line="294" selection-start-column="45" selection-end-line="294" selection-end-column="45" />
-          <folding />
+          <folding>
+            <element signature="e#46#61#0" expanded="false" />
+          </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/docs/usage.rst">
+    <entry file="file://$PROJECT_DIR$/docs/commands.rst">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
@@ -801,7 +1069,9 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
+          <folding>
+            <element signature="e#46#61#0" expanded="false" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -861,41 +1131,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/setup.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="37" column="0" selection-start-line="37" selection-start-column="0" selection-end-line="37" selection-end-column="0" />
-          <folding>
-            <element signature="e#0#32#0" expanded="false" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/scripts/__init__.py">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.017921148">
           <caret line="1" column="0" selection-start-line="1" selection-start-column="0" selection-end-line="1" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/fluff/config.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="29" column="14" selection-start-line="29" selection-start-column="0" selection-end-line="29" selection-end-column="14" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/fluff/commands/bandplot.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="-24.178572">
-          <caret line="74" column="122" selection-start-line="74" selection-start-column="122" selection-end-line="74" selection-end-column="122" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/fluff/fluffio.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="69.67857">
-          <caret line="299" column="89" selection-start-line="299" selection-start-column="89" selection-end-line="299" selection-end-column="89" />
         </state>
       </provider>
     </entry>
@@ -920,39 +1159,33 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/fluff/commands/heatmap.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="3.75">
-          <caret line="17" column="0" selection-start-line="17" selection-start-column="0" selection-end-line="17" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/docs/conf.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.9833703">
-          <caret line="286" column="0" selection-start-line="286" selection-start-column="0" selection-end-line="286" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/fluff/plot.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.27168733">
-          <caret line="61" column="24" selection-start-line="61" selection-start-column="24" selection-end-line="61" selection-end-column="24" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/scripts/fluff">
+    <entry file="file://$PROJECT_DIR$/requirements.txt">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
-          <caret line="294" column="45" selection-start-line="294" selection-start-column="45" selection-end-line="294" selection-end-column="45" />
+          <caret line="9" column="2" selection-start-line="9" selection-start-column="2" selection-end-line="9" selection-end-column="2" />
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/docs/introduction.rst">
+    <entry file="file://$PROJECT_DIR$/setup.py">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
-          <caret line="10" column="0" selection-start-line="10" selection-start-column="0" selection-end-line="10" selection-end-column="0" />
+          <caret line="9" column="52" selection-start-line="9" selection-start-column="52" selection-end-line="9" selection-end-column="52" />
+          <folding>
+            <element signature="e#0#38#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/examples/H3K4me3_kmeans3.png">
+      <provider selected="true" editor-type-id="images">
+        <state />
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/README.md">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="7" column="120" selection-start-line="7" selection-start-column="120" selection-end-line="7" selection-end-column="120" />
           <folding />
         </state>
       </provider>
@@ -965,6 +1198,38 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/docs/index.rst">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="22" column="0" selection-start-line="22" selection-start-column="0" selection-end-line="24" selection-end-column="15" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/docs/conf.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="28" column="7" selection-start-line="28" selection-start-column="7" selection-end-line="28" selection-end-column="7" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/fluff/fluffio.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="300" column="0" selection-start-line="300" selection-start-column="0" selection-end-line="300" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/fluff/plot.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="95" column="17" selection-start-line="95" selection-start-column="4" selection-end-line="95" selection-end-column="17" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/docs/configuration.rst">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
@@ -973,10 +1238,18 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/docs/index.rst">
+    <entry file="file://$PROJECT_DIR$/fluff/commands/bandplot.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="26" column="0" selection-start-line="26" selection-start-column="0" selection-end-line="26" selection-end-column="0" />
+        <state vertical-scroll-proportion="-25.714285">
+          <caret line="48" column="20" selection-start-line="48" selection-start-column="11" selection-end-line="48" selection-end-column="20" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/fluff/config.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.42979944">
+          <caret line="30" column="0" selection-start-line="30" selection-start-column="0" selection-end-line="30" selection-end-column="0" />
           <folding />
         </state>
       </provider>
@@ -984,23 +1257,62 @@
     <entry file="file://$PROJECT_DIR$/fluff/commands/profile.py">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
-          <caret line="32" column="20" selection-start-line="32" selection-start-column="20" selection-end-line="32" selection-end-column="20" />
+          <caret line="66" column="0" selection-start-line="66" selection-start-column="0" selection-end-line="66" selection-end-column="0" />
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/README.md">
+    <entry file="file://$PROJECT_DIR$/scripts/fluff">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="-1.7307693">
-          <caret line="3" column="8" selection-start-line="3" selection-start-column="8" selection-end-line="3" selection-end-column="8" />
+        <state vertical-scroll-proportion="-31.428572">
+          <caret line="168" column="0" selection-start-line="168" selection-start-column="0" selection-end-line="172" selection-end-column="34" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/fluff/commands/heatmap.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="161" column="136" selection-start-line="161" selection-start-column="0" selection-end-line="162" selection-end-column="0" />
+          <folding>
+            <element signature="e#65#81#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/docs/introduction.rst">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="10" column="0" selection-start-line="10" selection-start-column="0" selection-end-line="10" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/examples/H3K4me3_clusters.bed">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/examples/scaffold_1_46923850_47004175.png">
+      <provider selected="true" editor-type-id="images">
+        <state />
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/docs/commands.rst">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="17" column="9" selection-start-line="17" selection-start-column="3" selection-end-line="17" selection-end-column="9" />
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/docs/usage.rst">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.20153551">
-          <caret line="14" column="0" selection-start-line="14" selection-start-column="0" selection-end-line="14" selection-end-column="0" />
+        <state vertical-scroll-proportion="0.6017192">
+          <caret line="42" column="180" selection-start-line="42" selection-start-column="180" selection-end-line="42" selection-end-column="180" />
           <folding />
         </state>
       </provider>

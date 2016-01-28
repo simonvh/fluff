@@ -1,8 +1,6 @@
 Usage
 =====
 
-.. _quick-example:
-
 fluff heatmap
 -------------
 
