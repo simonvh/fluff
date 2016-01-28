@@ -31,6 +31,8 @@ With ``-f`` option you specify the _clusters.bed file, which you got from fluff 
 
 
 If case you want to use fluff bandplot on the same dataset as you ran fluff heatmap you can use ``-counts`` option, without ``-d`` option. Here the input is the _readCounts.txt file from fluff heatmap. This option is faster because it doesn't have to re-read the data files to get the reads.
+
+
  ::
 
     fluff bandplot -f data/H3K4me3_kmeans3_clusters.bed -counts H3K4me3_kmeans3_readCounts.txt -o H3K4me3_kmeans3_bandplot
