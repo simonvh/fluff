@@ -46,3 +46,4 @@ You give the feature(or features separated by ``,``) using the ``-i`` option, fo
     ::
 
     fluff profile -i scaffold_1:46923850-47004175 -d data/H3K4me3.bam -o scaffold_1_46923850_47004175
+
