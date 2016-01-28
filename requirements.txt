@@ -1,3 +1,4 @@
+pip >= 7.1.2
 setuptools >= 18.4
 numpy >= 1.10.4
 scipy >= 0.17.0
