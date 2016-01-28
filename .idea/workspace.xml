@@ -2,9 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="9b2f1bf8-4c89-4069-aed8-b8a6d29f7ccb" name="Default" comment="examples and data">
-      <change type="DELETED" beforePath="$PROJECT_DIR$/docs/H3K4me3_kmeans3.png" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/docs/configuration.rst" afterPath="" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/index.rst" afterPath="$PROJECT_DIR$/docs/index.rst" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
     </list>
     <list id="7bc7498b-e56e-421f-98e6-632b0db1a0f1" name="Failed commit: Default" comment="examples and data" />
     <ignored path="fluff.iws" />
@@ -49,8 +47,8 @@
       <file leaf-file-name="usage.rst" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/docs/usage.rst">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.64469916">
-              <caret line="45" column="76" selection-start-line="45" selection-start-column="76" selection-end-line="45" selection-end-column="76" />
+            <state vertical-scroll-proportion="0.42979944">
+              <caret line="30" column="0" selection-start-line="30" selection-start-column="0" selection-end-line="30" selection-end-column="0" />
               <folding />
             </state>
           </provider>
@@ -177,8 +175,8 @@
         <option value="$PROJECT_DIR$/fluff/commands/profile.py" />
         <option value="$PROJECT_DIR$/docs/usage.html" />
         <option value="$PROJECT_DIR$/docs/commands.rst" />
-        <option value="$PROJECT_DIR$/docs/usage.rst" />
         <option value="$PROJECT_DIR$/docs/index.rst" />
+        <option value="$PROJECT_DIR$/docs/usage.rst" />
       </list>
     </option>
   </component>
@@ -835,7 +833,13 @@
       <option name="project" value="LOCAL" />
       <updated>1453972485360</updated>
     </task>
-    <option name="localTasksCounter" value="48" />
+    <task id="LOCAL-00048" summary="examples and data">
+      <created>1453987064670</created>
+      <option name="number" value="00048" />
+      <option name="project" value="LOCAL" />
+      <updated>1453987064670</updated>
+    </task>
+    <option name="localTasksCounter" value="49" />
     <servers />
   </component>
   <component name="TestHistory">
@@ -904,10 +908,10 @@
     <MESSAGE value="requirements" />
     <MESSAGE value="setup" />
     <MESSAGE value="usage" />
-    <MESSAGE value="examples and data" />
     <MESSAGE value="bin size bandplot" />
     <MESSAGE value="index bam files in profile" />
-    <option name="LAST_COMMIT_MESSAGE" value="index bam files in profile" />
+    <MESSAGE value="examples and data" />
+    <option name="LAST_COMMIT_MESSAGE" value="examples and data" />
     <option name="OPTIMIZE_IMPORTS_BEFORE_PROJECT_COMMIT" value="true" />
     <option name="REFORMAT_BEFORE_PROJECT_COMMIT" value="true" />
   </component>
@@ -1286,8 +1290,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/docs/usage.rst">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.64469916">
-          <caret line="45" column="76" selection-start-line="45" selection-start-column="76" selection-end-line="45" selection-end-column="76" />
+        <state vertical-scroll-proportion="0.42979944">
+          <caret line="30" column="0" selection-start-line="30" selection-start-column="0" selection-end-line="30" selection-end-column="0" />
           <folding />
         </state>
       </provider>
