@@ -1,10 +1,10 @@
 setuptools
+numpy
+matplotlib
+scipy
+pp
 pysam
 pybedtools
 HTSeq
-matplotlib
-numpy
-scipy
 colorbrewer
 Pycluster
-pp
