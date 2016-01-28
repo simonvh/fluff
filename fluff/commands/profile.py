@@ -1,5 +1,7 @@
 __author__ = 'george'
 
+import os
+
 ### My imports ###
 from fluff.color import parse_colors
 from fluff.plot import profile_screenshot
@@ -12,6 +14,13 @@ def profile(args):
     annotation = args.annotation
     outfile = args.outfile
     colors = parse_colors(args.colors)
+
+    for x in args.datafiles:
+        if '.bam' in x and not os.path.isfile("{0}.bai".format(x)):
+            print "Data file '{0}' does not have an index file".format(x)
+            print "Creating an index file for {0}".format(x)
+            pysam.index(x)
+            print "Done!"
 
     trackgroups = process_groups(args.trackgroups)
     if not trackgroups:
