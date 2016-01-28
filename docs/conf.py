@@ -268,7 +268,7 @@ man_pages = [
 #  dir menu entry, description, category)
 texinfo_documents = [
   (master_doc, 'fluff', u'fluff Documentation',
-   author, 'fluff', 'One line description of project.',
+   author, 'fluff', 'clustering and visualization of high-throughput sequencing data.',
    'Miscellaneous'),
 ]
 
