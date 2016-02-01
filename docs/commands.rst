@@ -1,5 +1,5 @@
-Usage
-=====
+Commands
+========
 
 fluff heatmap
 -------------
