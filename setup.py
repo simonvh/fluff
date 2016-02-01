@@ -28,3 +28,14 @@ setup(name='fluff',
       data_files=[],
       #install_requires=reqs
       )
+
+setuptools
+# numpy
+# scipy
+# matplotlib
+# pylab
+# colorbrewer
+# pybedtools
+# pysam
+# HTSeq
+# Pycluster
