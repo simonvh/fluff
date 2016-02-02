@@ -116,8 +116,6 @@ def heatmap(args):
         amount_bins = 1
         extend_dyn_up = 1000
         extend_dyn_down = 1000
-        data, regions, guard = load_data(featurefile, bins, extend_up, extend_down, rmdup, rpkm, rmrepeats,
-                                         fragmentsize, dynam, guard)
     else:
         amount_bins = bins
         extend_dyn_up = extend_up
