@@ -167,8 +167,6 @@ def heatmap(args):
         ind = arange(len(regions))
         labels = zeros(len(regions))
 
-    if not cluster_type == "k":
-        labels = None
 
     # Load data for visualization if -g option was used
     if dynam:
@@ -209,8 +207,10 @@ def heatmap(args):
                 input_fileBins.write('{0}\t'.format(readcounts[track]['bins'][idx]))
             input_fileBins.write('\n')
         break
-
     input_fileBins.close()
+
+    if not cluster_type == "k":
+        labels = None
 
     scale = get_absolute_scale(args.scale, [data[track] for track in tracks])
     heatmap_plot(data, ind[::-1], outfile, tracks, titles, colors, bgcolors, scale, tscale, labels)
