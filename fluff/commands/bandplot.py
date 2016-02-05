@@ -55,7 +55,7 @@ def bandplot(args):
         titles = [os.path.splitext(x)[0] for x in tracks]
     else:
         titles, data = load_read_counts(args.readCount)
-        tracks = titles
+        tracks = [x for x in titles]
         for x in data:
             for i in data[x]:
                 bins = len(data[x][i])
