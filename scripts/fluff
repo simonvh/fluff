@@ -214,7 +214,7 @@ dap_grp.add_argument("-p", dest="percs",
                      help="range of percentiles (default 50,90)",
                      metavar="INT,INT", default="50,90")
 dap_grp.add_argument("-P", dest="scalar",
-                     help="percentile at which to extract score (should be in range [0,100], default: 90)",
+                     help="percentile at which to extract score (should be in range [0,100], default: 99)",
                      metavar="INT",
                      default=SCALAR,
                      type=float)
