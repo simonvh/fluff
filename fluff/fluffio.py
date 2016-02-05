@@ -292,7 +292,7 @@ def load_read_counts(readCounts):
             idx = 0
             for datafile in line.split('\t')[1:]:
                 if datafile.strip():
-                    titles.append(datafile)
+                    titles.append(datafile.strip())
                     data[datafile] = {}
                     indexes[idx] = datafile
                     idx += 1
