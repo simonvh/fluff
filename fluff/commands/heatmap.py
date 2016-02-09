@@ -116,6 +116,8 @@ def heatmap(args):
         amount_bins = 1
         extend_dyn_up = 1000
         extend_dyn_down = 1000
+        data, regions, guard = load_data(featurefile, bins, extend_up, extend_down, rmdup, rpkm, rmrepeats,
+                                         fragmentsize, dynam, guard)
     else:
         amount_bins = bins
         extend_dyn_up = extend_up
@@ -180,7 +182,6 @@ def heatmap(args):
         else:
             f.write("{0}\t{1}\t{2}\t{3}\t{4}\t{5}\n".format(chrom, start, end, gene, cluster + 1, strand))
     f.close()
-
     # Save read counts
     readcounts = {}
     for i, track in enumerate(tracks):
