@@ -116,6 +116,7 @@ def heatmap(args):
         amount_bins = 1
         extend_dyn_up = 1000
         extend_dyn_down = 1000
+        # load the data once to get the features which extend below 0
         data, regions, guard = load_data(featurefile, bins, extend_up, extend_down, rmdup, rpkm, rmrepeats,
                                          fragmentsize, dynam, guard)
     else:
