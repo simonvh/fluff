@@ -526,3 +526,47 @@ def load_heatmap_data(featurefile, datafile, bins=100, up=5000, down=5000, rmdup
     # Retrieve original order
     r_data = numpy.array([[float(x) for x in row.split("\t")[3:]] for row in result])
     return os.path.basename(datafile), regions, r_data, guard  # [r_order]
+
+
+def check_data(featurefile, guard, dynam, up, down):
+    tmp = tempfile.NamedTemporaryFile(delete=False, prefix="fluff")
+    regions = []
+    order = {}
+    count = 0
+    hashcounter = 0
+    if not guard and dynam:
+        filt = True
+    else:
+        filt = False
+    for i, line in enumerate(open(featurefile)):
+        if line.startswith("#") or line[:5] == "track":
+            hashcounter += 1
+            continue
+        vals = line.strip().split("\t")
+        strand = "+"
+        gene = ""
+        if len(vals) >= 6:
+            strand = vals[5]
+        if len(vals) >= 4:
+            gene = vals[3]
+        middle = (int(vals[2]) + int(vals[1])) / 2
+        start, end = middle, middle
+        if strand == "+":
+            start -= up
+            end += down
+        else:
+            start -= down
+            end += up
+        if filt:
+            if start >= 0:
+                guard.append(True)
+            else:
+                guard.append(False)
+        if not filt and start >= 0:
+            if not dynam or guard[i - hashcounter]:
+                regions.append([vals[0], start, end, gene, strand])
+                order["{0}:{1}-{2}".format(vals[0], start, end)] = count
+                count += 1
+                tmp.write("{0}\t{1}\t{2}\t{3}\t0\t{4}\n".format(vals[0], start, end, gene, strand))
+    tmp.flush()
+    return guard

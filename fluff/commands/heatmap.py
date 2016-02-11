@@ -85,8 +85,7 @@ def heatmap(args):
         # Calculate the profile data
         data = {}
         regions = []
-        if guard or not dynam:
-            print "Loading data"
+        print "Loading data"
         try:
             # Load data in parallel
             import pp
@@ -117,8 +116,7 @@ def heatmap(args):
         extend_dyn_up = 1000
         extend_dyn_down = 1000
         # load the data once to get the features which extend below 0
-        data, regions, guard = load_data(featurefile, bins, extend_up, extend_down, rmdup, rpkm, rmrepeats,
-                                         fragmentsize, dynam, guard)
+        guard = check_data(featurefile, guard, dynam, extend_dyn_up, extend_dyn_down)
     else:
         amount_bins = bins
         extend_dyn_up = extend_up
