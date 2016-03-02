@@ -197,7 +197,7 @@ def heatmap(args):
 
     input_fileBins = open('{0}_readCounts.txt'.format(outfile), 'w')
     input_fileBins.write('Regions\t'.format(track))
-    for i, track in enumerate(tracks):
+    for i, track in enumerate(titles):
         input_fileBins.write('{0}\t'.format(track))
     input_fileBins.write('\n')
     for i, track in enumerate(tracks):
