@@ -3,7 +3,6 @@ __author__ = 'george'
 ### External imports ###
 import Pycluster
 from numpy import array, hstack, arange, zeros
-
 ### My imports ###
 from fluff.util import *
 from fluff.fluffio import *
@@ -88,18 +87,19 @@ def heatmap(args):
         print "Loading data"
         try:
             # Load data in parallel
-            import pp
-            job_server = pp.Server(ncpus)
+            import multiprocessing
+            pool = multiprocessing.Pool(processes=ncpus)
             jobs = []
             for datafile in datafiles:
-                jobs.append(job_server.submit(load_heatmap_data, (
+                # jobs.append(job_server.submit(load_heatmap_data, (featurefile, datafile, amount_bins, extend_dyn_up, extend_dyn_down, rmdup, rpkm, rmrepeats,fragmentsize, dynam, guard), (), ("tempfile", "sys", "os", "fluff.fluffio", "numpy")))
+                jobs.append(pool.apply_async(load_heatmap_data, args=(
                 featurefile, datafile, amount_bins, extend_dyn_up, extend_dyn_down, rmdup, rpkm, rmrepeats,
-                fragmentsize, dynam, guard), (), ("tempfile", "sys", "os", "fluff.fluffio", "numpy")))
+                fragmentsize, dynam, guard)))
             for job in jobs:
-                track, regions, profile, guard = job()
+                track, regions, profile, guard = job.get()
                 data[track] = profile
         except:
-            sys.stderr.write("Parallel Python (pp) not installed, can't load data in parallel\n")
+            sys.stderr.write("Python multiprocessing not installed, can't load data in parallel\n")
             for datafile in datafiles:
                 track, regions, profile, guard = load_heatmap_data(featurefile, datafile, amount_bins, extend_dyn_up,
                                                                    extend_dyn_down, rmdup, rpkm, rmrepeats,
