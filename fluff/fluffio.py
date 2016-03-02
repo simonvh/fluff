@@ -109,7 +109,7 @@ class TrackWrapper():
                 feature = pybedtools.BedTool("{0} {1} {2} 0 0 {3}".format(chrom, start, end, strand), from_string=True)
                 s = True
             for read in self.track.intersect(feature, u=True, stream=True, s=s):
-                intervals.append(HTSeq.GenomicInterval(chrom, read.start, read.end, read.strand))
+                intervals.append(HTSeq.GenomicInterval(chrom, read.start, read.end, str(read.strand)))
         return intervals
 
     def count(self, rmdup=False, rmrepeats=False):
