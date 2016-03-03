@@ -13,8 +13,9 @@ Contents:
 
    introduction
    installation
+          usage
    commands
-   usage
+
 
 Indices and tables
 ==================

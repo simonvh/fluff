@@ -29,7 +29,7 @@ def heatmap_plot(data, ind, outfile, tracks, titles, colors, bgcolors, scale, ts
 
     label_ratio = 4.0
     # space between heatmaps
-    btw_space = 0
+    btw_space = 0.05
     plot_width = 1.75 * len(tracks) + btw_space * len(tracks)
     plot_height = 6
     width_ratios = [label_ratio] * len(tracks)
