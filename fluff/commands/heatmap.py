@@ -19,10 +19,8 @@ def heatmap(args):
             sys.exit(1)
     for x in args.datafiles:
         if '.bam' in x and not os.path.isfile("{0}.bai".format(x)):
-            print "Data file '{0}' does not have an index file".format(x)
-            print "Creating an index file for {0}".format(x)
+            print "Data file '{0}' does not have an index file. Creating an index file for {0}.".format(x)
             pysam.index(x)
-            print "Done!"
 
     # Options Parser
     featurefile = args.featurefile
@@ -46,9 +44,15 @@ def heatmap(args):
     dynam = args.graphdynamics
 
     # Check for mutually exclusive parameters
-    if merge_mirrored and dynam:
-        print "ERROR: -m and -g option CANNOT be used together"
-        sys.exit(1)
+    if dynam:
+        if merge_mirrored:
+            print "ERROR: -m and -g option CANNOT be used together"
+            sys.exit(1)
+        if distancefunction == 'e':
+            print 'Dynamics can only be identified using Pearson correlation as metric.'
+            print 'Assigning metric to Pearson correlation'
+            distancefunction = 'c'
+
     # Warning about too much files
     if (len(tracks) > 4):
         print "Warning: Running fluff with too many files might make you system use enormous amount of memory!"

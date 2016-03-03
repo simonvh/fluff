@@ -17,10 +17,8 @@ def profile(args):
 
     for x in args.datafiles:
         if '.bam' in x and not os.path.isfile("{0}.bai".format(x)):
-            print "Data file '{0}' does not have an index file".format(x)
-            print "Creating an index file for {0}".format(x)
+            print "Data file '{0}' does not have an index file. Creating an index file for {0}.".format(x)
             pysam.index(x)
-            print "Done!"
 
     trackgroups = process_groups(args.trackgroups)
     if not trackgroups:
