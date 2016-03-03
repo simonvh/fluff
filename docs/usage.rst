@@ -7,6 +7,9 @@ Go to examples directory:
 Quick fluff heatmap example
 ---------------------------
 
+**As is**
+
+This example produces a heatmap "as is", preserving the order in the input file.
 With ``-f`` option you specify the features file, which should a BED file. Then the data file(s) with ``-d`` option. This can be a BAM or BED file. With ``-o`` you define the name of the output file. fluff heatmap outputs three file. The heatmap image, a bed file with the features and the clusters and the read counts for each feature.
 
 ::
@@ -14,9 +17,11 @@ With ``-f`` option you specify the features file, which should a BED file. Then 
     fluff heatmap -f data/P300.bed -d data/P300_1.bam data/P300_2.bam -o P300
 
 
-.. image:: img/P300_kmeans3.png
+.. image:: img/P300.png
 
-The previous command produces a heatmap "as is", preserving the order in the input file. If you want to cluster you features use the following command. With ``-C`` you can select which clustering method you want. In case you selected k-means you should use ``-k`` to declare how many clusters you want.
+
+**Clustering**
+If you want to cluster you features use the following command. With ``-C`` you can select which clustering method you want. In case you selected k-means you should use ``-k`` to declare how many clusters you want.
 
 ::
 
@@ -24,6 +29,24 @@ The previous command produces a heatmap "as is", preserving the order in the inp
 
 
 .. image:: img/P300_kmeans3.png
+
+
+**Identify dynamic patterns**
+
+One important function of fluff is the ability to identify dynamic patterns, for instance during different time points or conditions.
+
+
+ ::
+
+    fluff heatmap -f data/P300.bed -d data/P300_1.bam data/P300_2.bam -g -M Pearson -C kmeans -k 3 -o P300_kmeans3_dynamic
+
+
+
+.. image:: img/P300_kmeans3_dynamic.png
+
+
+.. image:: img/norm_dynam_heatmaps.png
+
 
 
 Quick fluff bandplot example
@@ -67,35 +90,3 @@ You give the feature(or features separated by ``,``) using the ``-i`` option, fo
 
 
 .. image:: img/scaffold_10_33468035_33543146_annotation.png
-
-
-Identify dynamic patterns
--------------------------
-
-One important function of fluff is the ability to identify dynamic patterns, for instance during different time points or conditions.
-
-
- ::
-
-    fluff heatmap -f data/P300.bed -d data/P300_1.bam data/P300_2.bam -g -M Pearson -C kmeans -k 3 -o P300_kmeans3_dynamic
-
-
-
-.. image:: img/P300_kmeans3_dynamic.png
-
- ::
-
-    fluff bandplot -f P300_kmeans3_dynamic_clusters.bed -d data/P300_1.bam data/P300_2.bam -o P300_kmeans3_dynamic_bandplot
-
-
-
- ::
-
-    fluff bandplot -f P300_kmeans3_dynamic_clusters.bed -counts P300_kmeans3_dynamic_readCounts.txt -o P300_kmeans3_dynamic_bandplot
-
-
-
-.. image:: img/P300_kmeans3_dynamic_bandplot.png
-
-
-.. image:: img/norm_dynam_heatmaps.png
