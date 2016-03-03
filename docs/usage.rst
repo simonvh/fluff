@@ -45,6 +45,8 @@ One important function of fluff is the ability to identify dynamic patterns, for
 .. image:: img/P300_kmeans3_dynamic.png
 
 
+In the following image heatmaps, produces by normal clustering (a) and using the dynamics options (b), have been put next to each other for better comparison.
+As you can see in (a), there are not any dynamic clusters. All clusters seem to have the same amount of signal in both samples. On the other hand in (b), you can see in cluster 2 the decrease of signal from the first sample to the second. Likewise on cluster 3, you see the signal increasing from on sample to the other.
 .. image:: img/norm_dynam_heatmaps.png
 
 
@@ -75,6 +77,7 @@ Quick fluff profile example
 
 If you want to show a genomic region as a dense plot, like a genome browser screenshot, you can you fluff profile.
 You give the feature(or features separated by ``,``) using the ``-i`` option, followed by ``-d`` for the data file(s). With ``-o`` you give the output file name, which is an image.
+
 
     ::
 
