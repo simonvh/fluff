@@ -14,8 +14,7 @@ With ``-f`` option you specify the features file, which should a BED file. Then 
     fluff heatmap -f data/P300.bed -d data/P300_1.bam data/P300_2.bam -o P300
 
 
-.. image:: ../examples/P300_kmeans3.png
-    :scale: 50 %
+.. image:: img/P300_kmeans3.png
 
 The previous command produces a heatmap "as is", preserving the order in the input file. If you want to cluster you features use the following command. With ``-C`` you can select which clustering method you want. In case you selected k-means you should use ``-k`` to declare how many clusters you want.
 
@@ -24,8 +23,7 @@ The previous command produces a heatmap "as is", preserving the order in the inp
     fluff heatmap -f data/P300.bed -d data/P300_1.bam data/P300_2.bam -C kmeans -k 3 -o P300_kmeans3
 
 
-.. image:: ../examples/P300_kmeans3.png
-    :scale: 50 %
+.. image:: img/P300_kmeans3.png
 
 
 Quick fluff bandplot example
@@ -38,7 +36,7 @@ With ``-f`` option you specify the _clusters.bed file, which you got from fluff 
     fluff bandplot -f P300_kmeans3_clusters.bed -d data/P300_1.bam data/P300_2.bam -o P300_kmeans3_bandplot
 
 
-.. image:: ../examples/P300_kmeans3_bandplot.png
+.. image:: img/P300_kmeans3_bandplot.png
 
 
 If case you want to use fluff bandplot on the same dataset as you ran fluff heatmap you can use ``-counts`` option, without ``-d`` option. Here the input is the _readCounts.txt file from fluff heatmap. This option is faster because it doesn't have to re-read the data files to get the reads.
@@ -83,8 +81,7 @@ One important function of fluff is the ability to identify dynamic patterns, for
 
 
 
-.. image:: ../examples/P300_kmeans3_dynamic.png
-    :scale: 50 %
+.. image:: img/P300_kmeans3_dynamic.png
 
  ::
 
@@ -98,7 +95,7 @@ One important function of fluff is the ability to identify dynamic patterns, for
 
 
 
-.. image:: ../examples/P300_kmeans3_dynamic_bandplot.png
+.. image:: img/P300_kmeans3_dynamic_bandplot.png
 
 
-.. image:: ../examples/norm_dynam_heatmaps.png
+.. image:: img/norm_dynam_heatmaps.png
