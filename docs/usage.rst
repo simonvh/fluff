@@ -99,3 +99,6 @@ One important function of fluff is the ability to identify dynamic patterns, for
 
 
 .. image:: ../examples/P300_kmeans3_dynamic_bandplot.png
+
+
+.. image:: ../examples/norm_dynam_heatmaps.png
