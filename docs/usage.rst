@@ -58,7 +58,7 @@ You give the feature(or features separated by ``,``) using the ``-i`` option, fo
     fluff profile -i scaffold_10:33468035-33543146 -d data/P300_1.bam data/P30bam -o scaffold_10_33468035_33543146
 
 
-.. image:: ../examples/scaffold_10_33468035_33543146.png
+.. image:: img/scaffold_10_33468035_33543146.png
 
 
     ::
@@ -66,7 +66,7 @@ You give the feature(or features separated by ``,``) using the ``-i`` option, fo
     fluff profile -i scaffold_10:33468035-33543146 -d data/P300_1.bam data/P300_2.bam -a data/annotation.bed -o scaffold_10_33468035_33543146_annotation
 
 
-.. image:: ../examples/scaffold_10_33468035_33543146_annotation.png
+.. image:: img/scaffold_10_33468035_33543146_annotation.png
 
 
 Identify dynamic patterns
