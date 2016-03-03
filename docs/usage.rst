@@ -14,7 +14,8 @@ With ``-f`` option you specify the features file, which should a BED file. Then 
     fluff heatmap -f data/P300.bed -d data/P300_1.bam data/P300_2.bam -o P300
 
 
-.. image:: ../examples/H3K4me3.png
+.. image:: ../examples/P300_kmeans3.png
+:scale: 50 %
 
 The previous command produces a heatmap "as is", preserving the order in the input file. If you want to cluster you features use the following command. With ``-C`` you can select which clustering method you want. In case you selected k-means you should use ``-k`` to declare how many clusters you want.
 
@@ -24,6 +25,8 @@ The previous command produces a heatmap "as is", preserving the order in the inp
 
 
 .. image:: ../examples/P300_kmeans3.png
+:scale: 50 %
+
 
 Quick fluff bandplot example
 ----------------------------
@@ -56,6 +59,7 @@ You give the feature(or features separated by ``,``) using the ``-i`` option, fo
 
     fluff profile -i scaffold_10:33468035-33543146 -d data/P300_1.bam data/P30bam -o scaffold_10_33468035_33543146
 
+
 .. image:: ../examples/scaffold_10_33468035_33543146.png
 
 
@@ -77,8 +81,10 @@ One important function of fluff is the ability to identify dynamic patterns, for
 
     fluff heatmap -f data/P300.bed -d data/P300_1.bam data/P300_2.bam -g -M Pearson -C kmeans -k 3 -o P300_kmeans3_dynamic
 
-.. image:: ../examples/P300_kmeans3_dynamic.png
 
+
+.. image:: ../examples/P300_kmeans3_dynamic.png
+:scale: 50 %
 
  ::
 
