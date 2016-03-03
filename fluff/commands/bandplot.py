@@ -48,6 +48,8 @@ def bandplot(args):
     rmrepeats = args.rmrepeats
     bins = args.bins
     summary = args.summary
+    # fontsize = args.textfontsize
+    # font = FontProperties(size=fontsize / 1.25, family=["Nimbus Sans L", "Helvetica", "sans-serif"])
     # Calculate the profile data
     if args.datafiles:
         data = load_cluster_data(clust_file, datafiles, bins, rpkm, rmdup, rmrepeats, fragmentsize=fragmentsize)
