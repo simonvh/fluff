@@ -42,6 +42,7 @@ def heatmap(args):
     ncpus = args.cpus
     distancefunction = args.distancefunction[0].lower()
     dynam = args.graphdynamics
+    fontsize = args.textfontsize
 
     # Check for mutually exclusive parameters
     if dynam:
@@ -95,7 +96,6 @@ def heatmap(args):
             pool = multiprocessing.Pool(processes=ncpus)
             jobs = []
             for datafile in datafiles:
-                # jobs.append(job_server.submit(load_heatmap_data, (featurefile, datafile, amount_bins, extend_dyn_up, extend_dyn_down, rmdup, rpkm, rmrepeats,fragmentsize, dynam, guard), (), ("tempfile", "sys", "os", "fluff.fluffio", "numpy")))
                 jobs.append(pool.apply_async(load_heatmap_data, args=(
                 featurefile, datafile, amount_bins, extend_dyn_up, extend_dyn_down, rmdup, rpkm, rmrepeats,
                 fragmentsize, dynam, guard)))
@@ -217,4 +217,4 @@ def heatmap(args):
         labels = None
 
     scale = get_absolute_scale(args.scale, [data[track] for track in tracks])
-    heatmap_plot(data, ind[::-1], outfile, tracks, titles, colors, bgcolors, scale, tscale, labels)
+    heatmap_plot(data, ind[::-1], outfile, tracks, titles, colors, bgcolors, scale, tscale, labels, fontsize)

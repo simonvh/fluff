@@ -135,11 +135,11 @@ vis_grp.add_argument("-b",
                      help="background color(s) (name, colorbrewer profile or hex code)",
                      metavar="NAME(S)",
                      default=DEFAULT_BG)
-# vis_grp.add_argument("-T",
-#                      dest="textfontsize",
-#                      help="text font size(default: {0})".format(FONTSIZE),
-#                      type=int,
-#                      default=FONTSIZE)
+vis_grp.add_argument("-T",
+                     dest="textfontsize",
+                     help="text font size(default: {0})".format(FONTSIZE),
+                     type=int,
+                     default=FONTSIZE)
 
 opt_grp = p.add_argument_group(title='Other')
 opt_grp.add_argument("-P",
@@ -229,11 +229,11 @@ vis_grp.add_argument("-c", dest="colors",
                      help="color(s) (name, colorbrewer profile or hex code)",
                      metavar="NAME(S)",
                      default=DEFAULT_COLORS)
-# vis_grp.add_argument("-T",
-#                      dest="textfontsize",
-#                      help="text font size(default: {0})".format(FONTSIZE),
-#                      type=int,
-#                      default=FONTSIZE)
+vis_grp.add_argument("-T",
+                     dest="textfontsize",
+                     help="text font size(default: {0})".format(FONTSIZE),
+                     type=int,
+                     default=FONTSIZE)
 opt_grp = p.add_argument_group(title='Other')
 opt_grp.add_argument("-h", "--help",
                      dest="help",
@@ -306,11 +306,11 @@ vis_grp.add_argument("-c", dest="colors",
 vis_grp.add_argument("-b", dest="background",
                      help="background color: stripes | white | color",
                      default="stripes")
-# vis_grp.add_argument("-T",
-#                      dest="textfontsize",
-#                      help="text font size(default: {0})".format(FONTSIZE),
-#                      type=int,
-#                      default=FONTSIZE)
+vis_grp.add_argument("-T",
+                     dest="textfontsize",
+                     help="text font size(default: {0})".format(FONTSIZE),
+                     type=int,
+                     default=FONTSIZE)
 opt_grp = p.add_argument_group(title='Optional arguments')
 opt_grp.add_argument("-h", "--help",
                      dest="help",

@@ -61,4 +61,5 @@ def profile(args):
                        rmdup=args.rmdup,
                        rmrepeats=args.rmrepeats,
                        reverse=args.reverse,
+                       fontsize=args.textfontsize
                        )

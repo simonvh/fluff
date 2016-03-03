@@ -10,7 +10,7 @@ from fluff.color import create_colormap
 from fluffio import *
 
 DEFAULT_COLORS = ["#e41a1c", "#4daf4a", "#377eb8"]
-FONTSIZE = 8
+#FONTSIZE = 10
 PROFILE_MIN_Y = 75
 GENE_ARROW = "->"
 GENE_ARROW = ArrowStyle._Curve(beginarrow=False, endarrow=True, head_length=.4, head_width=.4)
@@ -24,12 +24,12 @@ def hide_axes(ax):
         spine.set_color('none')
 
 
-def heatmap_plot(data, ind, outfile, tracks, titles, colors, bgcolors, scale, tscale, labels):
-    font = FontProperties(size=FONTSIZE / 1.25, family=["Nimbus Sans L", "Helvetica", "sans-serif"])
+def heatmap_plot(data, ind, outfile, tracks, titles, colors, bgcolors, scale, tscale, labels, fontsize):
+    font = FontProperties(size=fontsize / 1.25, family=["Nimbus Sans L", "Helvetica", "sans-serif"])
 
     label_ratio = 4.0
     # space between heatmaps
-    btw_space = 0.05
+    btw_space = 0.01
     plot_width = 1.75 * len(tracks) + btw_space * len(tracks)
     plot_height = 6
     width_ratios = [label_ratio] * len(tracks)
@@ -165,12 +165,12 @@ def create_grid_figure(nrows, ncolumns, plotwidth=2.0, plotheight=2.0, pad=0.1, 
 
 
 def profile_screenshot(fname, intervals, tracks, colors=None, scalegroups=[], annotation=None, bgmode="color",
-                       fragmentsize=200, scale=False, dpi=600, rmdup=False, rmrepeats=False, reverse=False):
+                       fragmentsize=200, scale=False, dpi=600, rmdup=False, rmrepeats=False, reverse=False, fontsize=fontsize):
     # Colors
     if not colors:
         colors = DEFAULT_COLORS
 
-    font = FontProperties(size=FONTSIZE / 1.25, family=["Nimbus Sans L", "Helvetica", "sans-serif"])
+    font = FontProperties(size=fontsize / 1.25, family=["Nimbus Sans L", "Helvetica", "sans-serif"])
 
     # Sizes
     plotwidth = 6

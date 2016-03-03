@@ -4,7 +4,7 @@ FL_VERSION = "2Alpha"
 ######## HEATMAP #############
 DEFAULT_BINSIZE = 100
 DEFAULT_METRIC = "e"  # Euclidian, PyCluster
-FONTSIZE = 8
+FONTSIZE = 10
 DEFAULT_SCALE = "90%"
 DEFAULT_EXTEND = 5000
 DEFAULT_PERCENTILE = 99
@@ -21,7 +21,7 @@ PADLEFT = 1.5  # For labels
 PADTOP = 0.4  # For labels
 PADBOTTOM = 0.05
 PADRIGHT = 0.05
-FONTSIZE = 8
+FONTSIZE = 10
 BINS = 100  # Number of bins for profile
 SCALAR = 99
 

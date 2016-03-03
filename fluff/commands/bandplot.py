@@ -10,8 +10,6 @@ from fluff.util import *
 from fluff.color import parse_colors
 from fluff.config import *
 
-font = FontProperties(size=FONTSIZE / 1.25, family=["Nimbus Sans L", "Helvetica", "sans-serif"])
-
 def bandplot(args):
     if (0 > args.scalar) or (args.scalar > 100):
       print "ERROR: -P value has to be between 0 and 100"
@@ -46,8 +44,8 @@ def bandplot(args):
     rmrepeats = args.rmrepeats
     bins = args.bins
     summary = args.summary
-    # fontsize = args.textfontsize
-    # font = FontProperties(size=fontsize / 1.25, family=["Nimbus Sans L", "Helvetica", "sans-serif"])
+    fontsize = args.textfontsize
+    font = FontProperties(size=fontsize / 1.25, family=["Nimbus Sans L", "Helvetica", "sans-serif"])
     # Calculate the profile data
     if args.datafiles:
         data = load_cluster_data(clust_file, datafiles, bins, rpkm, rmdup, rmrepeats, fragmentsize=fragmentsize)
