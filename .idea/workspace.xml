@@ -1,16 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="9b2f1bf8-4c89-4069-aed8-b8a6d29f7ccb" name="Default" comment="examples and data">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/docs/img/P300.png" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/docs/img/P300_kmeans3.png" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/docs/img/P300_kmeans3_bandplot.png" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/docs/img/P300_kmeans3_dynamic.png" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/docs/img/P300_kmeans3_dynamic_bandplot.png" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.cache/v/cache/lastfailed" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/examples/norm_dynam_heatmaps.png" afterPath="" />
+    <list default="true" id="9b2f1bf8-4c89-4069-aed8-b8a6d29f7ccb" name="Default" comment="images path">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/usage.rst" afterPath="$PROJECT_DIR$/docs/usage.rst" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/commands.rst" afterPath="$PROJECT_DIR$/docs/commands.rst" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/index.rst" afterPath="$PROJECT_DIR$/docs/index.rst" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/fluff/commands/bandplot.py" afterPath="$PROJECT_DIR$/fluff/commands/bandplot.py" />
     </list>
     <list id="7bc7498b-e56e-421f-98e6-632b0db1a0f1" name="Failed commit: Default" comment="examples and data" />
     <ignored path="fluff.iws" />
@@ -32,11 +27,11 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="usage.rst" pinned="false" current-in-tab="true">
+      <file leaf-file-name="usage.rst" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/docs/usage.rst">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.914204">
-              <caret line="100" column="14" selection-start-line="100" selection-start-column="14" selection-end-line="100" selection-end-column="14" />
+            <state vertical-scroll-proportion="0.0">
+              <caret line="50" column="0" selection-start-line="50" selection-start-column="0" selection-end-line="50" selection-end-column="0" />
               <folding />
             </state>
           </provider>
@@ -46,7 +41,7 @@
         <entry file="file://$PROJECT_DIR$/docs/commands.rst">
           <provider selected="true" editor-type-id="text-editor">
             <state vertical-scroll-proportion="0.0">
-              <caret line="17" column="14" selection-start-line="17" selection-start-column="14" selection-end-line="17" selection-end-column="14" />
+              <caret line="14" column="18" selection-start-line="14" selection-start-column="18" selection-end-line="14" selection-end-column="18" />
               <folding />
             </state>
           </provider>
@@ -62,11 +57,31 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="index.rst" pinned="false" current-in-tab="false">
+      <file leaf-file-name="index.rst" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/docs/index.rst">
           <provider selected="true" editor-type-id="text-editor">
+            <state vertical-scroll-proportion="0.21449">
+              <caret line="15" column="3" selection-start-line="15" selection-start-column="3" selection-end-line="15" selection-end-column="3" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="bandplot.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/fluff/commands/bandplot.py">
+          <provider selected="true" editor-type-id="text-editor">
             <state vertical-scroll-proportion="0.0">
-              <caret line="16" column="3" selection-start-line="16" selection-start-column="3" selection-end-line="16" selection-end-column="3" />
+              <caret line="37" column="0" selection-start-line="37" selection-start-column="0" selection-end-line="37" selection-end-column="0" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="profile.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/fluff/commands/profile.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state vertical-scroll-proportion="-9.678572">
+              <caret line="20" column="26" selection-start-line="20" selection-start-column="26" selection-end-line="20" selection-end-column="26" />
               <folding />
             </state>
           </provider>
@@ -77,6 +92,26 @@
           <provider selected="true" editor-type-id="text-editor">
             <state vertical-scroll-proportion="0.0">
               <caret line="26" column="6" selection-start-line="26" selection-start-column="6" selection-end-line="26" selection-end-column="6" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="config.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/fluff/config.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state vertical-scroll-proportion="0.0">
+              <caret line="5" column="19" selection-start-line="5" selection-start-column="18" selection-end-line="5" selection-end-column="19" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="fluff" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/scripts/fluff">
+          <provider selected="true" editor-type-id="text-editor">
+            <state vertical-scroll-proportion="0.0">
+              <caret line="72" column="43" selection-start-line="72" selection-start-column="43" selection-end-line="72" selection-end-column="43" />
               <folding />
             </state>
           </provider>
@@ -129,22 +164,22 @@
         <option value="$PROJECT_DIR$/docs/installation.rst" />
         <option value="$PROJECT_DIR$/docs/introduction.rst" />
         <option value="$PROJECT_DIR$/README.md" />
-        <option value="$PROJECT_DIR$/fluff/commands/profile.py" />
         <option value="$PROJECT_DIR$/docs/usage.html" />
         <option value="$PROJECT_DIR$/docs/conf.py" />
         <option value="$PROJECT_DIR$/requirements.txt" />
         <option value="$PROJECT_DIR$/setup.py" />
-        <option value="$PROJECT_DIR$/docs/commands.rst" />
-        <option value="$PROJECT_DIR$/fluff/commands/heatmap.py" />
         <option value="$PROJECT_DIR$/tests/test_util.py" />
         <option value="$PROJECT_DIR$/tests/test_io.py" />
         <option value="$PROJECT_DIR$/fluff/fluffio.py" />
         <option value="$PROJECT_DIR$/fluff/config.py" />
         <option value="$PROJECT_DIR$/scripts/fluff" />
-        <option value="$PROJECT_DIR$/fluff/commands/bandplot.py" />
-        <option value="$PROJECT_DIR$/docs/index.rst" />
         <option value="$PROJECT_DIR$/fluff/plot.py" />
         <option value="$PROJECT_DIR$/docs/usage.rst" />
+        <option value="$PROJECT_DIR$/fluff/commands/heatmap.py" />
+        <option value="$PROJECT_DIR$/fluff/commands/profile.py" />
+        <option value="$PROJECT_DIR$/docs/commands.rst" />
+        <option value="$PROJECT_DIR$/fluff/commands/bandplot.py" />
+        <option value="$PROJECT_DIR$/docs/index.rst" />
       </list>
     </option>
   </component>
@@ -251,6 +286,24 @@
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
             <PATH_ELEMENT>
+              <option name="myItemId" value="fluff" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="commands" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="fluff" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="fluff" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
               <option name="myItemId" value="examples" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
@@ -266,24 +319,6 @@
             </PATH_ELEMENT>
             <PATH_ELEMENT>
               <option name="myItemId" value="docs" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="fluff" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="fluff" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="docs" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="img" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
           </PATH>
@@ -518,42 +553,6 @@
       <created>1452003267843</created>
       <option name="number" value="Default" />
       <updated>1452003267843</updated>
-    </task>
-    <task id="LOCAL-00028" summary="docs">
-      <created>1453475584488</created>
-      <option name="number" value="00028" />
-      <option name="project" value="LOCAL" />
-      <updated>1453475584488</updated>
-    </task>
-    <task id="LOCAL-00029" summary="examples and data">
-      <created>1453716175355</created>
-      <option name="number" value="00029" />
-      <option name="project" value="LOCAL" />
-      <updated>1453716175355</updated>
-    </task>
-    <task id="LOCAL-00030" summary="examples and data">
-      <created>1453716588220</created>
-      <option name="number" value="00030" />
-      <option name="project" value="LOCAL" />
-      <updated>1453716588220</updated>
-    </task>
-    <task id="LOCAL-00031" summary="setup dependencies">
-      <created>1453716655071</created>
-      <option name="number" value="00031" />
-      <option name="project" value="LOCAL" />
-      <updated>1453716655071</updated>
-    </task>
-    <task id="LOCAL-00032" summary="setup">
-      <created>1453717263914</created>
-      <option name="number" value="00032" />
-      <option name="project" value="LOCAL" />
-      <updated>1453717263914</updated>
-    </task>
-    <task id="LOCAL-00033" summary="requirements">
-      <created>1453719311207</created>
-      <option name="number" value="00033" />
-      <option name="project" value="LOCAL" />
-      <updated>1453719311207</updated>
     </task>
     <task id="LOCAL-00034" summary="setup">
       <created>1453728533110</created>
@@ -813,7 +812,43 @@
       <option name="project" value="LOCAL" />
       <updated>1457009306042</updated>
     </task>
-    <option name="localTasksCounter" value="77" />
+    <task id="LOCAL-00077" summary="readthedocs">
+      <created>1457009739549</created>
+      <option name="number" value="00077" />
+      <option name="project" value="LOCAL" />
+      <updated>1457009739549</updated>
+    </task>
+    <task id="LOCAL-00078" summary="images path">
+      <created>1457009780342</created>
+      <option name="number" value="00078" />
+      <option name="project" value="LOCAL" />
+      <updated>1457009780342</updated>
+    </task>
+    <task id="LOCAL-00079" summary="readthedocs">
+      <created>1457010353541</created>
+      <option name="number" value="00079" />
+      <option name="project" value="LOCAL" />
+      <updated>1457010353541</updated>
+    </task>
+    <task id="LOCAL-00080" summary="doc">
+      <created>1457011297258</created>
+      <option name="number" value="00080" />
+      <option name="project" value="LOCAL" />
+      <updated>1457011297258</updated>
+    </task>
+    <task id="LOCAL-00081" summary="doc">
+      <created>1457011415988</created>
+      <option name="number" value="00081" />
+      <option name="project" value="LOCAL" />
+      <updated>1457011415988</updated>
+    </task>
+    <task id="LOCAL-00082" summary="reduce messages&#10;force pearson if dynamic is used">
+      <created>1457011845235</created>
+      <option name="number" value="00082" />
+      <option name="project" value="LOCAL" />
+      <updated>1457011845235</updated>
+    </task>
+    <option name="localTasksCounter" value="83" />
     <servers />
   </component>
   <component name="TestHistory">
@@ -860,9 +895,6 @@
   </component>
   <component name="VcsManagerConfiguration">
     <option name="CHECK_COMMIT_MESSAGE_SPELLING" value="false" />
-    <MESSAGE value="setup" />
-    <MESSAGE value="usage" />
-    <MESSAGE value="bin size bandplot" />
     <MESSAGE value="index bam files in profile" />
     <MESSAGE value="requirments" />
     <MESSAGE value="req" />
@@ -884,8 +916,11 @@
     <MESSAGE value="examples and data" />
     <MESSAGE value="images size" />
     <MESSAGE value="docs images" />
+    <MESSAGE value="images path" />
+    <MESSAGE value="readthedocs" />
     <MESSAGE value="doc" />
-    <option name="LAST_COMMIT_MESSAGE" value="doc" />
+    <MESSAGE value="reduce messages&#10;force pearson if dynamic is used" />
+    <option name="LAST_COMMIT_MESSAGE" value="reduce messages&#10;force pearson if dynamic is used" />
     <option name="OPTIMIZE_IMPORTS_BEFORE_PROJECT_COMMIT" value="true" />
     <option name="REFORMAT_BEFORE_PROJECT_COMMIT" value="true" />
   </component>
@@ -1151,55 +1186,11 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/fluff/commands/heatmap.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.3079123">
-          <caret line="28" column="29" selection-start-line="28" selection-start-column="27" selection-end-line="28" selection-end-column="29" />
-          <folding>
-            <element signature="e#65#81#0" expanded="false" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/fluff/color.py">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.10284035">
           <caret line="7" column="18" selection-start-line="7" selection-start-column="7" selection-end-line="7" selection-end-column="18" />
           <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/fluff/commands/bandplot.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.26444662">
-          <caret line="18" column="9" selection-start-line="18" selection-start-column="9" selection-end-line="18" selection-end-column="9" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/fluff/commands/profile.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.15729266">
-          <caret line="11" column="29" selection-start-line="11" selection-start-column="27" selection-end-line="11" selection-end-column="29" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/fluff/config.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.32888466">
-          <caret line="23" column="8" selection-start-line="23" selection-start-column="0" selection-end-line="23" selection-end-column="8" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/scripts/fluff">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="1.7292659">
-          <caret line="137" column="0" selection-start-line="137" selection-start-column="2" selection-end-line="141" selection-end-column="40" />
-          <folding>
-            <element signature="e#46#61#0" expanded="false" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -1221,18 +1212,34 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/docs/introduction.rst">
+    <entry file="file://$PROJECT_DIR$/fluff/plot.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="10" column="0" selection-start-line="10" selection-start-column="0" selection-end-line="10" selection-end-column="0" />
+        <state vertical-scroll-proportion="0.1567091">
+          <caret line="14" column="17" selection-start-line="14" selection-start-column="17" selection-end-line="14" selection-end-column="17" />
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/docs/commands.rst">
+    <entry file="file://$PROJECT_DIR$/fluff/commands/heatmap.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.2938296">
+          <caret line="21" column="12" selection-start-line="21" selection-start-column="12" selection-end-line="22" selection-end-column="26" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/fluff/commands/bandplot.py">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
-          <caret line="17" column="14" selection-start-line="17" selection-start-column="14" selection-end-line="17" selection-end-column="14" />
+          <caret line="37" column="0" selection-start-line="37" selection-start-column="0" selection-end-line="37" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/fluff/commands/profile.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="-9.678572">
+          <caret line="20" column="26" selection-start-line="20" selection-start-column="26" selection-end-line="20" selection-end-column="26" />
           <folding />
         </state>
       </provider>
@@ -1245,26 +1252,50 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/fluff/plot.py">
+    <entry file="file://$PROJECT_DIR$/fluff/config.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.1567091">
-          <caret line="14" column="17" selection-start-line="14" selection-start-column="17" selection-end-line="14" selection-end-column="17" />
+        <state vertical-scroll-proportion="0.0">
+          <caret line="5" column="19" selection-start-line="5" selection-start-column="18" selection-end-line="5" selection-end-column="19" />
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/docs/index.rst">
+    <entry file="file://$PROJECT_DIR$/scripts/fluff">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
-          <caret line="16" column="3" selection-start-line="16" selection-start-column="3" selection-end-line="16" selection-end-column="3" />
+          <caret line="72" column="43" selection-start-line="72" selection-start-column="43" selection-end-line="72" selection-end-column="43" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/docs/commands.rst">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="14" column="18" selection-start-line="14" selection-start-column="18" selection-end-line="14" selection-end-column="18" />
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/docs/usage.rst">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.914204">
-          <caret line="100" column="14" selection-start-line="100" selection-start-column="14" selection-end-line="100" selection-end-column="14" />
+        <state vertical-scroll-proportion="0.0">
+          <caret line="50" column="0" selection-start-line="50" selection-start-column="0" selection-end-line="50" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/docs/introduction.rst">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="10" column="0" selection-start-line="10" selection-start-column="0" selection-end-line="10" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/docs/index.rst">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.21449">
+          <caret line="15" column="3" selection-start-line="15" selection-start-column="3" selection-end-line="15" selection-end-column="3" />
           <folding />
         </state>
       </provider>

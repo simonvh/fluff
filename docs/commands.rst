@@ -12,8 +12,8 @@ fluff heatmap
 Options
 ~~~~~~~
 
-Required arguments:
-~~~~~~~~~~~~~~~~~~~
+Required arguments
+~~~~~~~~~~~~~~~~~~
 
 -  ``-f`` FILE
 This need to be a BED file containing features. BED-fomatted files need to contain at least three tab-seperated columns describing chromosome name, start and end.
@@ -24,8 +24,8 @@ This option is for the data files. They should be aligned sequence data in BAM o
 -  ``-o`` name
 This option defines the name of the output files (type determined by extension)
 
-Clustering:
-~~~~~~~~~~~
+Clustering
+~~~~~~~~~~
 
 -  ``-C`` METHOD
 By default, fluff heatmap will preserve the order of the features in the input BED file. This is equivalent to specifying -C none. Alternatively, one of two basic clustering methods can be specified using the -C parameter: hierarchical and kmeans. If kmeans is selected the number of clusters (-k) is mandatory.
@@ -43,8 +43,8 @@ Identify dynamics between different time points or conditions. This should be us
 Pick specific data file(s) to use for clustering. You can select using its position e.g -p 1 for first file or -p1,3 for first and third files.
 
 
-Data processing:
-~~~~~~~~~~~~~~~~
+Data processing
+~~~~~~~~~~~~~~~
 
 -  ``-e`` INT
 extend (in bp. Default: 5000)
@@ -71,8 +71,8 @@ merge mirrored clusters (only with kmeans and without -g option)
 scale (absolute or percentage)
 
 
-Visualization:
-~~~~~~~~~~~~~~
+Visualization
+~~~~~~~~~~~~~
 
 -  ``-c`` NAME(S)
 color(s) (name, colorbrewer profile or hex code)
@@ -80,8 +80,8 @@ color(s) (name, colorbrewer profile or hex code)
 -  ``-B`` NAME(S)
 background color(s) (name, colorbrewer profile or hex code)
 
-Other:
-~~~~~~
+Other
+~~~~~
 
 -  ``-h``
 show help message
