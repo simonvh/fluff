@@ -1,14 +1,14 @@
 __author__ = 'george'
 
 ### External imports ###
-from pylab import savefig
 
 
 ### My imports ###
-from fluff.plot import *
-from fluff.util import *
 from fluff.color import parse_colors
 from fluff.config import *
+from fluff.plot import *
+from fluff.util import *
+
 
 def bandplot(args):
     if (0 > args.scalar) or (args.scalar > 100):
@@ -136,4 +136,4 @@ def bandplot(args):
         ax.axes.get_yaxis().set_visible(False)
         ax.axes.get_xaxis().set_visible(False)
     print "Saving figure"
-    savefig(args.outfile, dpi=600)
+    plt.savefig(args.outfile, dpi=600)

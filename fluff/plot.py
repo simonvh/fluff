@@ -7,10 +7,10 @@ from numpy import *
 from scipy.stats import scoreatpercentile
 
 from fluff.color import create_colormap
+from fluff.config import FONTSIZE
 from fluffio import *
 
 DEFAULT_COLORS = ["#e41a1c", "#4daf4a", "#377eb8"]
-#FONTSIZE = 10
 PROFILE_MIN_Y = 75
 GENE_ARROW = "->"
 GENE_ARROW = ArrowStyle._Curve(beginarrow=False, endarrow=True, head_length=.4, head_width=.4)
