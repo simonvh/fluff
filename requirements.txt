@@ -6,5 +6,5 @@ pylab
 colorbrewer
 pybedtools
 pysam
-TSeq
+HTSeq
 Pycluster
