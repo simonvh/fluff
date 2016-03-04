@@ -6,8 +6,8 @@ DESCRIPTION = """
 fluff - plots and graphs 
 """
 
-# install_reqs = parse_requirements('requirements.txt', session=False)
-# reqs = [str(ir.req) for ir in install_reqs]
+install_reqs = parse_requirements('requirements.txt', session=False)
+reqs = [str(ir.req) for ir in install_reqs]
 
 setup(name='fluff',
       version=FL_VERSION,
@@ -26,16 +26,6 @@ setup(name='fluff',
           "scripts/fluff",
       ],
       data_files=[],
-      #install_requires=reqs
+      install_requires=reqs
       )
 
-setuptools
-# numpy
-# scipy
-# matplotlib
-# pylab
-# colorbrewer
-# pybedtools
-# pysam
-# HTSeq
-# Pycluster

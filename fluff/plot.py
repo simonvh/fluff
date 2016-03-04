@@ -164,8 +164,8 @@ def create_grid_figure(nrows, ncolumns, plotwidth=2.0, plotheight=2.0, pad=0.1, 
     return fig, axes
 
 
-def profile_screenshot(fname, intervals, tracks, colors=None, scalegroups=[], annotation=None, bgmode="color",
-                       fragmentsize=200, scale=False, dpi=600, rmdup=False, rmrepeats=False, reverse=False, fontsize=fontsize):
+def profile_screenshot(fname, intervals, tracks, fontsize, colors=None, scalegroups=[], annotation=None, bgmode="color",
+                       fragmentsize=200, scale=False, dpi=600, rmdup=False, rmrepeats=False, reverse=False):
     # Colors
     if not colors:
         colors = DEFAULT_COLORS

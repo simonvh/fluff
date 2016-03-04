@@ -54,12 +54,12 @@ def profile(args):
     profile_screenshot(outfile, intervals, tracks,
                        annotation=annotation,
                        scalegroups=scalegroups,
+                       fontsize=args.textfontsize,
                        colors=colors,
                        bgmode=args.background,
                        fragmentsize=args.fragmentsize,
                        scale=scale,
                        rmdup=args.rmdup,
                        rmrepeats=args.rmrepeats,
-                       reverse=args.reverse,
-                       fontsize=args.textfontsize
+                       reverse=args.reverse
                        )
