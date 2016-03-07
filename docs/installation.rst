@@ -86,3 +86,40 @@ If you encounter no errors, go ahead with installing fluff:
 
   sudo python setup.py install --user
 
+
+
+Using Conda
+-----------
+
+::
+
+You can download the lastest version of fluff at:
+
+https://github.com/simonvh/fluff/releases
+
+Start by unpacking the source archive
+
+::
+
+  tar xvzf fluff-<version>.tar.gz
+  cd fluff-<version>
+
+
+Make a copy of the environment:
+
+::
+
+  conda env create -f conda/environment.yml
+
+
+**Activate the new environment from Linux, OS X:**
+
+::
+
+  source activate fluff
+
+**Activate the new environment from Windows:**
+
+::
+
+  activate fluff
