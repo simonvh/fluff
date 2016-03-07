@@ -1,8 +1,3 @@
-Disclaimer
-==========
-
-Fluff is still under heavy development. No guarantees are given ;). However, if you find it useful and encounter problems, let me know and I'll try to help. The gene annotation track that fluff_profile.py produces is still pretty ugly too.
-
 fluff
 =====
 
@@ -18,6 +13,11 @@ It currently contains three scripts:
 Plotting is handled by the excellent [matplotlib](http://matplotlib.sourceforge.net/) library, several image formats are supported (SVG, Postscript, PDF, PNG).
 
 Fluff makes heavy use of [pysam](http://code.google.com/p/pysam/), [pybedtools](http://packages.python.org/pybedtools/), [HTseq](http://www-huber.embl.de/users/anders/HTSeq/) and indexed [BAM files](http://samtools.sourceforge.net/) for speed and ease of use. Due to the indexing, the fluff scripts can be quick, even when working with large files. Currently, [BED](http://genome.ucsc.edu/FAQ/FAQformat.html#format1) files are also supported, but performance will suffer.
+
+Citing
+------
+
+The manuscript is in preparation. If you find fluff useful, please cite it from Zenodo: [![DOI](https://zenodo.org/badge/doi/10.5281/zenodo.34209.svg)](http://dx.doi.org/10.5281/zenodo.34209)
 
 Prerequisites
 -------------
