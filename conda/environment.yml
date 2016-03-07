@@ -1,0 +1,40 @@
+name: fluff
+dependencies:
+- cairo=1.12.18=6
+- cycler=0.10.0=py27_0
+- fontconfig=2.11.1=5
+- freetype=2.5.5=0
+- libgfortran=3.0=0
+- libpng=1.6.17=0
+- libxml2=2.9.3=0
+- matplotlib=1.5.1=np110py27_0
+- mkl=11.3.1=0
+- numpy=1.10.4=py27_1
+- openssl=1.0.2g=0
+- pip=8.0.3=py27_0
+- pixman=0.32.6=0
+- pycairo=1.10.0=py27_0
+- pyparsing=2.0.3=py27_0
+- pyqt=4.11.4=py27_1
+- pysam=0.8.4=py27_0
+- python=2.7.11=0
+- python-dateutil=2.4.2=py27_0
+- pytz=2015.7=py27_0
+- qt=4.8.7=1
+- readline=6.2=2
+- scipy=0.17.0=np110py27_2
+- setuptools=20.1.1=py27_0
+- sip=4.16.9=py27_0
+- six=1.10.0=py27_0
+- sqlite=3.9.2=0
+- tk=8.5.18=0
+- wheel=0.29.0=py27_0
+- zlib=1.2.8=0
+- pip:
+  - colorbrewer==0.1.1
+  - fluff==2a0
+  - htseq==0.6.1
+  - pandas==0.17.1
+  - pybedtools==0.7.6
+  - pycluster==1.52
+
