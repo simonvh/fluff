@@ -1,11 +1,7 @@
 Usage
 =====
 
-You can try fluff with an example dataset from ENCODE. To download the files just visit the following link and click ``Download all``
-::
-
-    https://figshare.com/articles/fluff_example_data/3113728
-
+You can try fluff with an example dataset from ENCODE. To download the files just visit https://figshare.com/articles/fluff_example_data/3113728 and click ``Download all``
 Once is downloaded, unzip it and go to the directory. Inside you will find 6 BAM files, with their indexes, and a BED file
 
 Quick fluff heatmap example
