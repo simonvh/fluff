@@ -171,15 +171,16 @@ def profile_screenshot(fname, intervals, tracks, fontsize, colors=None, scalegro
     font = FontProperties(size=fontsize / 1.25, family=["Nimbus Sans L", "Helvetica", "sans-serif"])
 
     # Sizes
-    #Adjust width based on titles length. Minimum 6
+    #Adjust width based on titles length
     if max([len(os.path.splitext(os.path.basename(i[0]))[0].strip()) for i in tracks]) > 10:
-        plotwidth = 6 * (max([len(os.path.splitext(os.path.basename(i[0]))[0].strip()) for i in tracks])/10) * 1.25
+        padleft = 1
     else:
-        plotwidth = 6
+        padleft = 0.1
+    plotwidth = 6
     plotheight = 0.3
     padh = 0
-    padw = 0.1
-    padleft = 0.1
+    padw = 3
+    #padleft = 0.1
     padright = 0.1
     padtop = 0.1
     padbottom = 0.1
