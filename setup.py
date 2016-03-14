@@ -23,18 +23,16 @@ setup(name='fluff',
           "scripts/fluff",
       ],
       data_files=[],
-     install_requires=["setuptools",
-                       "pysam",
+     install_requires=["pysam",
+                       "HTSeq",
                        "numpy",
                        "scipy",
                        "matplotlib",
                        "colorbrewer",
-                       "pybedtools",
-                       "HTSeq"
+                       "pybedtools"
                        ],
 
       dependency_links = [
         "http://bonsai.hgc.jp/~mdehoon/software/cluster/Pycluster-1.52.tar.gz",
     ],
       )
-

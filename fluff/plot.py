@@ -26,10 +26,9 @@ def hide_axes(ax):
 
 def heatmap_plot(data, ind, outfile, tracks, titles, colors, bgcolors, scale, tscale, labels, fontsize):
     font = FontProperties(size=fontsize / 1.25, family=["Nimbus Sans L", "Helvetica", "sans-serif"])
-
     label_ratio = 4.0
     # space between heatmaps
-    btw_space = 0.01
+    btw_space = 0.02
     plot_width = 1.75 * len(tracks) + btw_space * len(tracks)
     plot_height = 6
     width_ratios = [label_ratio] * len(tracks)
@@ -48,7 +47,7 @@ def heatmap_plot(data, ind, outfile, tracks, titles, colors, bgcolors, scale, ts
     for i, track in enumerate(tracks):
         c = create_colormap(bgcolors[i % len(bgcolors)], colors[i % len(colors)])
         ax = plt.subplot(gs[i])
-        ax.set_title(titles[i], fontproperties=font, y=0.96)
+        ax.set_title(titles[i], fontproperties=font, y=1)
         axes.append(ax)
         ax.pcolormesh(data[track][ind], cmap=c, vmin=0, vmax=scale * tscale[i])
         hide_axes(ax)
@@ -169,11 +168,14 @@ def profile_screenshot(fname, intervals, tracks, fontsize, colors=None, scalegro
     # Colors
     if not colors:
         colors = DEFAULT_COLORS
-
     font = FontProperties(size=fontsize / 1.25, family=["Nimbus Sans L", "Helvetica", "sans-serif"])
 
     # Sizes
-    plotwidth = 6
+    #Adjust width based on titles length. Minimum 6
+    if max([len(os.path.splitext(os.path.basename(i[0]))[0].strip()) for i in tracks]) > 10:
+        plotwidth = 6 * (max([len(os.path.splitext(os.path.basename(i[0]))[0].strip()) for i in tracks])/10) * 1.25
+    else:
+        plotwidth = 6
     plotheight = 0.3
     padh = 0
     padw = 0.1
@@ -371,7 +373,7 @@ def profile_screenshot(fname, intervals, tracks, fontsize, colors=None, scalegro
                                gend,
                                color="black")
 
-                    ax.text(gstart, h_gene - 2.25, genename, fontsize=5)
+                    ax.text(gstart, h_gene - 3, genename, fontsize=fontsize)
 
                     # Exons 
                     for exonstart, exonsize in zip(exonstarts, exonsizes):
