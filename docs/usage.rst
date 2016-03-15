@@ -1,8 +1,8 @@
 Usage
 =====
 
-You can try fluff with an example dataset from ENCODE. To download the files just visit https://figshare.com/articles/fluff_example_data/3113728 and click ``Download all``
-Once is downloaded, unzip it and go to the directory. Inside you will find 6 BAM files, with their indexes, and a BED file
+You can try fluff with an example dataset from ENCODE. To download the files just visit https://figshare.com/articles/fluff_example_data/3113728 and click ``Download all``.
+Once the download is done, unzip it and go to the directory. Inside you will find 6 BAM files, with their indexes, and a BED file.
 
 Quick fluff heatmap example
 ---------------------------
@@ -23,6 +23,7 @@ Here we will compare H1 DNase and H1 H3K27ac:
 
 
 **Clustering**
+
 If you want to cluster you features use the following command. With ``-C`` you can select which clustering method you want. In case you selected k-means you should use ``-k`` to declare how many clusters you want.
 Here we will compare the different H3K27ac files:
 
@@ -35,6 +36,7 @@ Here we will compare the different H3K27ac files:
 
 
 **Identify dynamic patterns**
+
 In the previous example peaks were clustered based on the amount of reads at each bin. An important function of fluff is the ability to identify dynamic patterns, for instance during different time points or conditions. If we want to find any dynamics in H3K27ac we can use ``-g`` option and ``Pearson`` as distance metric:
 
 

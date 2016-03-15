@@ -52,7 +52,7 @@ def heatmap(args):
         if distancefunction == 'e':
             print 'Dynamics can only be identified using Pearson correlation as metric.'
             print 'Assigning metric to Pearson correlation'
-            distancefunction = 'c'
+            distancefunction = 'p'
 
     # Warning about too much files
     if (len(tracks) > 4):
@@ -161,8 +161,7 @@ def heatmap(args):
 
         ind = labels.argsort()
 
-        # Other cluster implementation
-        #    centres, labels, dist = kmeanssample(clus, options.numclusters, len(clus) / 10,  metric=cl, maxiter=200, verbose=1, delta=0.00001)
+        # Hierarchical clustering
     elif cluster_type == "h":
         print "Hierarchical clustering"
         tree = Pycluster.treecluster(clus, method="m", dist=METRIC)
