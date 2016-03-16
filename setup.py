@@ -2,15 +2,14 @@ from setuptools import setup
 
 from fluff.config import FL_VERSION
 
-DESCRIPTION = """
-fluff - plots and graphs 
-"""
+DESCRIPTION = "fluff : exploratory analysis and visualization of high-throughput sequencing data"
 
-setup(name='fluff',
+setup(name='biofluff',
       version=FL_VERSION,
       description=DESCRIPTION,
       author='Georgios Georgiou',
       author_email='g.georgiou@science.ru.nl',
+      url = 'https://github.com/simonvh/fluff/',
       license='MIT',
       packages=[
           'fluff',
@@ -23,7 +22,7 @@ setup(name='fluff',
           "scripts/fluff",
       ],
       data_files=[],
-     install_requires=["pysam",
+      install_requires=["pysam",
                        "HTSeq",
                        "numpy",
                        "scipy",
@@ -31,7 +30,6 @@ setup(name='fluff',
                        "colorbrewer",
                        "pybedtools"
                        ],
-
       dependency_links = [
         "http://bonsai.hgc.jp/~mdehoon/software/cluster/Pycluster-1.52.tar.gz",
     ],
