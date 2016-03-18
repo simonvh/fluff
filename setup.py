@@ -28,9 +28,10 @@ setup(name='biofluff',
                        "scipy",
                        "matplotlib",
                        "colorbrewer",
-                       "pybedtools"
+                       "pybedtools",
+                        "Pycluster"
                        ],
-      dependency_links = [
-        "http://bonsai.hgc.jp/~mdehoon/software/cluster/Pycluster-1.52.tar.gz",
-    ],
+    #   dependency_links = [
+    #     "http://bonsai.hgc.jp/~mdehoon/software/cluster/Pycluster-1.52.tar.gz",
+    # ],
       )
