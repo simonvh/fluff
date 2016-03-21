@@ -16,7 +16,7 @@ Here we will compare H1 DNase and H1 H3K27ac:
 
 ::
 
-    fluff heatmap -f example_peaks.bed -d H1_DNase.bam H1_H3K27ac.bam -o H1
+    $ fluff heatmap -f example_peaks.bed -d H1_DNase.bam H1_H3K27ac.bam -o H1
 
 
 .. image:: img/H1.png
@@ -29,7 +29,8 @@ Here we will compare the different H3K27ac files:
 
 ::
 
-    fluff heatmap -f example_peaks.bed -d mesenchymal_H3K27ac.bam mesendoderm_H3K27ac.bam neuronal_progenitor_H3K27ac.bam trophoblast_H3K27ac.bam -C k -k 5 -o H3K27ac_kmeans5
+    $ fluff heatmap -f example_peaks.bed -d mesenchymal_H3K27ac.bam mesendoderm_H3K27ac.bam \
+    neuronal_progenitor_H3K27ac.bam trophoblast_H3K27ac.bam -C k -k 5 -o H3K27ac_kmeans5
 
 
 .. image:: img/H3K27ac_kmeans5.png
@@ -40,9 +41,10 @@ Here we will compare the different H3K27ac files:
 In the previous example peaks were clustered based on the amount of reads at each bin. An important function of fluff is the ability to identify dynamic patterns, for instance during different time points or conditions. If we want to find any dynamics in H3K27ac we can use ``-g`` option and ``Pearson`` as distance metric:
 
 
- ::
+::
 
-    fluff heatmap -f example_peaks.bed -d mesenchymal_H3K27ac.bam mesendoderm_H3K27ac.bam neuronal_progenitor_H3K27ac.bam trophoblast_H3K27ac.bam -C k -k 5 -g -M Pearson -o H3K27ac_kmeans5_dynamics
+    $ fluff heatmap -f example_peaks.bed -d mesenchymal_H3K27ac.bam mesendoderm_H3K27ac.bam \
+    neuronal_progenitor_H3K27ac.bam trophoblast_H3K27ac.bam -C k -k 5 -g -M Pearson -o H3K27ac_kmeans5_dynamics
 
 
 
@@ -63,7 +65,8 @@ With ``-f`` option you specify the _clusters.bed file, which you got from fluff 
 
 ::
 
-    fluff bandplot -f H3K27ac_kmeans5_clusters.bed -d mesenchymal_H3K27ac.bam mesendoderm_H3K27ac.bam neuronal_progenitor_H3K27ac.bam trophoblast_H3K27ac.bam -o H3K27ac_kmeans5_bandplot
+    $ fluff bandplot -f H3K27ac_kmeans5_clusters.bed -d mesenchymal_H3K27ac.bam mesendoderm_H3K27ac.bam \
+    neuronal_progenitor_H3K27ac.bam trophoblast_H3K27ac.bam -o H3K27ac_kmeans5_bandplot
 
 
 .. image:: img/H3K27ac_kmeans5_bandplot.png
@@ -72,9 +75,9 @@ With ``-f`` option you specify the _clusters.bed file, which you got from fluff 
 If case you want to use fluff bandplot on the same dataset as you run fluff heatmap you can use ``-counts`` option, without ``-d`` option. Here the input is the _readCounts.txt file from fluff heatmap. This option is faster because it doesn't have to re-read the data files to get the reads.
 
 
- ::
+::
 
-    fluff bandplot -f H3K27ac_kmeans5_clusters.bed -counts H3K27ac_kmeans5_readCounts.txt -o H3K27ac_kmeans5_bandplot
+    $ fluff bandplot -f H3K27ac_kmeans5_clusters.bed -counts H3K27ac_kmeans5_readCounts.txt -o H3K27ac_kmeans5_bandplot
 
 
 Quick fluff profile example
@@ -83,10 +86,10 @@ Quick fluff profile example
 If you want to show a genomic region as a dense plot, like a genome browser screenshot, you can you fluff profile.
 You give the feature(or features separated by ``,``) using the ``-i`` option, followed by ``-d`` for the data file(s). With ``-o`` you give the output file name, which is an image.
 
+::
 
-    ::
-
-    fluff profile -i chr1:68602071-68612071 -d mesenchymal_H3K27ac.bam mesendoderm_H3K27ac.bam neuronal_progenitor_H3K27ac.bam trophoblast_H3K27ac.bam -o profile_chr1_68602071_68612071
+    $ fluff profile -i chr1:68602071-68612071 -d mesenchymal_H3K27ac.bam mesendoderm_H3K27ac.bam \
+    neuronal_progenitor_H3K27ac.bam trophoblast_H3K27ac.bam -o profile_chr1_68602071_68612071
 
 
 .. image:: img/profile_chr1_68602071_68612071.png
