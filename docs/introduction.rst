@@ -13,12 +13,15 @@ The package contains three command-line tools to generate publication-quality fi
 Quick Installation
 ------------------
 
-The most straightforward way to install *fluff* is using pip:
+The most straightforward way to install fluff is with conda_
+using the bioconda_ channel:
 
 ::
 
-    $ pip install biofluff
+    $ conda install biofluff -c bioconda
 
+.. _conda: https://docs.continuum.io/anaconda
+.. _bioconda: https://bioconda.github.io/
 
 Quick Usage
 -----------

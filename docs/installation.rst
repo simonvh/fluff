@@ -4,15 +4,15 @@ Installation
 The straightforward way to install
 ----------------------------------
 
-The most straightforward way to install fluff is by using `conda
-<https://docs.continuum.io/anaconda>`_.  
-*Note: we are working on creating a conda package, this option 
-is not functional at this moment.*
-
+The most straightforward way to install fluff is with conda_ 
+using the bioconda_ channel:
 
 ::
 
     $ conda install biofluff -c bioconda
+
+.. _conda: https://docs.continuum.io/anaconda
+.. _bioconda: https://bioconda.github.io/
 
 
 Alternative: using pip
@@ -89,41 +89,3 @@ If you encounter no errors, go ahead with installing fluff:
 ::
 
   sudo python setup.py install --user
-
-
-
-Using Conda
------------
-
-::
-
-You can download the lastest version of fluff at:
-
-https://github.com/simonvh/fluff/releases
-
-Start by unpacking the source archive
-
-::
-
-  tar xvzf fluff-<version>.tar.gz
-  cd fluff-<version>
-
-
-Make a copy of the environment:
-
-::
-
-  conda env create -f conda/environment.yml
-
-
-**Activate the new environment from Linux, OS X:**
-
-::
-
-  source activate fluff
-
-**Activate the new environment from Windows:**
-
-::
-
-  activate fluff
