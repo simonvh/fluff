@@ -8,5 +8,4 @@ See [full fluff documentation](http://fluff.readthedocs.org/) for detailed insta
 Citing
 ------
 
-The manuscript is in preparation. If you find fluff useful, please cite it from Zenodo: [![DOI](https://zenodo.org/badge/doi/10.5281/zenodo.34209.svg)](http://dx.doi.org/10.5281/zenodo.34209)
-
+If you find fluff useful, please cite the bioRxiv preprint: [Georgiou G and van Heeringen SJ. 2016. fluff: exploratory analysis and visualization of high-throughput sequencing data. bioRxiv doi: 10.1101/045526](http://dx.doi.org/10.1101/045526).

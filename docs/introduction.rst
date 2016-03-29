@@ -32,9 +32,10 @@ See the quick examples in the `Usage section
 Reference
 ---------
 
-If you find fluff useful, please cite:
+If you find fluff useful, please cite the bioRxiv preprint: 
 
-::
+Georgiou G and van Heeringen SJ. 2016. fluff: exploratory analysis and visualization of high-throughput sequencing data. bioRxiv `doi: 10.1101/045526
+<http://dx.doi.org/10.1101/045526>`_.
 
-    Georgios Georgiou et al.. (2015). fluff: 1.62. Zenodo. 10.5281/zenodo.34209
+
 
