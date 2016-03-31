@@ -134,7 +134,7 @@ fragment length (default: read length)
 keep duplicate reads (removed by default)
 
 -  ``-r``
-keep repeats with mapq 0 (removed by default)
+use RPKM instead of read counts
 
 -  ``-R``
 keep repeats (removed by default, bwa only)
