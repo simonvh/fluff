@@ -528,19 +528,10 @@ def load_heatmap_data(featurefile, datafile, bins=100, up=5000, down=5000, rmdup
     return os.path.basename(datafile), regions, r_data, guard  # [r_order]
 
 
-def check_data(featurefile, guard, dynam, up, down):
-    tmp = tempfile.NamedTemporaryFile(delete=False, prefix="fluff")
-    regions = []
-    order = {}
-    count = 0
-    hashcounter = 0
-    if not guard and dynam:
-        filt = True
-    else:
-        filt = False
+def check_data(featurefile, up=5000, down=5000):
+    guard = []
     for i, line in enumerate(open(featurefile)):
         if line.startswith("#") or line[:5] == "track":
-            hashcounter += 1
             continue
         vals = line.strip().split("\t")
         strand = "+"
@@ -557,16 +548,8 @@ def check_data(featurefile, guard, dynam, up, down):
         else:
             start -= down
             end += up
-        if filt:
-            if start >= 0:
-                guard.append(True)
-            else:
-                guard.append(False)
-        if not filt and start >= 0:
-            if not dynam or guard[i - hashcounter]:
-                regions.append([vals[0], start, end, gene, strand])
-                order["{0}:{1}-{2}".format(vals[0], start, end)] = count
-                count += 1
-                tmp.write("{0}\t{1}\t{2}\t{3}\t0\t{4}\n".format(vals[0], start, end, gene, strand))
-    tmp.flush()
+        if start >= 0:
+            guard.append(True)
+        else:
+            guard.append(False)
     return guard
