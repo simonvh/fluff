@@ -114,21 +114,22 @@ def heatmap(args):
     # -g : Option to try and get dynamics
     # Extend features 1kb up/down stream
     # Cluster them in one bin
+    # Cluster them in one bin
     guard = []
+    amount_bins = bins
+    extend_dyn_up = extend_up
+    extend_dyn_down = extend_down
     if dynam:
-        amount_bins = 1
+        # load the data once to get the features which extend below 0
+        guard = check_data(featurefile, extend_dyn_up, extend_dyn_down)
         extend_dyn_up = 1000
         extend_dyn_down = 1000
-        # load the data once to get the features which extend below 0
-        guard = check_data(featurefile, guard, dynam, extend_dyn_up, extend_dyn_down)
-    else:
-        amount_bins = bins
-        extend_dyn_up = extend_up
-        extend_dyn_down = extend_down
+        amount_bins = 1
 
     # Load data for clustering
-    data, regions, guard = load_data(featurefile, amount_bins, extend_dyn_up, extend_dyn_down, rmdup, rpkm, rmrepeats,
-                                     fragmentsize, dynam, guard)
+    data, regions, guard = load_data(featurefile, amount_bins, extend_dyn_up, extend_dyn_down, rmdup, rpkm,
+                                         rmrepeats,
+                                         fragmentsize, dynam, guard)
     # Normalize
     norm_data = normalize_data(data, DEFAULT_PERCENTILE)
 
