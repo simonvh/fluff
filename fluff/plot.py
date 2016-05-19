@@ -419,97 +419,137 @@ def profile_screenshot(fname, intervals, tracks, fontsize, colors=None, scalegro
     plt.savefig(fname, dpi=dpi)
     plt.close()
 
-def profile_screenshot2(fname, intervals, tracks, fontsize, colors=None, scalegroups=[], annotation=None, bgmode="color",
-                               fragmentsize=200, scale=False, dpi=600, rmdup=False, rmrepeats=False, reverse=False):
+def profile_screenshot2(fname, interval, tracks, fontsize=None, colors=None, scalegroups=[], annotation=None, bgmode="color", fragmentsize=200, scale=False, dpi=600, rmdup=False, rmrepeats=False, reverse=False):
+    """
+    Plot a genome browser like profile
     
+    Parameters
+    ----------
+    fname: string
+        output file name
+    
+    interval: string
+        interval to plot in "chrom:start-end" format
+    
+    tracks: list
+        list of filenames
+    """
+
+    if not fontsize:
+        fontsize = FONTSIZE
+
     if not colors:
         colors = DEFAULT_COLORS
-   
-    # Sizes
-    #Adjust width based on titles length
-    if max([len(os.path.splitext(os.path.basename(i[0]))[0].strip()) for i in tracks]) > 10:
-        padleft = 1
-    else:
-        padleft = 0.1
+  
+    # Plot size and padding definition
     plotwidth = 6
     plotheight = 0.3
-    padh = 0
-    padw = 3
-    #padleft = 0.1
-    padright = 0.1
-    padtop = 0.1
-    padbottom = 0.1
+    pad = {
+            "left": 1.5,
+            "right": 0.05,
+            "top": 0.05,
+            "bottom": 0.05,
+            "row": 0,
+            "column": 3,
+            }
+    
+    # adjust width for track names if they are to long
+    # kind of a quick hack
+    names = [os.path.splitext(os.path.basename(t[0]))[0].strip() for t in tracks]
+    if max([len(n) for n in names]) > 27:
+        pad["left"] = 3
+    
     clean = True
 
     # Genomic scale
     scale_height = 0.1
     # Annotation track height
-
     annotation_height = 0.01
-    gene_tracks = []
+    
+    chrom, start, end = re.split(r'[-:]', interval)
+    start, end = int(start), int(end)
+    
     if annotation:
-        for interval in intervals:
-            ann = load_annotation(interval, annotation)
-            gene_tracks.append(ann)
-        if gene_tracks[0]:
-            max_tracks = max([len(x.keys()) for x in gene_tracks])
-            annotation_height = 0.2 * max_tracks
+        ann = load_annotation([chrom,start,end], annotation)
+        if ann:
+            annotation_height = 0.2 * len(ann.keys())
         else:
             annotation = False
-    #
-
-    ncolumns = len(intervals)
+    
     nrows = len(tracks)
 
-    wsize = padleft + (ncolumns * plotwidth) + (padw * (ncolumns - 1)) + padright
-    # Profile plots
-    hsize = padtop + (nrows * plotheight) + (padh * (nrows - 1)) + padbottom
-    hsize += scale_height + padh + annotation_height + padh
+    wsize = pad["left"] + plotwidth + pad["right"]
+    hsize = pad["top"] + (nrows * plotheight) + (pad["row"] * (nrows - 1)) + pad["bottom"]
+    hsize += scale_height + pad["row"] + annotation_height + pad["row"]
 
+    # initialize figure 
     fig = plt.figure(figsize=(wsize, hsize))
  
+    # initialize profile figure
+    pfig = ProfileFigure(fig=fig, fontsize=fontsize, pad=pad)
 
-    pfig = ProfileFigure(fig=fig, fontsize=fontsize)
-
+    # add the genomic scale
     pfig.add_panel(ScalePanel())
 
+    # add the signal tracks
     for i,track in enumerate(tracks):
         print os.path.splitext(os.path.split(track)[-1])[0]
         panel = pfig.add_panel(
                 BamProfilePanel(track,
                     color = colors[i % len(colors)], 
                     bgmode = bgmode,
-                    name =os.path.splitext(os.path.split(track)[-1])[0],
+                    name = os.path.splitext(os.path.split(track)[-1])[0],
+                    fragmentsize = fragmentsize,
+                    rmrepeats = rmrepeats,
+                    rmdup = rmdup,
                     ))
         #if scales:
         #    ## TODO ##
         #    pass
     
-    for interval in intervals:
-        print interval
-        print re.split(r'[-:]', interval)
-        chrom, start, end = re.split(r'[-:]', interval)
-        start, end = int(start), int(end)
-        pfig.plot([chrom, start, end], scalegroups=scalegroups)
-        plt.savefig(fname, dpi=dpi)
+    
+    # add the annotation panel
+    if annotation:
+        pfig.add_panel(AnnotationPanel(annotation))
+    
+    pfig.plot([chrom, start, end], scalegroups=scalegroups)
+    plt.savefig(fname, dpi=dpi)
 
 class ProfileFigure():
-    def __init__(self, fig=None, gs=None, fontsize=FONTSIZE):
+    def __init__(self, fig=None, gs=None, fontsize=FONTSIZE, pad=None):
         self._panels = []
         if not fig:
             fig = plt.figure()
         self.fig = fig
 
+        self.pad = {}
+        if pad:
+            self.pad.update(pad)
+
+        relpad = {}
+        for k in ["left", "right"]:
+            relpad[k] = float(self.pad.get(k,0)) / fig.get_figwidth()        
+        for k in ["top", "bottom"]:
+            relpad[k] = float(self.pad.get(k,0)) / fig.get_figheight()        
+
         if gs:
             self.gs = gs
         else:
             gs = gridspec.GridSpec(1, 1)
-            gs.update(left=0, right=1, wspace=0, hspace=0)
+            gs.update(
+                    left=relpad["left"], 
+                    right=1 - relpad["right"], 
+                    top=1 - relpad["top"], 
+                    bottom=relpad["bottom"], 
+                    wspace=0, 
+                    hspace=0
+                    )
             self.gs = gs[0]
 
         self.font = FontProperties(size=fontsize / 1.25, family=["Nimbus Sans L", "Helvetica", "sans-serif"])
 
     def plot(self, interval, scalegroups=[], reverse=False, **kwargs):
+        
         for panel in self._panels:
             panel._load_data(interval)
 
@@ -519,16 +559,12 @@ class ProfileFigure():
                 subplot_spec=self.gs,
                 height_ratios=[p.height for p in self._panels]
         )
-
+        
         if scalegroups and len(scalegroups) > 0:
             for group in scalegroups:
                 ymax = max([self._panels[g].ymax for g in group])
                 for g in group:
                     self._panels[g].ymax = ymax
-
-        # for p in self._panels:
-        #    if hasattr(p, "ymax") and p.ymax < PROFILE_MIN_Y:
-        #        p.ymax = PROFILE_MIN_Y
 
         for i, panel in enumerate(self._panels):
             ax = plt.Subplot(self.fig, gs0[i])
@@ -536,10 +572,9 @@ class ProfileFigure():
             panel._plot(ax, interval, fig=self.fig, reverse=reverse, odd=i % 2, font=self.font, **kwargs)
             self.fig.add_subplot(ax)
 
-   def add_panel(self, panel):
+    def add_panel(self, panel):
         self._panels.append(panel)
         return panel
-
 
 class ProfilePanel():
     def hide_axes(self, axes):
@@ -598,13 +633,13 @@ class BamProfilePanel(ProfilePanel):
             ax.set_axis_bgcolor(self.color)
             ax.patch.set_alpha(0.07)
 
+        # get interval
         chrom, start, end = interval
         profile = self.profile
         if reverse:
             profile = profile[::-1]
 
-        # r = np.split(range(start, end), np.where(profile == 0)[0])
-        # p = np.split(profile, np.where(profile == 0)[0])
+        # plot data
         ax.fill_between(
                 range(start, end),
                 zeros(len(profile)),
@@ -613,21 +648,11 @@ class BamProfilePanel(ProfilePanel):
                 facecolor=self.color,
                 linewidth=0.5,
                 alpha=self.alpha)
-
-        # for i,pos in zip(profile, range(start, end)):
-        #    if i ! = 0:
-        #        ax.axvline(
-        #                pos, 
-        #                ymin = 0, 
-        #                ymax = i,
-        #                linewidth = 0.5,
-        #                color = self.color,
-        #                alpha = self.alpha,
-        #                )
-
-
+        
+        # set the y-limit
         ax.set_ylim(0, self.ymax)
 
+        # add y-limit label
         ax.text(0.005, 0.90,
                 int(ax.get_ylim()[-1] + 0.5),
                 horizontalalignment='left',
@@ -635,11 +660,12 @@ class BamProfilePanel(ProfilePanel):
                 transform=ax.transAxes,
                 clip_on=False,
                 fontproperties=font)
-
+        
+        # add track label
         if self.name:
-            ax.text(0.005, 0.5,
+            ax.text(-0.01, 0.5,
                     self.name,
-                    horizontalalignment='left',
+                    horizontalalignment='right',
                     verticalalignment="center",
                     transform=ax.transAxes,
                     clip_on=False,
