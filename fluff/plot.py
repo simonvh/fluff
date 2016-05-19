@@ -1,3 +1,4 @@
+import re
 import matplotlib.gridspec as gridspec
 import matplotlib.pyplot as plt
 from matplotlib.font_manager import FontProperties
@@ -415,15 +416,85 @@ def profile_screenshot(fname, intervals, tracks, fontsize, colors=None, scalegro
                         ax.add_patch(arr)
     print 'Saving figure'
 
-
-
-
     plt.savefig(fname, dpi=dpi)
     plt.close()
 
+def profile_screenshot2(fname, intervals, tracks, fontsize, colors=None, scalegroups=[], annotation=None, bgmode="color",
+                               fragmentsize=200, scale=False, dpi=600, rmdup=False, rmrepeats=False, reverse=False):
+    
+    if not colors:
+        colors = DEFAULT_COLORS
+   
+    # Sizes
+    #Adjust width based on titles length
+    if max([len(os.path.splitext(os.path.basename(i[0]))[0].strip()) for i in tracks]) > 10:
+        padleft = 1
+    else:
+        padleft = 0.1
+    plotwidth = 6
+    plotheight = 0.3
+    padh = 0
+    padw = 3
+    #padleft = 0.1
+    padright = 0.1
+    padtop = 0.1
+    padbottom = 0.1
+    clean = True
+
+    # Genomic scale
+    scale_height = 0.1
+    # Annotation track height
+
+    annotation_height = 0.01
+    gene_tracks = []
+    if annotation:
+        for interval in intervals:
+            ann = load_annotation(interval, annotation)
+            gene_tracks.append(ann)
+        if gene_tracks[0]:
+            max_tracks = max([len(x.keys()) for x in gene_tracks])
+            annotation_height = 0.2 * max_tracks
+        else:
+            annotation = False
+    #
+
+    ncolumns = len(intervals)
+    nrows = len(tracks)
+
+    wsize = padleft + (ncolumns * plotwidth) + (padw * (ncolumns - 1)) + padright
+    # Profile plots
+    hsize = padtop + (nrows * plotheight) + (padh * (nrows - 1)) + padbottom
+    hsize += scale_height + padh + annotation_height + padh
+
+    fig = plt.figure(figsize=(wsize, hsize))
+ 
+
+    pfig = ProfileFigure(fig=fig, fontsize=fontsize)
+
+    pfig.add_panel(ScalePanel())
+
+    for i,track in enumerate(tracks):
+        print os.path.splitext(os.path.split(track)[-1])[0]
+        panel = pfig.add_panel(
+                BamProfilePanel(track,
+                    color = colors[i % len(colors)], 
+                    bgmode = bgmode,
+                    name =os.path.splitext(os.path.split(track)[-1])[0],
+                    ))
+        #if scales:
+        #    ## TODO ##
+        #    pass
+    
+    for interval in intervals:
+        print interval
+        print re.split(r'[-:]', interval)
+        chrom, start, end = re.split(r'[-:]', interval)
+        start, end = int(start), int(end)
+        pfig.plot([chrom, start, end], scalegroups=scalegroups)
+        plt.savefig(fname, dpi=dpi)
 
 class ProfileFigure():
-    def __init__(self, fig=None, gs=None):
+    def __init__(self, fig=None, gs=None, fontsize=FONTSIZE):
         self._panels = []
         if not fig:
             fig = plt.figure()
@@ -436,7 +507,7 @@ class ProfileFigure():
             gs.update(left=0, right=1, wspace=0, hspace=0)
             self.gs = gs[0]
 
-        self.font = FontProperties(size=FONTSIZE / 1.25, family=["Nimbus Sans L", "Helvetica", "sans-serif"])
+        self.font = FontProperties(size=fontsize / 1.25, family=["Nimbus Sans L", "Helvetica", "sans-serif"])
 
     def plot(self, interval, scalegroups=[], reverse=False, **kwargs):
         for panel in self._panels:
@@ -465,7 +536,7 @@ class ProfileFigure():
             panel._plot(ax, interval, fig=self.fig, reverse=reverse, odd=i % 2, font=self.font, **kwargs)
             self.fig.add_subplot(ax)
 
-    def add_panel(self, panel):
+   def add_panel(self, panel):
         self._panels.append(panel)
         return panel
 
