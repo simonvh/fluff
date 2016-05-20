@@ -65,7 +65,6 @@ def get_features_by_feature(track_a, track_b):
         yield feature, features
     tmp.close()
 
-
 class TrackWrapper():
     def __init__(self, fname):
         if fname.endswith("bam"):
