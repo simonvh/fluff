@@ -13,3 +13,9 @@ dist
 *.pyc
 *.pyo
 *.tmp*
+.cache
+
+# vim
+.*swp
+
+docs/_build
