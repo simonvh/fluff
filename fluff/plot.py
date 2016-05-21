@@ -163,7 +163,6 @@ def create_grid_figure(nrows, ncolumns, plotwidth=2.0, plotheight=2.0, pad=0.1, 
 
     return fig, axes
 
-
 def profile_screenshot(fname, intervals, tracks, fontsize, colors=None, scalegroups=[], annotation=None, bgmode="color",
                        fragmentsize=200, scale=False, dpi=600, rmdup=False, rmrepeats=False, reverse=False):
     # Colors
@@ -337,14 +336,20 @@ def profile_screenshot(fname, intervals, tracks, fontsize, colors=None, scalegro
 
             if type(scale) == type([]):
                 ylim_max = scale[i]
+          
             # Set maximum
             all_axes[i + 1].set_ylim(0, ylim_max)
 
             # Label scale
             if scale:
-                all_axes[i + 1].text(0.005, 0.90, int(ylim_max + 0.5), horizontalalignment='left',
-                                     verticalalignment="top", transform=all_axes[i + 1].transAxes, clip_on=False,
-                                     fontproperties=font)
+                all_axes[i + 1].text(0.005, 
+                        0.90, 
+                        int(ylim_max + 0.5), 
+                        horizontalalignment='left',
+                        verticalalignment="top", 
+                        transform=all_axes[i + 1].transAxes, 
+                        clip_on=False,
+                        fontproperties=font)
 
         # Plot the gene annotation
         if annotation:
@@ -585,12 +590,11 @@ class ProfilePanel():
         for s in axes.spines.values():
             s.set_color('none')
 
-
 class BamProfilePanel(ProfilePanel):
     def __init__(self, bamfile, height=1, color=None, bgmode=None, alpha=None, fragmentsize=200, rmdup=True,
                  rmrepeats=True, **kwargs):
         self.height = height
-        self.track = TrackWrapper(bamfile)
+        self.track = Track.load(bamfile)
 
         self.ymax = None
         self.bgmode = bgmode

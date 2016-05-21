@@ -12,8 +12,7 @@ import numpy
 import pybedtools
 import pysam
 
-import fluff
-
+from fluff.track import Track
 
 def is_equal_feature(feature, vals):
     if not vals:
@@ -50,23 +49,22 @@ def load_bed_clusters(bedfile):
         cluster_data.setdefault(_convert_value(f.score), []).append("{0}:{1}-{2}".format(f.chrom, f.start, f.end))
     return cluster_data
 
-
 def load_cluster_data(clust_file, datafiles, bins, rpkm, rmdup, rmrepeats, fragmentsize=None):
     data = {}
     for datafile in datafiles:
         result = []
-        result = get_binned_stats(clust_file,
-                                  datafile,
+        track = Track.load(datafile,
+                rmdup=rmdup,
+                rmrepeats=rmrepeats,
+                fragmentsize=fragmentsize)
+        result = track.binned_stats(clust_file,
                                   bins,
-                                  rpkm=rpkm,
-                                  rmdup=rmdup,
-                                  rmrepeats=rmrepeats,
-                                  fragmentsize=fragmentsize)
-        result = [row.split("\t") for row in result]
+                                  split=True,
+                                  rpkm=rpkm
+                                  )
         data[os.path.basename(datafile)] = dict(
                 [["{0}:{1}-{2}".format(vals[0], vals[1], vals[2]), [float(x) for x in vals[3:]]] for vals in result])
     return data
-
 
 def load_read_counts(readCounts):
     data = {}
@@ -87,27 +85,33 @@ def load_read_counts(readCounts):
                     data[indexes[idx]][line.split('\t')[0]] = [float(x) for x in binsline.split(';')]
     return titles, data
 
-
 def load_profile(interval, tracks, fragmentsize=200, rmdup=False, rmrepeats=False, reverse=False):
     profiles = []
     for track_group in tracks:
         if type(track_group) == type([]):
             profile_group = []
             for track in track_group:
-                t = TrackWrapper(track)
-                profile = t.get_profile(interval, fragmentsize, rmdup, rmrepeats)
+                t = Track.load(track, 
+                        rmdup=rmdup,
+                        rmrepeats=rmrepeats,
+                        fragmentsize=fragmentsize,
+                        )
+                profile = t.get_profile(interval)
                 if reverse:
                     profile = profile[::-1]
                 profile_group.append(profile)
         else:
             track = track_group
-            t = TrackWrapper(track)
-            profile_group = t.get_profile(interval, fragmentsize, rmdup, rmrepeats)
+            t = Track.load(track, 
+                        rmdup=rmdup,
+                        rmrepeats=rmrepeats,
+                        fragmentsize=fragmentsize,
+                        )
+            profile_group = t.get_profile(interval)
             if reverse:
                 profile_group = profile_group[::-1]
         profiles.append(profile_group)
     return profiles
-
 
 def get_free_track(overlap, start, end, max_end, min_gap):
     first = start - min_gap * max_end
@@ -157,48 +161,6 @@ def load_annotation(interval, fname, min_gap=0.05, vis="stack"):
             gene_tracks[i] = [gene]
     return gene_tracks
 
-class SimpleFeature():
-    def __init__(self, chrom, start, end, value, strand):
-        self.chrom = chrom
-        self.start = start
-        self.end = end
-        self.value = value
-        self.strand = strand
-
-class SimpleBed():
-    def __init__(self, fname):
-        self.f = open(fname)
-
-    def __iter__(self):
-        return self
-
-    def next(self):
-        line = self.f.readline()
-        while line and (line[0] == "#" or line.startswith("track")):
-            line = self.f.readline()
-        if line:
-            vals = line.strip().split("\t")
-            start, end = int(vals[1]), int(vals[2])
-            if len(vals) > 3:
-                value = vals[3]
-            else:
-                value = 0
-            if len(vals) > 5:
-                if not (vals[5] is '+') or (vals[5] is '-'):
-                    return SimpleFeature(vals[0], start, end, value, '+')
-                else:
-                    return SimpleFeature(vals[0], start, end, value, vals[5])
-            elif len(vals) > 4:
-                if not (vals[4] is '+') or (vals[4] is '-'):
-                    return SimpleFeature(vals[0], start, end, value, '+')
-                else:
-                    return SimpleFeature(vals[0], start, end, value, vals[4])
-            else:
-                return SimpleFeature(vals[0], start, end, value, '+')
-        else:
-            self.f.close()
-            raise StopIteration
-
 def load_heatmap_data(featurefile, datafile, bins=100, up=5000, down=5000, rmdup=True, rpkm=False, rmrepeats=True,
                       fragmentsize=None, dynam=False, guard=[]):
     tmp = tempfile.NamedTemporaryFile(delete=False, prefix="fluff")
@@ -241,8 +203,12 @@ def load_heatmap_data(featurefile, datafile, bins=100, up=5000, down=5000, rmdup
                 count += 1
                 tmp.write("{0}\t{1}\t{2}\t{3}\t0\t{4}\n".format(vals[0], start, end, gene, strand))
     tmp.flush()
-    result = fluff.fluffio.get_binned_stats(tmp.name, datafile, bins, rpkm=rpkm, rmdup=rmdup, rmrepeats=rmrepeats,
-                                            fragmentsize=fragmentsize)
+    track = Track.load(datafile,
+            rmdup=rmdup,
+            rmrepeats=rmrepeats,
+            fragmentsize=fragmentsize)
+
+    result = track.binned_stats(tmp.name, bins, rpkm=rpkm)
     # Retrieve original order
     r_data = numpy.array([[float(x) for x in row.split("\t")[3:]] for row in result])
     return os.path.basename(datafile), regions, r_data, guard  # [r_order]

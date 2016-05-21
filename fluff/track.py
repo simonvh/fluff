@@ -11,7 +11,47 @@ import pybedtools
 import pysam
 import pyBigWig
 
-from fluff.fluffio import SimpleBed
+class SimpleFeature():
+    def __init__(self, chrom, start, end, value, strand):
+        self.chrom = chrom
+        self.start = start
+        self.end = end
+        self.value = value
+        self.strand = strand
+
+class SimpleBed():
+    def __init__(self, fname):
+        self.f = open(fname)
+
+    def __iter__(self):
+        return self
+
+    def next(self):
+        line = self.f.readline()
+        while line and (line[0] == "#" or line.startswith("track")):
+            line = self.f.readline()
+        if line:
+            vals = line.strip().split("\t")
+            start, end = int(vals[1]), int(vals[2])
+            if len(vals) > 3:
+                value = vals[3]
+            else:
+                value = 0
+            if len(vals) > 5:
+                if not (vals[5] is '+') or (vals[5] is '-'):
+                    return SimpleFeature(vals[0], start, end, value, '+')
+                else:
+                    return SimpleFeature(vals[0], start, end, value, vals[5])
+            elif len(vals) > 4:
+                if not (vals[4] is '+') or (vals[4] is '-'):
+                    return SimpleFeature(vals[0], start, end, value, '+')
+                else:
+                    return SimpleFeature(vals[0], start, end, value, vals[4])
+            else:
+                return SimpleFeature(vals[0], start, end, value, '+')
+        else:
+            self.f.close()
+            raise StopIteration
 
 class Track(object):
     _registry = []
@@ -66,6 +106,15 @@ class Track(object):
             start, end = int(start), int(end)
 
         return (chrom, start, end)
+
+    @classmethod
+    def load(self, fname, *args, **kwargs):
+        _, ftype = os.path.splitext(fname)
+        ftype = ftype.strip(".")
+        for name, cls in self._registry:
+            if ftype in cls._filetypes:
+                return cls(fname, *args, **kwargs)
+        raise ValueError, "can't guess type of file {}".format(fname)
 
 class BinnedMixin(object):
     def binned_stats(self, in_fname, nbins, rpkm=False, split=False):
@@ -558,7 +607,7 @@ class BedTrack(BinnedMixin, Track):
 class WigTrack(Track):
     _filetypes = ["bg", "wig"]
     
-    def __init__(self, fname):
+    def __init__(self, fname, **kwargs):
         if fname.endswith("bg") or fname.endswith("wig"):
             self.htseq_track = HTSeq.WiggleReader(fname, verbose=True)
             self.ftype = "wig"
@@ -602,7 +651,7 @@ class WigTrack(Track):
 class BigWigTrack(Track):
     _filetypes = ["bw"]
     
-    def __init__(self, fname):
+    def __init__(self, fname, **kwargs):
         if fname.endswith("bw"):
             self.track = pyBigWig.open(fname)
             self.ftype = "bw"
@@ -629,11 +678,11 @@ class BigWigTrack(Track):
 
         
         chrom, start, end = self._get_interval(interval)
-        return np.array(bw.values(chrom, start, end)) 
+        return np.array(self.track.values(chrom, start, end)) 
 
 
 class TabixTrack(Track):
-    def __init__(self, fname):
+    def __init__(self, fname, **kwargs):
         if fname.endswith("gz") and os.path.exists(fname + ".tbi"):
             self.tabix_track = pysam.Tabixfile(fname)
             self.ftype = "tabix"
