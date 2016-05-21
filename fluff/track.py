@@ -1,6 +1,5 @@
 import os
 import re
-import sys
 import tempfile
 from collections import Counter
 from warnings import warn
@@ -11,7 +10,7 @@ import pybedtools
 import pysam
 import pyBigWig
 
-class SimpleFeature():
+class SimpleFeature(object):
     def __init__(self, chrom, start, end, value, strand):
         self.chrom = chrom
         self.start = start
@@ -19,7 +18,7 @@ class SimpleFeature():
         self.value = value
         self.strand = strand
 
-class SimpleBed():
+class SimpleBed(object):
     def __init__(self, fname):
         self.f = open(fname)
 
@@ -101,7 +100,7 @@ class Track(object):
         """
         try:
             chrom, start, end = interval
-        except:
+        except Exception:
             chrom, start, end = re.split(r'[:-]', interval)
             start, end = int(start), int(end)
 
@@ -111,10 +110,10 @@ class Track(object):
     def load(self, fname, *args, **kwargs):
         _, ftype = os.path.splitext(fname)
         ftype = ftype.strip(".")
-        for name, cls in self._registry:
+        for _, cls in self._registry:
             if ftype in cls._filetypes:
                 return cls(fname, *args, **kwargs)
-        raise ValueError, "can't guess type of file {}".format(fname)
+        raise ValueError("can't guess type of file {}".format(fname))
 
 class BinnedMixin(object):
     def binned_stats(self, in_fname, nbins, rpkm=False, split=False):
@@ -134,11 +133,10 @@ class BinnedMixin(object):
         else:
             in_track = pybedtools.BedTool(in_fname)
         
-        extend = fragmentsize - readlength
+        #extend = fragmentsize - readlength
         for feature, min_strand, plus_strand in self.fetch_to_counts(in_track):
             binsize = (feature.end - feature.start) / float(nbins)
             row = []
-            overlap = []
             min_strand = [x - (fragmentsize - readlength) for x in min_strand]
             bin_start = feature.start
             while int(bin_start + 0.5) < feature.end:
@@ -176,7 +174,7 @@ class BinnedMixin(object):
         if split:
             return ret
         else:
-            return ["\t".join([str(x) for x in row]) for row in ret]
+            return ["\t".join([str(x) for x in r]) for r in ret]
 
 class BamTrack(BinnedMixin, Track):
     _filetypes = ["bam"] 
@@ -227,7 +225,7 @@ class BamTrack(BinnedMixin, Track):
         if (not self.rmdup and not self.rmrepeats):
             try:
                 return self.track.mapped
-            except:
+            except Exception:
                 pass
 
         c = 0
@@ -293,7 +291,7 @@ class BamTrack(BinnedMixin, Track):
                     plus_strand = sorted(plus_strand)
             yield (feature, min_strand, plus_strand)
      
-    def fetch_reads(self, interval, strand=None):
+    def fetch_reads(self, args, **kwargs):
         warn("fetch_reads is deprecated, please use fetch", DeprecationWarning)    
 
     def fetch(self, interval, strand=None):
@@ -437,7 +435,7 @@ class BedTrack(BinnedMixin, Track):
                     plus_strand.append(int(f[1]))
             yield (feature, min_strand, plus_strand)
 
-    def fetch_reads(self, interval):
+    def fetch_reads(self, *args, **kwargs):
         warn("fetch_reads is deprecated, please use fetch", DeprecationWarning)    
   
     def _get_features_by_feature(self, track_a):
@@ -452,16 +450,13 @@ class BedTrack(BinnedMixin, Track):
 
         track_b = self.track
         if track_a.file_type != "bed" or track_b.file_type != "bed":
-            raise ValueError, "Need BED files"
+            raise ValueError("Need BED files")
         for f in track_a:
             field_len_a = len(f.fields)
             break
-        for f in track_b:
-            field_len_b = len(f.fields)
-            break
         i = track_a.intersect(track_b, wao=True, stream=False)
         tmp = tempfile.NamedTemporaryFile(delete=False, prefix="fluff")
-        savedfile = i.saveas(tmp.name)
+        _ = i.saveas(tmp.name)
         tmp.flush()
         last = None
         features = []
@@ -507,7 +502,7 @@ class BedTrack(BinnedMixin, Track):
 
         chrom, start, end = self._get_interval(interval)
         
-        if strand == None:
+        if strand is None:
             strand = "."
         
         if strand == ".":
@@ -515,13 +510,11 @@ class BedTrack(BinnedMixin, Track):
                     "{0} {1} {2}".format(
                         chrom, start, end), 
                     from_string=True)
-            s = False
         else:
             feature = pybedtools.BedTool(
                     "{0} {1} {2} 0 0 {3}".format(
                         chrom, start, end, strand), 
                     from_string=True)
-            s = True
         return feature
 
     def fetch(self, interval, strand=None):
@@ -614,7 +607,7 @@ class WigTrack(Track):
         else:
             raise ValueError("filetype of {} is not supported".format(fname))
 
-    def get_profile(self, interval, fragmentsize=200, rmdup=False, rmrepeats=False):
+    def get_profile(self, interval):
         """
         Return summary profile in a given window
         
@@ -658,7 +651,7 @@ class BigWigTrack(Track):
         else:
             raise ValueError("filetype of {} is not supported".format(fname))
 
-    def get_profile(self, interval, fragmentsize=200, rmdup=False, rmrepeats=False):
+    def get_profile(self, interval):
         """
         Return summary profile in a given window
         
