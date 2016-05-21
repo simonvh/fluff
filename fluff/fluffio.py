@@ -380,7 +380,6 @@ class SimpleFeature():
         self.value = value
         self.strand = strand
 
-
 class SimpleBed():
     def __init__(self, fname):
         self.f = open(fname)

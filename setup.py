@@ -42,8 +42,9 @@ setup(name='biofluff',
                        "matplotlib",
                        "colorbrewer",
                        "pybedtools",
-                        "Pycluster"
-                       ],
+                       "Pycluster",
+                       "pyBigWig",
+                        ],
         tests_require=['pytest'],
     #   dependency_links = [
     #     "http://bonsai.hgc.jp/~mdehoon/software/cluster/Pycluster-1.52.tar.gz",

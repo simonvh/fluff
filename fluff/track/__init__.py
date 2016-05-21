@@ -9,7 +9,9 @@ import HTSeq
 import numpy as np
 import pybedtools
 import pysam
+import pyBigWig
 
+from fluff.fluffio import SimpleBed
 
 class Track(object):
     _registry = []
@@ -65,10 +67,72 @@ class Track(object):
 
         return (chrom, start, end)
 
-class BamTrack(Track):
+class BinnedMixin(object):
+    def binned_stats(self, in_fname, nbins, rpkm=False, split=False):
+        readlength = self.read_length()
+        fragmentsize = self.fragmentsize
+        if not fragmentsize:
+            fragmentsize = readlength
+        total_reads = 1
+        if rpkm:
+            total_reads = self.count() / 1000000.0
+        ret = []
+        count = 1
+        # Only use a BedTool if really necessary, as BedTools does not close open files
+        # on object deletion
+        if self.ftype == "bam":
+            in_track = SimpleBed(in_fname)
+        else:
+            in_track = pybedtools.BedTool(in_fname)
+        
+        extend = fragmentsize - readlength
+        for feature, min_strand, plus_strand in self.fetch_to_counts(in_track):
+            binsize = (feature.end - feature.start) / float(nbins)
+            row = []
+            overlap = []
+            min_strand = [x - (fragmentsize - readlength) for x in min_strand]
+            bin_start = feature.start
+            while int(bin_start + 0.5) < feature.end:
+                num_reads = 0
+                i = 0
+                c = 0
+                while i < len(min_strand) and min_strand[i] <= int(bin_start + binsize + 0.5):
+                    if min_strand[i] + fragmentsize <= int(bin_start + binsize + 0.5):
+                        c += 1
+                    num_reads += 1
+                    i += 1
+                min_strand = min_strand[c:]
+    
+                i = 0
+                c = 0
+                while i < len(plus_strand) and plus_strand[i] <= int(bin_start + binsize + 0.5):
+                    if plus_strand[i] + fragmentsize <= int(bin_start + binsize + 0.5):
+                        c += 1
+                    num_reads += 1
+                    i += 1
+                plus_strand = plus_strand[c:]
+    
+                if rpkm:
+                    per_kb = num_reads * (1000.0 / binsize)
+                    row.append(per_kb / total_reads)
+                else:
+                    row.append(num_reads)
+                bin_start += binsize
+            if feature.strand == "-":
+                row = row[::-1]
+            ret.append([feature.chrom, feature.start, feature.end] + row)
+            count += 1
+        
+        del in_track
+        if split:
+            return ret
+        else:
+            return ["\t".join([str(x) for x in row]) for row in ret]
+
+class BamTrack(BinnedMixin, Track):
     _filetypes = ["bam"] 
     
-    def __init__(self, fname):
+    def __init__(self, fname, **kwargs):
         """
         Track interface to a BAM file
 
@@ -76,8 +140,24 @@ class BamTrack(Track):
         ----------
         fname: str
             filename of BAM file
+        
+        fragmentsize : int, optional
+            Reads are extended to fragmentsize before summarizing the profile.
+            If fragmentsize is None, the read length is used.
+        
+        rmdup : bool, optional
+            Ignore duplicate reads if True, default False
+
+        rmrepeats : bool, optional
+            Ignore reads with mapping quality 0 (multi-mapped reads) if 
+            True, default False
 
         """
+        
+        self.rmdup = kwargs.get("rmdup", False)
+        self.rmrepeats = kwargs.get("rmrepeats", False)
+        self.fragmentsize = kwargs.get("fragmentsize", None)
+
         if fname.endswith("bam"):
             self.track = pysam.AlignmentFile(fname, "rb")
             self.ftype = "bam"
@@ -85,19 +165,9 @@ class BamTrack(Track):
         else:
             raise ValueError("filetype of {} is not supported".format(fname))
 
-    def count(self, rmdup=False, rmrepeats=False):
+    def count(self):
         """
         Count total number of reads in file
-
-        Parameters
-        ----------
-        rmdup : bool, optional
-            Count duplicate reads only once if True, default False
-
-
-        rmrepeats : bool, optional
-            Count reads with mapping quality 0 (multi-mapped reads) only once if 
-            True, default False
 
         Returns
         -------
@@ -105,7 +175,7 @@ class BamTrack(Track):
             Number of reads
         """
         
-        if (not rmdup and not rmrepeats):
+        if (not self.rmdup and not self.rmrepeats):
             try:
                 return self.track.mapped
             except:
@@ -114,9 +184,9 @@ class BamTrack(Track):
         c = 0
         for read in self.track:
             # duplicates
-            if (not rmdup or not read.flag & 0x0400):
+            if (not self.rmdup or not read.flag & 0x0400):
                 # multi-mappers / mapping quality 0
-                if (not rmrepeats) or read.mapq > 0:
+                if (not self.rmrepeats) or read.mapq > 0:
                     c += 1
         return c
       
@@ -135,7 +205,7 @@ class BamTrack(Track):
         lengths = [read.infer_query_length(always=False) for read in it]
         return Counter(lengths).most_common(1)[0][0]
 
-    def fetch_to_counts(self, track, rmdup=False, rmrepeats=False):
+    def fetch_to_counts(self, track):
         """ 
         Yields the number of reads for each feature in track
 
@@ -143,13 +213,6 @@ class BamTrack(Track):
         ----------
         track : Object of <TODO: what exactly do we expect?>
             Track with features
-
-        rmdup : bool, optional
-            Count duplicate reads only once if True, default False
-
-        rmrepeats : bool, optional
-            Count reads with mapping quality 0 (multi-mapped reads) only once if 
-            True, default False
 
         Yields
         ------
@@ -166,14 +229,14 @@ class BamTrack(Track):
                 feature.start = 0
             if feature.chrom in self.chroms:
                 for read in self.track.fetch(feature.chrom, feature.start, feature.end):
-                    if (not rmrepeats) or read.mapq > 0:
+                    if (not self.rmrepeats) or read.mapq > 0:
                         if read.is_reverse:
                             min_strand.append(read.pos)
                         else:
                             plus_strand.append(read.pos)
 
                 # Remove duplicates
-                if rmdup:
+                if self.rmdup:
                     min_strand = sorted(set(min_strand))
                     plus_strand = sorted(set(plus_strand))
                 else:
@@ -181,10 +244,10 @@ class BamTrack(Track):
                     plus_strand = sorted(plus_strand)
             yield (feature, min_strand, plus_strand)
      
-    def fetch_reads(self, interval, strand=None, rmdup=False, rmrepeats=False):
+    def fetch_reads(self, interval, strand=None):
         warn("fetch_reads is deprecated, please use fetch", DeprecationWarning)    
 
-    def fetch(self, interval, strand=None, rmdup=False, rmrepeats=False):
+    def fetch(self, interval, strand=None):
         """ 
         Retrieve all reads within a given window
         
@@ -197,16 +260,9 @@ class BamTrack(Track):
         
         strand : str, optional
             Either '+' or '-'. By default all reads are returned.
-        
-        rmdup : bool, optional
-            Don't return duplicate reads if True, default False
-
-        rmrepeats : bool, optional
-            Don't return reads with mapping quality 0 (multi-mapped reads) if 
-            True, default False
 
         Yields
-        _______
+        ------
         AlignedSegment
             Yields pysam AlignedSegment objects.
         """
@@ -216,10 +272,10 @@ class BamTrack(Track):
         if chrom in self.chroms:
             for read in self.track.fetch(chrom, start, end):
                 # duplicate reads
-                if rmdup and (read.flag & 1024):
+                if self.rmdup and (read.flag & 1024):
                     continue
                 # multimappers / low mapping quality 
-                if rmrepeats and read.mapping_quality < 10:
+                if self.rmrepeats and read.mapping_quality < 10:
                     continue
                 if strand:
                     if strand == "+" and read.is_reverse:
@@ -231,7 +287,227 @@ class BamTrack(Track):
     def close(self):
         self.track.close()
 
-    def get_profile(self, interval, fragmentsize=200, rmdup=False, rmrepeats=False):
+    def get_profile(self, interval):
+        """
+        Return summary profile in a given window
+        
+        Parameters
+        ----------
+        interval : list, tuple or str
+            If interval is a list or tuple, it should contain chromosome (str), 
+            start (int), end (int). If it is a string, it should be of the
+            format chrom:start-end
+        
+        Returns
+        -------
+        numpy array
+            A summarized profile as a numpy array
+
+        """
+        chrom, start, end = self._get_interval(interval)
+        profile = np.zeros(end - start, dtype="f")
+        profile.fill(np.nan)
+
+        strand = {True: "-", False: "+"}
+
+        for read in self.fetch(interval):
+            iv = HTSeq.GenomicInterval(
+                    chrom, 
+                    read.reference_start, 
+                    read.reference_end, strand[read.is_reverse]
+                    )
+            if self.fragmentsize:
+                iv.length = self.fragmentsize
+            region = profile[iv.start - start:iv.end - start]
+            region[np.isnan(region)] = 0
+            region += 1
+
+        return profile
+
+class BedTrack(BinnedMixin, Track):
+    _filetypes = ["bed"]
+    
+    def __init__(self, fname, **kwargs):
+        """
+        Parameters
+        ----------
+        
+        fragmentsize : int, optional
+            Reads are extended to fragmentsize before summarizing the profile.
+            If fragmentsize is None, the read length is used.
+        """ 
+        
+        self.fragmentsize = kwargs.get("fragmentsize", None)
+
+        self.track = pybedtools.BedTool(fname)
+        self.ftype = "bed"
+
+    def count(self):
+        """
+        Count total number of features in file
+
+        Returns
+        -------
+        int
+            Number of features
+        """
+        
+        return self.track.count()
+
+    def read_length(self):
+        if self.ftype == "bed":
+            for read in self.track:
+                return read.end - read.start
+
+    def fetch_to_counts(self, track):
+        """ 
+        Yields the number of features for each feature in track
+
+        Parameters
+        ----------
+        track : Object of <TODO: what exactly do we expect?>
+            Track with features
+
+        Yields
+        ------
+        tuple
+            Return value consists of:
+                feature
+                number of reads on minus strand
+                number of reads on plus strand
+        """
+
+        for feature, features in self._get_features_by_feature(track):
+            min_strand = []
+            plus_strand = []
+
+            for f in features:
+                if len(f) >= 6 and f[5] == "-":
+                    min_strand.append(int(f[1]))
+                else:
+                    plus_strand.append(int(f[1]))
+            yield (feature, min_strand, plus_strand)
+
+    def fetch_reads(self, interval):
+        warn("fetch_reads is deprecated, please use fetch", DeprecationWarning)    
+  
+    def _get_features_by_feature(self, track_a):
+        """
+        Return overlapping features 
+        
+        Parameters
+        ----------
+        
+        track_a : BedTrack object 
+        """
+
+        track_b = self.track
+        if track_a.file_type != "bed" or track_b.file_type != "bed":
+            raise ValueError, "Need BED files"
+        for f in track_a:
+            field_len_a = len(f.fields)
+            break
+        for f in track_b:
+            field_len_b = len(f.fields)
+            break
+        i = track_a.intersect(track_b, wao=True, stream=False)
+        tmp = tempfile.NamedTemporaryFile(delete=False, prefix="fluff")
+        savedfile = i.saveas(tmp.name)
+        tmp.flush()
+        last = None
+        features = []
+        for line in tmp.readlines():
+            vals = line.strip().split("\t")
+            if field_len_a >= 6:
+                feature = pybedtools.Interval(vals[0], int(vals[1]), int(vals[2]), strand=vals[5])
+            else:
+                feature = pybedtools.Interval(vals[0], int(vals[1]), int(vals[2]))
+            if str(feature) != str(last):
+                if len(features) > 0:
+                    if len(features) == 1 and features[0][1:3] == ['-1', '-1']:
+                        yield last, []
+                    else:
+                        yield last, features
+                features = []
+                last = feature
+            features.append(vals[field_len_a:])
+        if len(features) == 1 and features[0][1:3] == ['-1', '-1']:
+            yield feature, []
+        else:
+            yield feature, features
+        tmp.close()
+    
+    def _interval_bedtool(self, interval, strand=None):
+        """
+        Convert an interval to a BedTool
+
+        Parameters
+        ----------
+        interval : list, tuple or str
+            If interval is a list or tuple, it should contain chromosome (str), 
+            start (int), end (int). If it is a string, it should be of the
+            format chrom:start-end
+        
+        strand : str, optional
+            Either '+' or '-'. Default is no strand.
+        
+        Returns
+        -------
+        BedTool object
+        """
+
+        chrom, start, end = self._get_interval(interval)
+        
+        if strand == None:
+            strand = "."
+        
+        if strand == ".":
+            feature = pybedtools.BedTool(
+                    "{0} {1} {2}".format(
+                        chrom, start, end), 
+                    from_string=True)
+            s = False
+        else:
+            feature = pybedtools.BedTool(
+                    "{0} {1} {2} 0 0 {3}".format(
+                        chrom, start, end, strand), 
+                    from_string=True)
+            s = True
+        return feature
+
+    def fetch(self, interval, strand=None):
+        """ 
+        Retrieve all reads within a given window
+        
+        Parameters
+        ----------
+        interval : list, tuple or str
+            If interval is a list or tuple, it should contain chromosome (str), 
+            start (int), end (int). If it is a string, it should be of the
+            format chrom:start-end
+        
+        strand : str, optional
+            Either '+' or '-'. By default all reads are returned.
+        
+        Yields
+        ------
+        GenomicInterval
+            Yields HTSeq GenomicInterval objects.
+        """
+        
+        feature = self._interval_bedtool(interval, strand=strand)
+        chrom, start, end = self._get_interval(interval)
+        for read in self.track.intersect(feature, u=True, stream=True, s=strand in ["+", "-"]):
+            yield HTSeq.GenomicInterval(
+                    chrom, 
+                    read.start, 
+                    read.end, 
+                    str(read.strand))
+
+    def close(self):
+        pass
+
+    def get_profile(self, interval):
         """
         Return summary profile in a given window
         
@@ -254,88 +530,30 @@ class BamTrack(Track):
             True, default False
 
         Returns
-        _______
+        -------
         numpy array
             A summarized profile as a numpy array
 
         """
+ 
         chrom, start, end = self._get_interval(interval)
         profile = np.zeros(end - start, dtype="f")
         profile.fill(np.nan)
 
-        strand = {True: "-", False: "+"}
-
-        for read in self.fetch(interval, rmdup=rmdup, rmrepeats=rmrepeats):
+        for f in self.fetch(interval):
             iv = HTSeq.GenomicInterval(
                     chrom, 
-                    read.reference_start, 
-                    read.reference_end, strand[read.is_reverse]
+                    f.start, 
+                    f.end,
+                    f.strand
                     )
-            if fragmentsize:
-                iv.length = fragmentsize
+            if self.fragmentsize:
+                iv.length = self.fragmentsize
             region = profile[iv.start - start:iv.end - start]
             region[np.isnan(region)] = 0
             region += 1
 
         return profile
-
-class BedTrack(Track):
-    _filetypes = ["bed"]
-    
-    def __init__(self, fname):
-       self.track = pybedtools.BedTool(fname)
-       self.ftype = "bed"
-
-    def count(self, rmdup=False, rmrepeats=False):
-        if rmrepeats:
-            sys.stderr.write("Warning: rmrepeats has no result on BED files!")
-        if rmdup:
-            sys.stderr.write("Warning: rmdup has no result on BED files! (yet...;))")
-
-    def read_length(self):
-        if self.ftype == "bed":
-            for read in self.track:
-                return read.end - read.start
-
-    def fetch_to_counts(self, track, rmdup=False, rmrepeats=False):
-        """ Generator 
-        """
-        if rmrepeats:
-            sys.stderr.write("Warning: rmrepeats has no result on BED files!")
-        for feature, features in get_features_by_feature(track, self.track):
-            min_strand = []
-            plus_strand = []
-
-            for f in features:
-                if len(f) >= 6 and f[5] == "-":
-                    min_strand.append(int(f[1]))
-                else:
-                    plus_strand.append(int(f[1]))
-            yield (feature, min_strand, plus_strand)
-
-    def fetch_reads(self, interval, rmdup=False, rmrepeats=False):
-        """ Generator 
-        """
-        raise NotImplementedError
-        chrom, start, end, strand = window
-        if strand == None:
-            strand = "."
-        intervals = []
-        if strand == ".":
-            feature = pybedtools.BedTool("{0} {1} {2}".format(chrom, start, end), from_string=True)
-            s = False
-        else:
-            feature = pybedtools.BedTool("{0} {1} {2} 0 0 {3}".format(chrom, start, end, strand), from_string=True)
-            s = True
-        for read in self.track.intersect(feature, u=True, stream=True, s=s):
-            intervals.append(HTSeq.GenomicInterval(chrom, read.start, read.end, str(read.strand)))
-        return intervals
-
-    def close(self):
-        pass
-
-    def get_profile(self, interval, fragmentsize=200, rmdup=False, rmrepeats=False):
-        raise NotImplementedError
 
 class WigTrack(Track):
     _filetypes = ["bg", "wig"]
@@ -345,38 +563,27 @@ class WigTrack(Track):
             self.htseq_track = HTSeq.WiggleReader(fname, verbose=True)
             self.ftype = "wig"
         else:
-            raise NotImplementedError
-
-    def __getitem__(self, window):
-        """ 
-        Retrieve all reads within a given window
-        Arguments: window - a list or tuple containing chromosome, start, end and strand
-        Returns a list of GenomicIntervals
-        """
-    
-        raise NotImplementedError
-
-    def count(self, rmdup=False, rmrepeats=False):
-        raise NotImplementedError
-
-    def read_length(self):
-       raise NotImplementedError
-    
-    def fetch_to_counts(self, track, rmdup=False, rmrepeats=False):
-        """ Generator 
-        """
-        raise NotImplementedError
-
-    def fetch_reads(self, interval, rmdup=False, rmrepeats=False):
-        """ Generator 
-        """
-        raise NotImplementedError
-
-    def close(self):
-        pass
+            raise ValueError("filetype of {} is not supported".format(fname))
 
     def get_profile(self, interval, fragmentsize=200, rmdup=False, rmrepeats=False):
-        chrom, start, end = interval
+        """
+        Return summary profile in a given window
+        
+        Parameters
+        ----------
+        interval : list, tuple or str
+            If interval is a list or tuple, it should contain chromosome (str), 
+            start (int), end (int). If it is a string, it should be of the
+            format chrom:start-end
+        
+        Returns
+        -------
+        numpy array
+            A summarized profile as a numpy array
+
+        """
+        
+        chrom, start, end = self._get_interval(interval)
         profile = np.zeros(end - start, dtype="f")
         profile.fill(np.nan)
 
@@ -392,6 +599,39 @@ class WigTrack(Track):
 
         return profile
 
+class BigWigTrack(Track):
+    _filetypes = ["bw"]
+    
+    def __init__(self, fname):
+        if fname.endswith("bw"):
+            self.track = pyBigWig.open(fname)
+            self.ftype = "bw"
+        else:
+            raise ValueError("filetype of {} is not supported".format(fname))
+
+    def get_profile(self, interval, fragmentsize=200, rmdup=False, rmrepeats=False):
+        """
+        Return summary profile in a given window
+        
+        Parameters
+        ----------
+        interval : list, tuple or str
+            If interval is a list or tuple, it should contain chromosome (str), 
+            start (int), end (int). If it is a string, it should be of the
+            format chrom:start-end
+        
+        Returns
+        -------
+        numpy array
+            A summarized profile as a numpy array
+
+        """
+
+        
+        chrom, start, end = self._get_interval(interval)
+        return np.array(bw.values(chrom, start, end)) 
+
+
 class TabixTrack(Track):
     def __init__(self, fname):
         if fname.endswith("gz") and os.path.exists(fname + ".tbi"):
@@ -399,30 +639,6 @@ class TabixTrack(Track):
             self.ftype = "tabix"
         else:
             raise NotImplementedError
-
-    def __getitem__(self, window):
-        """ 
-        Retrieve all reads within a given window
-        Arguments: window - a list or tuple containing chromosome, start, end and strand
-        Returns a list of GenomicIntervals
-        """
-        
-        raise NotImplementedError
-
-    def count(self, rmdup=False, rmrepeats=False):
-        raise NotImplementedError
-
-    def read_length(self):
-        raise NotImplementedError
-    
-    def fetch_to_counts(self, track, rmdup=False, rmrepeats=False):
-        raise NotImplementedError
-
-    def fetch_reads(self, interval, rmdup=False, rmrepeats=False):
-        raise NotImplementedError
-    
-    def close(self):
-        pass
 
     def get_profile(self, interval, fragmentsize=200, rmdup=False, rmrepeats=False):
         for f in self.tabix_track.fetch(chrom, start, end):
@@ -437,19 +653,3 @@ class TabixTrack(Track):
                 profile[iv.start - start:iv.end - start] = float(f[3])
 
         return profile
-
-if __name__ == "__main__":
-    bam = "/home/simon/git/fluff/tests/data/profile.bam"
-    
-    b = BamTrack(bam)
-    print Track._registry
-    print Track.filetypes()
-
-    #b[["scaffold_1",44749422, 44750067, "+"]]
-    print b.read_length()
-    print len([i for i in b.fetch(["scaffold_1",44749422, 44750067])])
-    print len([i for i in b.fetch("scaffold_1:44749422-44750067")])
-    print len([i for i in b.fetch("scaffold_1:44749422-44750067", strand="+")])
-    print len([i for i in b.fetch("scaffold_1:44749422-44750067", strand="-")])
-
-    print b.get_profile(["scaffold_1", 44749422, 44750067], fragmentsize=None)
