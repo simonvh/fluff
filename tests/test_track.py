@@ -50,5 +50,7 @@ def test_bamtrack(bamfile, bedfile, wigfile, bwfile, interval, region):
         assert 2 == max(profile)
         assert 1 == min(profile)
 
-
-
+    bins = [2,0,0,0,1,1,2,2,2,2]
+    tracks = [BigWigTrack(bwfile)]
+    for t in tracks:
+        assert [list(interval) + bins] == [x for x in t.binned_stats(region, 10, split=True)]

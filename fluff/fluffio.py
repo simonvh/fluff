@@ -208,9 +208,9 @@ def load_heatmap_data(featurefile, datafile, bins=100, up=5000, down=5000, rmdup
             rmrepeats=rmrepeats,
             fragmentsize=fragmentsize)
 
-    result = track.binned_stats(tmp.name, bins, rpkm=rpkm)
+    result = track.binned_stats(tmp.name, bins, rpkm=rpkm, split=True)
     # Retrieve original order
-    r_data = numpy.array([[float(x) for x in row.split("\t")[3:]] for row in result])
+    r_data = numpy.array([[float(x) for x in row[3:]] for row in result])
     return os.path.basename(datafile), regions, r_data, guard  # [r_order]
 
 

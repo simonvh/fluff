@@ -622,7 +622,6 @@ class WigTrack(Track):
         -------
         numpy array
             A summarized profile as a numpy array
-
         """
         
         chrom, start, end = self._get_interval(interval)
@@ -666,12 +665,19 @@ class BigWigTrack(Track):
         -------
         numpy array
             A summarized profile as a numpy array
-
         """
-
         
         chrom, start, end = self._get_interval(interval)
         return np.array(self.track.values(chrom, start, end)) 
+
+    def binned_stats(self, in_fname, nbins, rpkm=False, split=False):
+        
+        in_track = SimpleBed(in_fname)
+        for f in in_track:
+            vals = self.track.stats(f.chrom, f.start, f.end, type="max", nBins=nbins)
+            vals = np.array(vals, dtype="float")
+            vals = np.nan_to_num(vals)
+            yield [f.chrom, f.start, f.end] + list(vals)
 
 
 class TabixTrack(Track):
