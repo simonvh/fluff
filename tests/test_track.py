@@ -34,6 +34,22 @@ def fragments():
 def bedfile():
     return "tests/data/H3K4me3.bed"
 
+@pytest.fixture
+def frag3():
+    return "tests/data/testfragments3.bed"
+
+@pytest.fixture
+def frag6():
+    return "tests/data/testfragments6.bed"
+
+@pytest.fixture
+def region3():
+    return "tests/data/threeregions3.bed"
+
+@pytest.fixture
+def region6():
+    return "tests/data/threeregions6.bed"
+
 def test_count(tracks):
     for track in tracks:
         if track.track_type == "feature":
@@ -94,3 +110,20 @@ def test_fragmentsize(region_fs, fragments):
     counts = [int(x) for x in result[0].split("\t")[-4:]]
     assert [2, 2, 2, 2] == counts
 
+def test_fetch_to_counts(frag3, frag6, region3, region6):
+    from pybedtools import BedTool
+    for f in [frag3, frag6]:
+        t = Track.load(f)
+        for r in [region3, region6]:
+            overlap = [x for x in t.fetch_to_counts(BedTool(r))]
+            assert 3 == len(overlap)
+            counts = sorted([len(x[1]) + len(x[2]) for x in overlap])
+            assert [0, 1, 3] == counts
+
+def test_get_features_by_feature(frag3, frag6, region3, region6):
+    from pybedtools import BedTool
+    for f in [frag6]:
+        t = Track.load(f)
+        for r in [region3, region6]:
+            result = [len(x[1]) for x in t._get_features_by_feature(BedTool(r))]
+            assert [0, 1, 3] == sorted(result)
