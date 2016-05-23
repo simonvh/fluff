@@ -16,6 +16,10 @@ before_install:
   - export PATH=$HOME/miniconda/bin:$PATH
   - conda update --yes conda
   - conda info -a
+  # Fix DISPLAY variable
+  - "export DISPLAY=:99.0"
+  - "sh -e /etc/init.d/xvfb start"
+
 
 install:
   - conda install --yes python=$TRAVIS_PYTHON_VERSION numpy scipy matplotlib pytest 
