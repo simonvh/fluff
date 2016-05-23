@@ -11,32 +11,28 @@ def tracks():
     return my_tracks
 
 @pytest.fixture
-def bamfile():
-    return "tests/data/profile.bam"
-
-@pytest.fixture
-def bedfile():
-    return "tests/data/profile.bed"
-
-@pytest.fixture
-def wigfile():
-    return "tests/data/profile.wig"
-
-@pytest.fixture
-def bwfile():
-    return "tests/data/profile.bw"
-
-@pytest.fixture
-def tabixfile():
-    return "tests/data/profile.wig.gz"
-
-@pytest.fixture
 def interval():
     return ("scaffold_1", 44749422, 44750067)
 
 @pytest.fixture
 def region():
     return "tests/data/profile_region.bed"
+
+@pytest.fixture
+def region_fs():
+    return "tests/data/testregion.bed"
+
+@pytest.fixture
+def bamfile():
+    return "tests/data/H3K4me3.bam"
+
+@pytest.fixture
+def fragments():
+    return "tests/data/testfragment.bed"
+
+@pytest.fixture
+def bedfile():
+    return "tests/data/H3K4me3.bed"
 
 def test_count(tracks):
     for track in tracks:
@@ -73,3 +69,28 @@ def test_fetch(tracks, interval, region):
             assert 10 == len([i for i in t.fetch(interval)])
             assert 6 == len([i for i in t.fetch(interval, strand="+")])
             assert 4 == len([i for i in t.fetch(interval, strand="-")])
+
+def test_fragmentsize(region_fs, fragments):
+    
+    track = Track.load(fragments)
+    result = track.binned_stats(region_fs, 4)
+    assert 1 == len(result)
+
+    counts = [int(x) for x in result[0].split("\t")[-4:]]
+    assert [1, 0, 0, 1] == counts
+
+    track.fragmentsize = 50
+    result = track.binned_stats(region_fs, 4)
+    counts = [int(x) for x in result[0].split("\t")[-4:]]
+    assert [1, 0, 0, 1] == counts
+
+    track.fragmentsize = 100
+    result = track.binned_stats(region_fs, 4)
+    counts = [int(x) for x in result[0].split("\t")[-4:]]
+    assert [1, 1, 1, 1] == counts
+
+    track.fragmentsize = 200
+    result = track.binned_stats(region_fs, 4)
+    counts = [int(x) for x in result[0].split("\t")[-4:]]
+    assert [2, 2, 2, 2] == counts
+
