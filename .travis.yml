@@ -20,9 +20,10 @@ before_install:
 install:
   - conda install --yes python=$TRAVIS_PYTHON_VERSION numpy scipy matplotlib pytest 
   - conda install --yes -c bioconda python=$TRAVIS_PYTHON_VERSION pysam htseq pybedtools bedtools colorbrewer Pycluster pyBigWig
+  - pip install coverage
 # # command to run tests, e.g. python setup.py test
 script:  
-  - python setup.py test
+  - coverage run setup.py test
  
-#after_sucess:
-#  coveralls
+after_sucess:
+  coveralls
