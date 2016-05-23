@@ -21,6 +21,8 @@ install:
   - conda install --yes python=$TRAVIS_PYTHON_VERSION numpy scipy matplotlib pytest 
   - conda install --yes -c bioconda python=$TRAVIS_PYTHON_VERSION pysam htseq pybedtools bedtools colorbrewer Pycluster pyBigWig
   - pip install coverage
+  - pip install coveralls
+
 # # command to run tests, e.g. python setup.py test
 script:  
   - coverage run setup.py test
