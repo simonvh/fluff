@@ -11,7 +11,6 @@ import pybedtools
 import pysam
 import pyBigWig
 
-
 class SimpleFeature(object):
     def __init__(self, chrom, start, end, value, strand):
         self.chrom = chrom
@@ -21,6 +20,10 @@ class SimpleFeature(object):
         self.strand = strand
 
 class SimpleBed(object):
+    """
+    BED file as a simple iterator
+    """
+    
     def __init__(self, fname):
         self.f = open(fname)
 
@@ -112,6 +115,21 @@ class Track(object):
 
     @classmethod
     def load(self, fname, *args, **kwargs):
+        """
+        Load a track in one of the following formats:
+            bam, bed, wig, bg, bw, tabix (bed.gz, bg.gz, wig.gz)
+        The format is guessed by the file extension.
+
+        Parameters
+        ----------
+        fname : str
+            Filename
+
+        Returns
+        -------
+        Track object of the specified type
+        """
+        
         _, ftype = os.path.splitext(fname)
         ftype = ftype.strip(".")
         for _, cls in self._registry:
@@ -669,7 +687,6 @@ class WigTrack(Track):
         statistic : str, optional
             Default is "mean", other options are "min", "max" and "std"
         """
-            
         
         in_track = pybedtools.BedTool(in_fname)
        
@@ -765,22 +782,86 @@ class TabixTrack(Track):
     _filetypes = ["bg.gz", "wig.gz", "bed.gz"]
 
     def __init__(self, fname, **kwargs):
-        if fname.endswith("gz") and os.path.exists(fname + ".tbi"):
-            self.tabix_track = pysam.Tabixfile(fname)
-            self.ftype = "tabix"
+        if fname.endswith("gz"):
+            if not os.path.exists(fname + ".tbi"):
+                raise ValueError("Can't find tabix index for {}".format(fname))
+            for ftype in self._filetypes:
+                if fname.endswith(ftype):
+                    self.tabix_track = pysam.Tabixfile(fname)
+                    self.ftype = "tabix"
+                    return
+            raise ValueError("Can't guess format of {}".format(fname))
         else:
-            raise NotImplementedError
+            raise ValueError("Can only process bgzipped files.")
 
-    def get_profile(self, interval, fragmentsize=200, rmdup=False, rmrepeats=False):
+    def get_profile(self, interval):
+        """
+        Return summary profile in a given window
+        
+        Parameters
+        ----------
+        interval : list, tuple or str
+            If interval is a list or tuple, it should contain chromosome (str), 
+            start (int), end (int). If it is a string, it should be of the
+            format chrom:start-end
+        
+        Returns
+        -------
+        numpy array
+            A summarized profile as a numpy array
+        """
+ 
+        chrom, start, end = self._get_interval(interval) 
+
+        profile = np.zeros(end - start)
+        profile.fill(np.nan)
         for f in self.tabix_track.fetch(chrom, start, end):
             f = f.split()
-            iv = HTSeq.GenomicInterval(f[0], int(f[1]) - 5, int(f[2]) + 5, ".")
-            if iv.start <= end and iv.end >= start:
-                if iv.start < start:
-                    iv.start = start
-                if iv.end > end:
-                    iv.end = end
-
-                profile[iv.start - start:iv.end - start] = float(f[3])
-
+            fstart = int(f[1])
+            fend = int(f[2])
+            if fstart < start:
+                fstart = start
+            if fend > end:
+                fend = end
+            profile[fstart - start: fend - end] = float(f[3])
         return profile
+
+    def binned_stats(self, in_fname, nbins, statistic="mean", split=False):
+        """
+        Yields a binned statistic applied to the track values for
+        every feature in in_fname.
+
+        Parameters
+        ----------
+        in_fname : str
+            BED file
+
+        nbins : int
+            number of bins
+
+        statistic : str, optional
+            Default is "mean", other options are "min", "max" and "std"
+        """
+        
+        in_track = SimpleBed(in_fname)
+       
+        if statistic in ["min", "max", "std"]:
+            statistic = eval(statistic)
+
+        for r in in_track: 
+            profile = np.zeros(r.end - r.start)
+            for f in self.tabix_track.fetch(r.chrom, r.start, r.end):
+                f = f.split()
+                start = int(f[1])
+                end = int(f[2])
+                if start < r.start:
+                    start = r.start
+                if end > r.end:
+                    end = r.end
+                profile[start - r.start: end - r.end] = float(f[3])
+            h,_,_ = binned_statistic(
+                    np.arange(r.end - r.start), 
+                    profile, 
+                    bins=nbins, 
+                    statistic=statistic)
+            yield [f[0], r.start, r.end] + list(h)
