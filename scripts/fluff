@@ -247,9 +247,9 @@ p = subparsers.add_parser('profile', add_help=False)
 # profile Required arguments
 req_grp = p.add_argument_group(title='Required arguments')
 req_grp.add_argument("-i",
-                     dest="intervals",
-                     help="one or more genomic intervals (chrom:start-end)",
-                     metavar="INTERVAL(S)")
+                     dest="interval",
+                     help="genomic interval (chrom:start-end)",
+                     metavar="INTERVAL")
 req_grp.add_argument("-d",
                      required=True,
                      dest="datafiles",

@@ -5,11 +5,10 @@ import os
 ### My imports ###
 from fluff.color import parse_colors
 from fluff.plot import profile_screenshot
-from fluff.util import *
-
+from fluff.util import process_groups
 
 def profile(args):
-    intervals = [x.strip() for x in args.intervals.split(",")]
+    interval = args.interval
     datafiles = [x.strip() for x in args.datafiles]
     annotation = args.annotation
     outfile = args.outfile
@@ -47,11 +46,8 @@ def profile(args):
     for group in trackgroups:
         tracks.append([datafiles[i - 1] for i in group])
 
-    # Intervals
-    intervals = [split_interval(x) for x in intervals]
-
     # Create the image
-    profile_screenshot(outfile, intervals, tracks,
+    profile_screenshot(outfile, interval, tracks,
                        annotation=annotation,
                        scalegroups=scalegroups,
                        fontsize=args.textfontsize,

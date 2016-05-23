@@ -1,15 +1,16 @@
 import re
+import os
 import matplotlib.gridspec as gridspec
 import matplotlib.pyplot as plt
 from matplotlib.font_manager import FontProperties
 from matplotlib.patches import FancyArrowPatch, ArrowStyle, Polygon
 from matplotlib.ticker import NullFormatter, NullLocator
-from numpy import *
 from scipy.stats import scoreatpercentile
+import numpy as np
 
 from fluff.color import create_colormap
 from fluff.config import FONTSIZE
-from fluffio import *
+from fluff.track import Track
 
 DEFAULT_COLORS = ["#e41a1c", "#4daf4a", "#377eb8"]
 PROFILE_MIN_Y = 75
@@ -21,7 +22,7 @@ def hide_axes(ax):
     for x in [ax.xaxis, ax.yaxis]:
         x.set_major_formatter(NullFormatter())
         x.set_major_locator(NullLocator())
-    for loc, spine in ax.spines.iteritems():
+    for _, spine in ax.spines.iteritems():
         spine.set_color('none')
 
 
@@ -63,7 +64,7 @@ def heatmap_plot(data, ind, outfile, tracks, titles, colors, bgcolors, scale, ts
                     linewidth=0.5,
                     alpha=0.5
                     )
-        labels = array(labels)
+        labels = np.array(labels)
         # Smaller cluster on the top ([::-1])
         for i in range(max(labels) + 1)[::-1]:
             prev = s
@@ -83,7 +84,7 @@ def heatmap_plot(data, ind, outfile, tracks, titles, colors, bgcolors, scale, ts
 
     fig.subplots_adjust(wspace=btw_space, hspace=0)
     ext = outfile.split(".")[-1]
-    if not ext in ["png", "svg", "ps", "eps", "pdf"]:
+    if ext not in ["png", "svg", "ps", "eps", "pdf"]:
         outfile += ".png"
     sys.stderr.write("Saving figure\n")
     if outfile.endswith("png"):
@@ -92,7 +93,7 @@ def heatmap_plot(data, ind, outfile, tracks, titles, colors, bgcolors, scale, ts
         plt.savefig(outfile)
 
 
-def coverage_plot(ax, x, data, color="red", percs=[50, 90]):
+def coverage_plot(ax, x, data, color="red", percs=None):
     """
     ax = matplotlib axes instance
     x = x-axis coordinates
@@ -101,22 +102,24 @@ def coverage_plot(ax, x, data, color="red", percs=[50, 90]):
     """
 
     # Might change this into an argument for the function
+    if percs is None:
+        percs = [50, 90]
     percs = [(100 - float(p)) / 2 for p in percs[::-1]]
     alphas = [0.1, 0.4]
 
     # Convert to numpy array
-    vals = array(data)
+    vals = np.array(data)
 
     # Get the median
-    m = median(vals, axis=0)
+    m = np.median(vals, axis=0)
 
     # Draw the minimum percentiles
-    lines = [array([scoreatpercentile(vals[:, i], perc) for i in range(len(vals[0]))]) for perc in percs] + [m]
+    lines = [np.array([scoreatpercentile(vals[:, i], perc) for i in range(len(vals[0]))]) for perc in percs] + [m]
     for (line_min, line_max), alpha in zip([(lines[i], lines[i + 1]) for i in range(len(percs))], alphas):
         ax.fill_between(x, line_min, line_max, facecolor=color, alpha=alpha, edgecolor='face')
 
         # Draw the maximum percentiles
-    lines = [m] + [array([scoreatpercentile(vals[:, i], 100 - perc) for i in range(len(vals[0]))]) for perc in
+    lines = [m] + [np.array([scoreatpercentile(vals[:, i], 100 - perc) for i in range(len(vals[0]))]) for perc in
                    percs[::-1]]
     for (line_min, line_max), alpha in zip([(lines[i], lines[i + 1]) for i in range(len(percs))], alphas[::-1]):
         ax.fill_between(x, line_min, line_max, facecolor=color, alpha=alpha, edgecolor='face')
@@ -163,7 +166,7 @@ def create_grid_figure(nrows, ncolumns, plotwidth=2.0, plotheight=2.0, pad=0.1, 
 
     return fig, axes
 
-def profile_screenshot(fname, intervals, tracks, fontsize, colors=None, scalegroups=[], annotation=None, bgmode="color",
+def profile_screenshot_old(fname, intervals, tracks, fontsize, colors=None, scalegroups=[], annotation=None, bgmode="color",
                        fragmentsize=200, scale=False, dpi=600, rmdup=False, rmrepeats=False, reverse=False):
     # Colors
     if not colors:
@@ -184,7 +187,6 @@ def profile_screenshot(fname, intervals, tracks, fontsize, colors=None, scalegro
     padright = 0.1
     padtop = 0.1
     padbottom = 0.1
-    clean = True
 
     # Genomic scale
     scale_height = 0.1
@@ -307,16 +309,16 @@ def profile_screenshot(fname, intervals, tracks, fontsize, colors=None, scalegro
                         alpha = 0.4
                     else:
                         alpha = 1
-                    ax.fill_between(range(start, end), zeros(len(profile)), profile, edgecolor='face',
+                    ax.fill_between(range(start, end), np.zeros(len(profile)), profile, edgecolor='face',
                                     facecolor=colors[color_index % len(colors)], linewidth=0, alpha=alpha)
                     color_index += 1
-                    maxes.append(numpy.nanmax(profile) * 1.1)
+                    maxes.append(np.nanmax(profile) * 1.1)
                 track_maxes.append(max(maxes))
                 ax.set_ylim(0, max(maxes))
             else:
                 # Single track
                 profile = profile_group
-                ax.fill_between(range(start, end), zeros(len(profile)), profile, edgecolor='face',
+                ax.fill_between(range(start, end), np.zeros(len(profile)), profile, edgecolor='face',
                                 facecolor=colors[color_index % len(colors)], linewidth=0)
                 color_index += 1
                 track_maxes.append(max(profile) * 1.1)
@@ -424,7 +426,7 @@ def profile_screenshot(fname, intervals, tracks, fontsize, colors=None, scalegro
     plt.savefig(fname, dpi=dpi)
     plt.close()
 
-def profile_screenshot2(fname, interval, tracks, fontsize=None, colors=None, scalegroups=[], annotation=None, bgmode="color", fragmentsize=200, scale=False, dpi=600, rmdup=False, rmrepeats=False, reverse=False):
+def profile_screenshot(fname, interval, tracks, fontsize=None, colors=None, scalegroups=[], scale="auto", annotation=None, bgmode="color", fragmentsize=200,  dpi=600, rmdup=False, rmrepeats=False, reverse=False):
     """
     Plot a genome browser like profile
     
@@ -464,8 +466,6 @@ def profile_screenshot2(fname, interval, tracks, fontsize=None, colors=None, sca
     if max([len(n) for n in names]) > 27:
         pad["left"] = 3
     
-    clean = True
-
     # Genomic scale
     scale_height = 0.1
     # Annotation track height
@@ -495,32 +495,35 @@ def profile_screenshot2(fname, interval, tracks, fontsize=None, colors=None, sca
 
     # add the genomic scale
     pfig.add_panel(ScalePanel())
-
+    
     # add the signal tracks
-    for i,track in enumerate(tracks):
-        print os.path.splitext(os.path.split(track)[-1])[0]
-        panel = pfig.add_panel(
-                BamProfilePanel(track,
-                    color = colors[i % len(colors)], 
-                    bgmode = bgmode,
-                    name = os.path.splitext(os.path.split(track)[-1])[0],
-                    fragmentsize = fragmentsize,
-                    rmrepeats = rmrepeats,
-                    rmdup = rmdup,
-                    ))
+    c = 0
+    for group in tracks:
+        for track in group:
+            print track
+            print os.path.splitext(os.path.split(track)[-1])[0]
+            panel = pfig.add_panel(
+                    BamProfilePanel(track,
+                        color = colors[c % len(colors)], 
+                        bgmode = bgmode,
+                        name = os.path.splitext(os.path.split(track)[-1])[0],
+                        fragmentsize = fragmentsize,
+                        rmrepeats = rmrepeats,
+                        rmdup = rmdup,
+                        ))
+            c += 1
         #if scales:
         #    ## TODO ##
         #    pass
-    
     
     # add the annotation panel
     if annotation:
         pfig.add_panel(AnnotationPanel(annotation))
     
-    pfig.plot([chrom, start, end], scalegroups=scalegroups)
+    pfig.plot([chrom, start, end], scalegroups=scalegroups, reverse=reverse)
     plt.savefig(fname, dpi=dpi)
 
-class ProfileFigure():
+class ProfileFigure(object):
     def __init__(self, fig=None, gs=None, fontsize=FONTSIZE, pad=None):
         self._panels = []
         if not fig:
@@ -581,7 +584,7 @@ class ProfileFigure():
         self._panels.append(panel)
         return panel
 
-class ProfilePanel():
+class ProfilePanel(object):
     def hide_axes(self, axes):
         for ax in [axes.xaxis, axes.yaxis]:
             ax.set_major_formatter(NullFormatter())
@@ -594,7 +597,7 @@ class BamProfilePanel(ProfilePanel):
     def __init__(self, bamfile, height=1, color=None, bgmode=None, alpha=None, fragmentsize=200, rmdup=True,
                  rmrepeats=True, **kwargs):
         self.height = height
-        self.track = Track.load(bamfile)
+        self.track = Track.load(bamfile, fragmentsize=fragmentsize, rmdup=rmdup, rmrepeats=rmrepeats)
 
         self.ymax = None
         self.bgmode = bgmode
@@ -617,15 +620,10 @@ class BamProfilePanel(ProfilePanel):
 
     def _load_data(self, interval):
 
-        self.profile = self.track.get_profile(
-                interval,
-                self.fragmentsize,
-                self.rmdup,
-                self.rmrepeats
-        )
+        self.profile = self.track.get_profile(interval)
 
         if not self.ymax:
-            self.ymax = numpy.nanmax(self.profile) * 1.10
+            self.ymax = np.nanmax(self.profile) * 1.10
 
     def _plot(self, ax, interval, reverse=False, fig=None, odd=False, font=None, **kwargs):
 
@@ -646,7 +644,7 @@ class BamProfilePanel(ProfilePanel):
         # plot data
         ax.fill_between(
                 range(start, end),
-                zeros(len(profile)),
+                np.zeros(len(profile)),
                 profile,
                 edgecolor='face',
                 facecolor=self.color,
