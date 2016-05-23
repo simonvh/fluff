@@ -1,4 +1,4 @@
-#bedGraph section scaffold_1:44749422-44750067
+track type=wiggle_0
 scaffold_1	44749422	44749429	1
 scaffold_1	44749429	44749457	2
 scaffold_1	44749457	44749464	1

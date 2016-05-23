@@ -4,11 +4,13 @@ import tempfile
 from collections import Counter
 from warnings import warn
 
-import HTSeq
 import numpy as np
+from scipy.stats import binned_statistic
+import HTSeq
 import pybedtools
 import pysam
 import pyBigWig
+
 
 class SimpleFeature(object):
     def __init__(self, chrom, start, end, value, strand):
@@ -56,6 +58,8 @@ class Track(object):
     _registry = []
     _filetypes = []
 
+    track_type = "profile"
+    
     class __metaclass__(type):
         """ Keep track of "plugin" classes
         """
@@ -111,8 +115,9 @@ class Track(object):
         _, ftype = os.path.splitext(fname)
         ftype = ftype.strip(".")
         for _, cls in self._registry:
-            if ftype in cls._filetypes:
-                return cls(fname, *args, **kwargs)
+            for filetype in cls._filetypes:
+                if filetype.endswith(ftype):
+                    return cls(fname, *args, **kwargs)
         raise ValueError("can't guess type of file {}".format(fname))
 
 class BinnedMixin(object):
@@ -178,7 +183,8 @@ class BinnedMixin(object):
 
 class BamTrack(BinnedMixin, Track):
     _filetypes = ["bam"] 
-    
+    track_type = "feature"
+
     def __init__(self, fname, **kwargs):
         """
         Track interface to a BAM file
@@ -373,6 +379,7 @@ class BamTrack(BinnedMixin, Track):
 
 class BedTrack(BinnedMixin, Track):
     _filetypes = ["bed"]
+    track_type = "feature"
     
     def __init__(self, fname, **kwargs):
         """
@@ -601,8 +608,10 @@ class WigTrack(Track):
     _filetypes = ["bg", "wig"]
     
     def __init__(self, fname, **kwargs):
+        self.fname = fname
+        
         if fname.endswith("bg") or fname.endswith("wig"):
-            self.htseq_track = HTSeq.WiggleReader(fname, verbose=True)
+            self.track = pybedtools.BedTool(fname)
             self.ftype = "wig"
         else:
             raise ValueError("filetype of {} is not supported".format(fname))
@@ -625,20 +634,74 @@ class WigTrack(Track):
         """
         
         chrom, start, end = self._get_interval(interval)
+        int_bed = pybedtools.BedTool(
+                "{} {} {}".format(chrom, start, end), 
+                from_string=True)
+        
         profile = np.zeros(end - start, dtype="f")
         profile.fill(np.nan)
 
-        for iv, score in self.htseq_track:
-            if iv.chrom == chrom:
-                if iv.start <= end and iv.end >= start:
-                    if iv.start < start:
-                        iv.start = start
-                    if iv.end > end:
-                        iv.end = end
-
-                    profile[iv.start - start:iv.end - start] = score
+        for f in self.track.intersect(int_bed, u=True):
+            if f.chrom == chrom:
+                if f.start <= end and f.end >= start:
+                    if f.start < start:
+                        f.start = start
+                    if f.end > end:
+                        f.end = end
+                # in a wig file, 4th column is score
+                profile[f.start - start:f.end - start] = float(f.name)
 
         return profile
+
+    def binned_stats(self, in_fname, nbins, statistic="mean", split=False):
+        """
+        Yields a binned statistic applied to the track values for
+        every feature in in_fname.
+
+        Parameters
+        ----------
+        in_fname : str
+            BED file
+
+        nbins : int
+            number of bins
+
+        statistic : str, optional
+            Default is "mean", other options are "min", "max" and "std"
+        """
+            
+        
+        in_track = pybedtools.BedTool(in_fname)
+       
+        if statistic in ["min", "max", "std"]:
+            statistic = eval(statistic)
+
+        order = {}
+        regions = []
+        lens = []
+        for i, f in enumerate(in_track):
+            region = "{}:{}-{}".format(f.chrom, f.start, f.end)
+            regions.append([f.chrom, f.start, f.end])
+            order[region] = i
+            lens.append(f.end - f.start)
+        max_len = max(lens)
+
+        profile = np.zeros((len(regions), max_len)) 
+        for f in self.track.intersect(in_track, wao=True):
+            start, end = [int(x) for x in f.fields[5:7]]
+            region = "{}:{}-{}".format(*f.fields[4:7])
+            pos = order[region]
+            
+            if f.start < start:
+                f.start = start
+            if f.end > end:
+                f.end = end
+            profile[pos][f.start - start: f.end - start] = float(f.name)
+        
+        for l,region,row in zip(lens, regions, profile):
+            h,_,_ = binned_statistic(np.arange(l), row, bins=nbins, statistic=statistic)
+            yield region + list(h)
+         
 
 class BigWigTrack(Track):
     _filetypes = ["bw"]
@@ -670,17 +733,37 @@ class BigWigTrack(Track):
         chrom, start, end = self._get_interval(interval)
         return np.array(self.track.values(chrom, start, end)) 
 
-    def binned_stats(self, in_fname, nbins, rpkm=False, split=False):
-        
+    def binned_stats(self, in_fname, nbins, statistic="mean", split=False):
+        """
+        Yields a binned statistic applied to the track values for
+        every feature in in_fname.
+
+        Parameters
+        ----------
+        in_fname : str
+            BED file
+
+        nbins : int
+            number of bins
+
+        statistic : str, optional
+            Default is "mean", other options are "min", "max" and "std"
+        """
+ 
         in_track = SimpleBed(in_fname)
         for f in in_track:
-            vals = self.track.stats(f.chrom, f.start, f.end, type="max", nBins=nbins)
-            vals = np.array(vals, dtype="float")
-            vals = np.nan_to_num(vals)
-            yield [f.chrom, f.start, f.end] + list(vals)
-
+            try: 
+                vals = self.track.stats(f.chrom, f.start, f.end, 
+                        type=statistic, nBins=nbins)
+                vals = np.array(vals, dtype="float")
+                vals = np.nan_to_num(vals)
+                yield [f.chrom, f.start, f.end] + list(vals)
+            except:
+                yield [f.chrom, f.start, f.end] + [np.nan] * nbins
 
 class TabixTrack(Track):
+    _filetypes = ["bg.gz", "wig.gz", "bed.gz"]
+
     def __init__(self, fname, **kwargs):
         if fname.endswith("gz") and os.path.exists(fname + ".tbi"):
             self.tabix_track = pysam.Tabixfile(fname)

@@ -57,6 +57,7 @@ def heatmap(args):
     # Warning about too much files
     if (len(tracks) > 4):
         print "Warning: Running fluff with too many files might make you system use enormous amount of memory!"
+    
     # Method of clustering
     if (args.pick != None):
         pick = [i - 1 for i in split_ranges(args.pick)]
@@ -130,6 +131,7 @@ def heatmap(args):
     data, regions, guard = load_data(featurefile, amount_bins, extend_dyn_up, extend_dyn_down, rmdup, rpkm,
                                          rmrepeats,
                                          fragmentsize, dynam, guard)
+    
     # Normalize
     norm_data = normalize_data(data, DEFAULT_PERCENTILE)
 
@@ -172,7 +174,6 @@ def heatmap(args):
         ind = arange(len(regions))
         labels = zeros(len(regions))
 
-
     # Load data for visualization if -g option was used
     if dynam:
         data, regions, guard = load_data(featurefile, bins, extend_up, extend_down, rmdup, rpkm, rmrepeats,
@@ -198,7 +199,7 @@ def heatmap(args):
                 else:
                     bins = '{0};{1}'.format(bins, bin)
             readcounts[track]['bins'].append(bins)
-
+    
     input_fileBins = open('{0}_readCounts.txt'.format(outfile), 'w')
     input_fileBins.write('Regions\t'.format(track))
     for i, track in enumerate(titles):
@@ -212,7 +213,7 @@ def heatmap(args):
             input_fileBins.write('\n')
         break
     input_fileBins.close()
-
+ 
     if not cluster_type == "k":
         labels = None
 
