@@ -1,5 +1,5 @@
 import pytest
-from fluff.plot import profile_screenshot2
+from fluff.plot import profile_screenshot
 from tempfile import NamedTemporaryFile 
 
 @pytest.fixture
@@ -13,4 +13,4 @@ def bamfile():
 def test_profile(region, bamfile):
     tmp = NamedTemporaryFile(suffix=".png")
     
-    profile_screenshot2(tmp.name, region, [bamfile])
+    profile_screenshot(tmp.name, region, [[bamfile]])
