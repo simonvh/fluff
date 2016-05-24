@@ -359,7 +359,7 @@ class BamTrack(BinnedMixin, Track):
     def close(self):
         self.track.close()
 
-    def get_profile(self, interval, **args):
+    def get_profile(self, interval, **kwargs):
         """
         Return summary profile in a given window
         
@@ -382,8 +382,8 @@ class BamTrack(BinnedMixin, Track):
             A summarized profile as a numpy array
 
         """
-        scalefactor = args.get("scalefactor", 1.0) 
-        scalepm = args.get("scalepm", False)
+        scalefactor = kwargs.get("scalefactor", 1.0) 
+        scalepm = kwargs.get("scalepm", False)
         if scalepm:
             scalefactor = scalefactor * 1e6 / float(self.count())
         
@@ -587,7 +587,7 @@ class BedTrack(BinnedMixin, Track):
     def close(self):
         pass
 
-    def get_profile(self, interval, **args):
+    def get_profile(self, interval, **kwargs):
         """
         Return summary profile in a given window
         
@@ -610,12 +610,10 @@ class BedTrack(BinnedMixin, Track):
             A summarized profile as a numpy array
 
         """
-        scalefactor = args.get("scalefactor", 1.0)
-        scalepm = args.get("scalepm", False)
+        scalefactor = kwargs.get("scalefactor", 1.0)
+        scalepm = kwargs.get("scalepm", False)
         if scalepm:
             scalefactor = scalefactor * 1e6 / float(self.count())
-        print "scalefactor = {}".format(scalefactor)
-
 
         chrom, start, end = self._get_interval(interval)
         profile = np.zeros(end - start, dtype="f")
@@ -648,7 +646,7 @@ class WigTrack(Track):
         else:
             raise ValueError("filetype of {} is not supported".format(fname))
 
-    def get_profile(self, interval, **args):
+    def get_profile(self, interval, **kwargs):
         """
         Return summary profile in a given window
         
@@ -659,11 +657,15 @@ class WigTrack(Track):
             start (int), end (int). If it is a string, it should be of the
             format chrom:start-end
         
+        scalefactor : float, optional
+            Scale profile by this factor, default 1.0
+        
         Returns
         -------
         numpy array
             A summarized profile as a numpy array
         """
+        scalefactor = kwargs.get("scalefactor", 1.0)
         
         chrom, start, end = self._get_interval(interval)
         int_bed = pybedtools.BedTool(
@@ -682,7 +684,8 @@ class WigTrack(Track):
                         f.end = end
                 # in a wig file, 4th column is score
                 profile[f.start - start:f.end - start] = float(f.name)
-
+        
+        profile = profile * scalefactor
         return profile
 
     def binned_stats(self, in_fname, nbins, split=False, **args):
@@ -745,7 +748,7 @@ class BigWigTrack(Track):
         else:
             raise ValueError("filetype of {} is not supported".format(fname))
 
-    def get_profile(self, interval, **args):
+    def get_profile(self, interval, **kwargs):
         """
         Return summary profile in a given window
         
@@ -756,14 +759,20 @@ class BigWigTrack(Track):
             start (int), end (int). If it is a string, it should be of the
             format chrom:start-end
         
+        scalefactor : float, optional
+            Scale profile by this factor, default 1.0
+        
         Returns
         -------
         numpy array
             A summarized profile as a numpy array
         """
+        scalefactor = kwargs.get("scalefactor", 1.0)
         
         chrom, start, end = self._get_interval(interval)
-        return np.array(self.track.values(chrom, start, end)) 
+        profile = np.array(self.track.values(chrom, start, end))
+        profile = profile * scalefactor
+        return profile
 
     def binned_stats(self, in_fname, nbins, split=False, **args):
         """
@@ -810,7 +819,7 @@ class TabixTrack(Track):
         else:
             raise ValueError("Can only process bgzipped files.")
 
-    def get_profile(self, interval, **args):
+    def get_profile(self, interval, **kwargs):
         """
         Return summary profile in a given window
         
@@ -821,11 +830,15 @@ class TabixTrack(Track):
             start (int), end (int). If it is a string, it should be of the
             format chrom:start-end
         
+        scalefactor : float, optional
+            Scale profile by this factor, default 1.0
+        
         Returns
         -------
         numpy array
             A summarized profile as a numpy array
         """
+        scalefactor = kwargs.get("scalefactor", 1.0)
  
         chrom, start, end = self._get_interval(interval) 
 
@@ -840,6 +853,8 @@ class TabixTrack(Track):
             if fend > end:
                 fend = end
             profile[fstart - start: fend - end] = float(f[3])
+        
+        profile = profile * scalefactor 
         return profile
 
     def binned_stats(self, in_fname, nbins, split=False, **args):
