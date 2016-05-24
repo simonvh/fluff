@@ -83,29 +83,39 @@ def load_read_counts(readCounts):
                     data[indexes[idx]][line.split('\t')[0]] = [float(x) for x in binsline.split(';')]
     return titles, data
 
-def load_profile(interval, tracks, fragmentsize=200, rmdup=False, rmrepeats=False, reverse=False):
+def load_profile(interval, tracks, fragmentsize=200, rmdup=False, rmrepeats=False, reverse=False, adjscale=False):
     profiles = []
     for track_group in tracks:
         if type(track_group) == type([]):
             profile_group = []
             for track in track_group:
+                if adjscale == True:
+                    scalefactor = 1000000/float(t.count())
+                else:
+                    scalefactor = 1
+ 
                 t = Track.load(track, 
                         rmdup=rmdup,
                         rmrepeats=rmrepeats,
                         fragmentsize=fragmentsize,
                         )
-                profile = t.get_profile(interval)
+                profile = t.get_profile(interval, scalefactor=scalefactor)
                 if reverse:
                     profile = profile[::-1]
                 profile_group.append(profile)
         else:
             track = track_group
+            if adjscale == True:
+                scalefactor = 1000000 / float(t.count())
+            else:
+                scalefactor = 1
+ 
             t = Track.load(track, 
                         rmdup=rmdup,
                         rmrepeats=rmrepeats,
                         fragmentsize=fragmentsize,
                         )
-            profile_group = t.get_profile(interval)
+            profile_group = t.get_profile(interval, scalefactor=scalefactor)
             if reverse:
                 profile_group = profile_group[::-1]
         profiles.append(profile_group)

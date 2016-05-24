@@ -359,7 +359,7 @@ class BamTrack(BinnedMixin, Track):
     def close(self):
         self.track.close()
 
-    def get_profile(self, interval):
+    def get_profile(self, interval, **args):
         """
         Return summary profile in a given window
         
@@ -370,12 +370,23 @@ class BamTrack(BinnedMixin, Track):
             start (int), end (int). If it is a string, it should be of the
             format chrom:start-end
         
+        scalepm : bool, optional
+            Scale profile to per million reads
+        
+        scalefactor : float, optional
+            Scale profile by this factor, default 1.0
+        
         Returns
         -------
         numpy array
             A summarized profile as a numpy array
 
         """
+        scalefactor = args.get("scalefactor", 1.0) 
+        scalepm = args.get("scalepm", False)
+        if scalepm:
+            scalefactor = scalefactor * 1e6 / float(self.count())
+        
         chrom, start, end = self._get_interval(interval)
         profile = np.zeros(end - start, dtype="f")
         profile.fill(np.nan)
@@ -393,7 +404,8 @@ class BamTrack(BinnedMixin, Track):
             region = profile[iv.start - start:iv.end - start]
             region[np.isnan(region)] = 0
             region += 1
-
+        
+        profile = profile * scalefactor
         return profile
 
 class BedTrack(BinnedMixin, Track):
@@ -575,7 +587,7 @@ class BedTrack(BinnedMixin, Track):
     def close(self):
         pass
 
-    def get_profile(self, interval):
+    def get_profile(self, interval, **args):
         """
         Return summary profile in a given window
         
@@ -586,24 +598,25 @@ class BedTrack(BinnedMixin, Track):
             start (int), end (int). If it is a string, it should be of the
             format chrom:start-end
         
-        fragmentsize : int, optional
-            Reads are extended to fragmentsize before summarizing the profile.
-            If fragmentsize is None, the read length is used.
+        scalepm : bool, optional
+            Scale profile to per million reads
         
-        rmdup : bool, optional
-            Don't return duplicate reads if True, default False
-
-        rmrepeats : bool, optional
-            Don't return reads with mapping quality 0 (multi-mapped reads) if 
-            True, default False
-
+        scalefactor : float, optional
+            Scale profile by this factor, default 1.0
+        
         Returns
         -------
         numpy array
             A summarized profile as a numpy array
 
         """
- 
+        scalefactor = args.get("scalefactor", 1.0)
+        scalepm = args.get("scalepm", False)
+        if scalepm:
+            scalefactor = scalefactor * 1e6 / float(self.count())
+        print "scalefactor = {}".format(scalefactor)
+
+
         chrom, start, end = self._get_interval(interval)
         profile = np.zeros(end - start, dtype="f")
         profile.fill(np.nan)
@@ -635,7 +648,7 @@ class WigTrack(Track):
         else:
             raise ValueError("filetype of {} is not supported".format(fname))
 
-    def get_profile(self, interval):
+    def get_profile(self, interval, **args):
         """
         Return summary profile in a given window
         
@@ -732,7 +745,7 @@ class BigWigTrack(Track):
         else:
             raise ValueError("filetype of {} is not supported".format(fname))
 
-    def get_profile(self, interval):
+    def get_profile(self, interval, **args):
         """
         Return summary profile in a given window
         
@@ -797,7 +810,7 @@ class TabixTrack(Track):
         else:
             raise ValueError("Can only process bgzipped files.")
 
-    def get_profile(self, interval):
+    def get_profile(self, interval, **args):
         """
         Return summary profile in a given window
         

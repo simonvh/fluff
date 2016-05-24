@@ -167,7 +167,7 @@ def create_grid_figure(nrows, ncolumns, plotwidth=2.0, plotheight=2.0, pad=0.1, 
 
     return fig, axes
 
-def profile_screenshot(fname, interval, tracks, fontsize=None, colors=None, scalegroups=None, scale="auto", annotation=None, bgmode="color", fragmentsize=200,  dpi=600, rmdup=False, rmrepeats=False, reverse=False):
+def profile_screenshot(fname, interval, tracks, fontsize=None, colors=None, scalegroups=None, scale="auto", annotation=None, bgmode="color", fragmentsize=200,  dpi=600, rmdup=False, rmrepeats=False, reverse=False, adjscale=False):
     """
     Plot a genome browser like profile
     
@@ -251,6 +251,7 @@ def profile_screenshot(fname, interval, tracks, fontsize=None, colors=None, scal
                         fragmentsize = fragmentsize,
                         rmrepeats = rmrepeats,
                         rmdup = rmdup,
+                        adjscale = adjscale
                         ))
             c += 1
         #if scales:
@@ -345,6 +346,8 @@ class BamProfilePanel(ProfilePanel):
         self.ymax = None
         self.bgmode = bgmode
 
+        self.scalepm = kwargs.get("adjscale", False)
+
         if color:
             self.color = color
         else:
@@ -362,8 +365,8 @@ class BamProfilePanel(ProfilePanel):
         self.name = kwargs.get('name')
 
     def _load_data(self, interval):
-
-        self.profile = self.track.get_profile(interval)
+        self.profile = self.track.get_profile(interval, 
+                scalepm=self.scalepm)
 
         if not self.ymax:
             self.ymax = np.nanmax(self.profile) * 1.10

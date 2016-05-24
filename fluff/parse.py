@@ -272,6 +272,11 @@ def parse_args(args):
                          dest="trackgroups",
                          help="track groups",
                          metavar="GROUPS")
+    dap_grp.add_argument("-n",
+                        dest="adjscale",
+                        help="adjust scale to coverage per million mapped reads",
+                        default=False,
+                        action="store_true")
     dap_grp.add_argument("-s",
                          dest="scalegroups",
                          help="scale groups",
