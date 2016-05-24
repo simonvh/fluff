@@ -1,15 +1,18 @@
 #!/usr/bin/python
 __author__ = 'george'
+
+import sys
+
 ### External imports ###
 import Pycluster
 from numpy import array, hstack, arange, zeros
+
 ### My imports ###
 from fluff.util import *
 from fluff.fluffio import *
 from fluff.color import parse_colors
 from fluff.plot import heatmap_plot
 from fluff.config import *
-
 
 def heatmap(args):
     datafiles = args.datafiles
@@ -86,7 +89,9 @@ def heatmap(args):
 
     # Function to load heatmap data
     def load_data(featurefile, amount_bins, extend_dyn_up, extend_dyn_down, rmdup, rpkm, rmrepeats, fragmentsize, dynam,
-                  guard=[]):
+                  guard=None):
+        if guard is None:
+            guard = []
         # Calculate the profile data
         data = {}
         regions = []
@@ -201,7 +206,7 @@ def heatmap(args):
             readcounts[track]['bins'].append(bins)
     
     input_fileBins = open('{0}_readCounts.txt'.format(outfile), 'w')
-    input_fileBins.write('Regions\t'.format(track))
+    input_fileBins.write('Regions\t')
     for i, track in enumerate(titles):
         input_fileBins.write('{0}\t'.format(track))
     input_fileBins.write('\n')

@@ -1,19 +1,21 @@
 __author__ = 'george'
 
+import os
+import sys
+import pysam
+
 ### External imports ###
-
-
-### My imports ###
-from fluff.color import parse_colors
-from fluff.fluffio import load_read_counts, load_bed_clusters
-from fluff.util import process_groups
-from fluff.plot import create_grid_figure,coverage_plot
-import fluff.config as cfg
-
 import matplotlib.pyplot as plt
 from matplotlib.font_manager import FontProperties
 import numpy as np
 from scipy.stats import scoreatpercentile
+
+### My imports ###
+from fluff.color import parse_colors
+from fluff.fluffio import load_read_counts, load_bed_clusters, load_cluster_data
+from fluff.util import process_groups
+from fluff.plot import create_grid_figure,coverage_plot
+import fluff.config as cfg
 
 def bandplot(args):
     if (0 > args.scalar) or (args.scalar > 100):
@@ -129,16 +131,16 @@ def bandplot(args):
             else:
                 alphas = [max_alpha]
             for j,cluster in enumerate(clusters):
-                vals = array([data[track][x] for x in cluster_data[cluster]])
-                m = median(vals, axis=0)
+                vals = np.array([data[track][x] for x in cluster_data[cluster]])
+                m = np.median(vals, axis=0)
                 ax.plot(np.arange(len(m)), m, color=colors[i % len(colors)], alpha=alphas[j])
             ax.set_ylim(0, track_max[i])
         for i,cluster in enumerate(clusters):
             ax = axes[rows - 1][i]
             max_max = 0
             for j,track in enumerate(tracks):
-                vals = array([data[track][x] for x in cluster_data[cluster]])
-                m = median(vals, axis=0)
+                vals = np.array([data[track][x] for x in cluster_data[cluster]])
+                m = np.median(vals, axis=0)
                 ax.plot(np.arange(len(m)), m, color=colors[j % len(colors)], alpha=0.8)
                 if track_max[j] > max_max:
                     max_max = track_max[j]

@@ -12,6 +12,7 @@ import numpy as np
 from fluff.color import create_colormap
 from fluff.config import FONTSIZE
 from fluff.track import Track
+from fluff.fluffio import load_annotation
 
 DEFAULT_COLORS = ["#e41a1c", "#4daf4a", "#377eb8"]
 PROFILE_MIN_Y = 75
@@ -167,266 +168,6 @@ def create_grid_figure(nrows, ncolumns, plotwidth=2.0, plotheight=2.0, pad=0.1, 
 
     return fig, axes
 
-def profile_screenshot_old(fname, intervals, tracks, fontsize, colors=None, scalegroups=[], annotation=None, bgmode="color",
-                       fragmentsize=200, scale=False, dpi=600, rmdup=False, rmrepeats=False, reverse=False):
-    # Colors
-    if not colors:
-        colors = DEFAULT_COLORS
-    font = FontProperties(size=fontsize / 1.25, family=["Nimbus Sans L", "Helvetica", "sans-serif"])
-
-    # Sizes
-    #Adjust width based on titles length
-    if max([len(os.path.splitext(os.path.basename(i[0]))[0].strip()) for i in tracks]) > 10:
-        padleft = 1
-    else:
-        padleft = 0.1
-    plotwidth = 6
-    plotheight = 0.3
-    padh = 0
-    padw = 3
-    #padleft = 0.1
-    padright = 0.1
-    padtop = 0.1
-    padbottom = 0.1
-
-    # Genomic scale
-    scale_height = 0.1
-    # Annotation track height
-
-    annotation_height = 0.01
-    gene_tracks = []
-    if annotation:
-        for interval in intervals:
-            ann = load_annotation(interval, annotation)
-            gene_tracks.append(ann)
-        if gene_tracks[0]:
-            max_tracks = max([len(x.keys()) for x in gene_tracks])
-            annotation_height = 0.2 * max_tracks
-        else:
-            annotation = False
-    #
-
-    ncolumns = len(intervals)
-    nrows = len(tracks)
-
-    wsize = padleft + (ncolumns * plotwidth) + (padw * (ncolumns - 1)) + padright
-    # Profile plots
-    hsize = padtop + (nrows * plotheight) + (padh * (nrows - 1)) + padbottom
-    hsize += scale_height + padh + annotation_height + padh
-
-    fig = plt.figure(figsize=(wsize, hsize))
-    padtopfraction = padtop / hsize
-    padbottomfraction = padbottom / hsize
-    wpadfraction = padw / wsize
-    hpadfraction = padh / hsize
-    wplotsize = plotwidth / wsize
-    hplotsize = plotheight / hsize
-    hannotation = annotation_height / hsize
-    hscale = scale_height / hsize
-
-    rellabelsize = 10.0
-
-    for int_num, interval in enumerate(intervals):
-        all_axes = []
-
-        # Scale ax
-        ax = plt.axes([padleft / wsize + (wplotsize + wpadfraction) * int_num + wplotsize / rellabelsize,
-            1 - hscale - padtopfraction,
-            wplotsize - wplotsize / rellabelsize,
-            hscale], axisbg="white")
-        all_axes.append(ax)
-
-        # Profile axes
-        for i in range(nrows):
-            bgcol = "white"
-            if bgmode == "stripes":
-                bgcol = {0: "white", 1: (0.95, 0.95, 0.95)}[i % 2]
-            elif bgmode == "color":
-                bgcol = colors[i % len(colors)]
-
-            xleft = padleft / wsize + (wplotsize + wpadfraction) * int_num
-            ax = plt.axes([xleft,
-                           1 - hscale - padtopfraction - (i + 1) * (hplotsize + hpadfraction),
-                           wplotsize / rellabelsize,
-                           hplotsize],
-                          axisbg=bgcol)
-            hide_axes(ax)
-            ax.text(0.95, 0.5, os.path.splitext(os.path.basename(tracks[i][0]))[0].strip(), fontproperties=font, horizontalalignment="right", verticalalignment="center")
-            if bgmode == "color":
-                ax.patch.set_alpha(0.07)
-
-            ax = plt.axes([padleft / wsize + (wplotsize + wpadfraction) * int_num + wplotsize / rellabelsize,
-                           1 - hscale - padtopfraction - (i + 1) * (hplotsize + hpadfraction), wplotsize - wplotsize / rellabelsize, hplotsize],
-                          axisbg=bgcol)
-            if bgmode == "color":
-                ax.patch.set_alpha(0.07)
-            all_axes.append(ax)
-
-        # Annotation axes
-        ax = plt.axes(
-                [padleft / wsize + (wplotsize + wpadfraction) * int_num + wplotsize / rellabelsize,
-                    0 + padbottomfraction,
-                    wplotsize - wplotsize / rellabelsize,
-                    hannotation],
-                axisbg="white")
-        all_axes.append(ax)
-
-        # No labels, ticks, etc.
-        for axes in all_axes[1:]:
-            for ax in [axes.xaxis, axes.yaxis]:
-                ax.set_major_formatter(NullFormatter())
-                ax.set_major_locator(NullLocator())
-
-        for axes in all_axes:
-            for s in axes.spines.values():
-                s.set_color('none')
-
-        chrom, start, end = interval
-
-        # Format the genomic scale
-        ax = all_axes[0]
-        ax.yaxis.set_major_formatter(NullFormatter())
-        ax.xaxis.set_major_formatter(NullFormatter())
-        ax.yaxis.set_major_locator(NullLocator())
-        ax.set_xlim(start, end)
-
-        for s in [s for s in ax.xaxis.get_ticklocs()[:-1] if s > start and s < end][:-1]:
-            plt.text((s - start) / (end - start) + 0.01, 0.5, str(int(s)), horizontalalignment='left',
-                     verticalalignment='center', transform=ax.transAxes, fontproperties=font)
-
-        # Load the actual data
-        profiles = load_profile(interval, tracks, fragmentsize=fragmentsize, rmdup=rmdup, rmrepeats=rmrepeats,
-                                reverse=reverse)
-
-        # Plot the profiles
-        color_index = 0
-        track_maxes = []
-        for i, profile_group in enumerate(profiles):
-            ax = all_axes[i + 1]
-            if type(profile_group) == type([]):
-                maxes = []
-                for profile in profile_group:
-                    if len(profile_group) > 1:
-                        alpha = 0.4
-                    else:
-                        alpha = 1
-                    ax.fill_between(range(start, end), np.zeros(len(profile)), profile, edgecolor='face',
-                                    facecolor=colors[color_index % len(colors)], linewidth=0, alpha=alpha)
-                    color_index += 1
-                    maxes.append(np.nanmax(profile) * 1.1)
-                track_maxes.append(max(maxes))
-                ax.set_ylim(0, max(maxes))
-            else:
-                # Single track
-                profile = profile_group
-                ax.fill_between(range(start, end), np.zeros(len(profile)), profile, edgecolor='face',
-                                facecolor=colors[color_index % len(colors)], linewidth=0)
-                color_index += 1
-                track_maxes.append(max(profile) * 1.1)
-                ax.set_ylim(0, max(profile) * 1.1)
-
-        for i, profile_group in enumerate(profiles):
-            # Get maximum for this track based on scalegroups
-            ylim_max = track_maxes[i]
-            if scalegroups and len(scalegroups) > 0:
-                for group in scalegroups:
-                    if (i + 1) in group:
-                        ylim_max = max([track_maxes[g - 1] for g in group]) * 1.1
-                        break
-
-            if ylim_max < PROFILE_MIN_Y:
-                ylim_max = PROFILE_MIN_Y
-
-            if type(scale) == type([]):
-                ylim_max = scale[i]
-          
-            # Set maximum
-            all_axes[i + 1].set_ylim(0, ylim_max)
-
-            # Label scale
-            if scale:
-                all_axes[i + 1].text(0.005, 
-                        0.90, 
-                        int(ylim_max + 0.5), 
-                        horizontalalignment='left',
-                        verticalalignment="top", 
-                        transform=all_axes[i + 1].transAxes, 
-                        clip_on=False,
-                        fontproperties=font)
-
-        # Plot the gene annotation
-        if annotation:
-            ax = all_axes[-1]
-            ax.set_ylim(- 4 * max_tracks, 0)
-            for track_id, genes in gene_tracks[int_num].items():
-                for gene in genes:
-                    h_gene = -4 * track_id - 2
-
-                    genestart = gene[1]
-                    geneend = gene[2]
-                    exonstarts = [int(x) for x in gene[11].split(",") if x]
-                    exonsizes = [int(x) for x in gene[10].split(",") if x]
-                    genestrand = gene[5]
-                    genename = gene[3]
-
-                    x1 = (genestart - start)
-                    x2 = (geneend - start)
-                    if reverse:
-                        x1 = end - genestart
-                        x2 = end - geneend
-                    gstart = x1 / float(end - start)
-                    gend = x2 / float(end - start)
-
-                    # Horizontal line for complete gene
-                    ax.axhline(h_gene,
-                               gstart,
-                               gend,
-                               color="black")
-
-                    ax.text(gstart, h_gene - 3, genename, fontsize=fontsize)
-
-                    # Exons 
-                    for exonstart, exonsize in zip(exonstarts, exonsizes):
-                        estart = (genestart + exonstart - start)
-                        eend = (genestart + exonstart + exonsize - start)
-                        if reverse:
-                            estart = end - (genestart + exonstart)
-                            eend = end - (genestart + exonstart + exonsize)
-
-                        ax.axhspan(
-                                h_gene - 0.5,
-                                h_gene + 0.5,
-                                estart / float(end - start),
-                                eend / float(end - start),
-                                color="black")
-
-                    step = plotwidth / 600.0
-                    if reverse:
-                        step = -step
-                    for i in arange(gstart + step, gend - step, step):
-                        if genestrand == "-":
-                            arr = FancyArrowPatch(
-                                    (i + step, h_gene),
-                                    (i, h_gene),
-                                    arrowstyle=GENE_ARROW,
-                                    mutation_scale=14,
-                                    linewidth=0.5,
-                            )
-
-                        else:
-                            arr = FancyArrowPatch(
-                                    (i, h_gene),
-                                    (i + step, h_gene),
-                                    arrowstyle=GENE_ARROW,
-                                    mutation_scale=14,
-                                    linewidth=0.5,
-                            )
-                        ax.add_patch(arr)
-    print 'Saving figure'
-
-    plt.savefig(fname, dpi=dpi)
-    plt.close()
-
 def profile_screenshot(fname, interval, tracks, fontsize=None, colors=None, scalegroups=[], scale="auto", annotation=None, bgmode="color", fragmentsize=200,  dpi=600, rmdup=False, rmrepeats=False, reverse=False):
     """
     Plot a genome browser like profile
@@ -501,8 +242,6 @@ def profile_screenshot(fname, interval, tracks, fontsize=None, colors=None, scal
     c = 0
     for group in tracks:
         for track in group:
-            print track
-            print os.path.splitext(os.path.split(track)[-1])[0]
             panel = pfig.add_panel(
                     BamProfilePanel(track,
                         color = colors[c % len(colors)], 
@@ -692,6 +431,7 @@ class AnnotationPanel(ProfilePanel):
         self.height *= self.max_tracks
 
     def _plot(self, ax, interval, reverse=False, fig=None, odd=False, font=None, **kwargs):
+        
         chrom, start, end = interval
         ax.set_ylim(- 1 * self.max_tracks, 0)
         for track_id, genes in self.gene_track.items():
@@ -700,6 +440,8 @@ class AnnotationPanel(ProfilePanel):
 
                 genestart = gene[1]
                 geneend = gene[2]
+                genename = gene[3]
+                
                 if len(gene) >= 6:
                     genestrand = gene[5]
                 else:
@@ -756,7 +498,7 @@ class AnnotationPanel(ProfilePanel):
 
                     if reverse:
                         step = -step
-                    for i in arange(gstart + step, gend - step, step):
+                    for i in np.arange(gstart + step, gend - step, step):
                         if genestrand == "-":
                             astart = (i + step, h_gene)
                             aend = (i, h_gene)
@@ -773,6 +515,12 @@ class AnnotationPanel(ProfilePanel):
                                 color=self.color,
                         )
                         ax.add_patch(arr)
+                ax.text(gstart - 0.05, h_gene, genename, 
+                        horizontalalignment="right",
+                        verticalalignment="center",
+                        fontproperties=font)
+
+        
         self.hide_axes(ax)
 
 

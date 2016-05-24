@@ -8,7 +8,7 @@ import sys
 import tempfile
 
 import HTSeq
-import numpy
+import numpy as np
 import pybedtools
 import pysam
 
@@ -123,7 +123,7 @@ def get_free_track(overlap, start, end, max_end, min_gap):
             track[first:end + min_gap * max_end] += 1
             return overlap, i
 
-    overlap.append(numpy.zeros(max_end, dtype="i"))
+    overlap.append(np.zeros(max_end, dtype="i"))
     overlap[-1][first:end + min_gap * max_end] += 1
     # overlap[-1][start- min_gap * max_end:end + min_gap * max_end] += 1
     return overlap, len(overlap) - 1
@@ -161,8 +161,10 @@ def load_annotation(interval, fname, min_gap=0.05, vis="stack"):
             gene_tracks[i] = [gene]
     return gene_tracks
 
-def load_heatmap_data(featurefile, datafile, bins=100, up=5000, down=5000, rmdup=True, rpkm=False, rmrepeats=True,
-                      fragmentsize=None, dynam=False, guard=[]):
+def load_heatmap_data(featurefile, datafile, bins=100, up=5000, down=5000, rmdup=True, rpkm=False, rmrepeats=True,fragmentsize=None, dynam=False, guard=None):
+    if guard is None:
+        guard = []
+    
     tmp = tempfile.NamedTemporaryFile(delete=False, prefix="fluff")
     regions = []
     order = {}
@@ -210,7 +212,7 @@ def load_heatmap_data(featurefile, datafile, bins=100, up=5000, down=5000, rmdup
 
     result = track.binned_stats(tmp.name, bins, split=True, rpkm=rpkm)
     # Retrieve original order
-    r_data = numpy.array([[float(x) for x in row[3:]] for row in result])
+    r_data = np.array([[float(x) for x in row[3:]] for row in result])
     return os.path.basename(datafile), regions, r_data, guard  # [r_order]
 
 
