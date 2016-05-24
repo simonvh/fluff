@@ -1,6 +1,19 @@
 from setuptools import setup
-
+from setuptools.command.test import test as TestCommand
 from fluff.config import FL_VERSION
+import sys
+
+class PyTest(TestCommand):
+    def finalize_options(self):
+        TestCommand.finalize_options(self)
+        self.test_args = []
+        self.test_suite = True
+
+    def run_tests(self):
+        #import here, cause outside the eggs aren't loaded
+        import pytest
+        errno = pytest.main(self.test_args)
+        sys.exit(errno)
 
 DESCRIPTION = "fluff : exploratory analysis and visualization of high-throughput sequencing data"
 
@@ -29,9 +42,12 @@ setup(name='biofluff',
                         "matplotlib",
                         "colorbrewer",
                         "pybedtools",
-                        "Pycluster"
-                       ],
+                        "Pycluster",
+                        "pyBigWig",
+                        ],
+        tests_require=['pytest'],
     #   dependency_links = [
     #     "http://bonsai.hgc.jp/~mdehoon/software/cluster/Pycluster-1.52.tar.gz",
     # ],
-      )
+        cmdclass = {'test': PyTest},  
+    )

@@ -1,5 +1,5 @@
 ### CONSTANTS ###
-FL_VERSION = "2.0.2"
+FL_VERSION = "2.1.0-beta"
 
 ######## HEATMAP #############
 DEFAULT_BINSIZE = 100
@@ -27,6 +27,7 @@ SCALAR = 99
 ######## PROFILE #############
 BACKGROUNDS = ["white", "stripes", "color"]
 FRAGMENTLENGTH = 200
+PROFILE_MIN_Y = 75
 
 ######## OTHER #############
 FONTSIZE = 8

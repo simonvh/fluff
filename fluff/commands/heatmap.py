@@ -1,15 +1,22 @@
 #!/usr/bin/python
 __author__ = 'george'
+
+import os
+import sys
+import pysam
+import multiprocessing
+
 ### External imports ###
 import Pycluster
 from numpy import array, hstack, arange, zeros
+
 ### My imports ###
-from fluff.util import *
-from fluff.fluffio import *
+from fluff.util import ( normalize_data, get_absolute_scale, split_ranges, 
+        mirror_clusters, sort_tree )
+from fluff.fluffio import load_heatmap_data, check_data
 from fluff.color import parse_colors
 from fluff.plot import heatmap_plot
-from fluff.config import *
-
+import fluff.config as cfg
 
 def heatmap(args):
     datafiles = args.datafiles
@@ -57,6 +64,7 @@ def heatmap(args):
     # Warning about too much files
     if (len(tracks) > 4):
         print "Warning: Running fluff with too many files might make you system use enormous amount of memory!"
+    
     # Method of clustering
     if (args.pick != None):
         pick = [i - 1 for i in split_ranges(args.pick)]
@@ -75,7 +83,7 @@ def heatmap(args):
         sys.exit(1)
     else:
         if distancefunction == "e":
-            METRIC = DEFAULT_METRIC
+            METRIC = cfg.DEFAULT_METRIC
             print "Euclidean distance method"
         else:
             METRIC = "c"
@@ -85,14 +93,15 @@ def heatmap(args):
 
     # Function to load heatmap data
     def load_data(featurefile, amount_bins, extend_dyn_up, extend_dyn_down, rmdup, rpkm, rmrepeats, fragmentsize, dynam,
-                  guard=[]):
+                  guard=None):
+        if guard is None:
+            guard = []
         # Calculate the profile data
         data = {}
         regions = []
         print "Loading data"
         try:
             # Load data in parallel
-            import multiprocessing
             pool = multiprocessing.Pool(processes=ncpus)
             jobs = []
             for datafile in datafiles:
@@ -102,8 +111,9 @@ def heatmap(args):
             for job in jobs:
                 track, regions, profile, guard = job.get()
                 data[track] = profile
-        except:
-            sys.stderr.write("Python multiprocessing not installed, can't load data in parallel\n")
+        except Exception as e:
+            sys.stderr.write("Error loading data in parallel, trying serial\n")
+            sys.stderr.write("Error: {}\n".format(e))
             for datafile in datafiles:
                 track, regions, profile, guard = load_heatmap_data(featurefile, datafile, amount_bins, extend_dyn_up,
                                                                    extend_dyn_down, rmdup, rpkm, rmrepeats,
@@ -130,8 +140,9 @@ def heatmap(args):
     data, regions, guard = load_data(featurefile, amount_bins, extend_dyn_up, extend_dyn_down, rmdup, rpkm,
                                          rmrepeats,
                                          fragmentsize, dynam, guard)
+    
     # Normalize
-    norm_data = normalize_data(data, DEFAULT_PERCENTILE)
+    norm_data = normalize_data(data, cfg.DEFAULT_PERCENTILE)
 
     clus = hstack([norm_data[t] for i, t in enumerate(tracks) if (not pick or i in pick)])
 
@@ -140,7 +151,7 @@ def heatmap(args):
         print "K-means clustering"
         ## K-means clustering
         # PyCluster
-        labels, error, nfound = Pycluster.kcluster(clus, args.numclusters, dist=METRIC)
+        labels, _, nfound = Pycluster.kcluster(clus, args.numclusters, dist=METRIC)
         if not dynam and merge_mirrored:
             (i, j) = mirror_clusters(data, labels)
             while j:
@@ -172,7 +183,6 @@ def heatmap(args):
         ind = arange(len(regions))
         labels = zeros(len(regions))
 
-
     # Load data for visualization if -g option was used
     if dynam:
         data, regions, guard = load_data(featurefile, bins, extend_up, extend_down, rmdup, rpkm, rmrepeats,
@@ -192,15 +202,15 @@ def heatmap(args):
         readcounts[track]['bins'] = []
         for idx, row in enumerate(data[track]):
             bins = ''
-            for bin in row:
+            for b in row:
                 if not bins:
-                    bins = '{0}'.format(bin)
+                    bins = '{0}'.format(b)
                 else:
-                    bins = '{0};{1}'.format(bins, bin)
+                    bins = '{0};{1}'.format(bins, b)
             readcounts[track]['bins'].append(bins)
-
+    
     input_fileBins = open('{0}_readCounts.txt'.format(outfile), 'w')
-    input_fileBins.write('Regions\t'.format(track))
+    input_fileBins.write('Regions\t')
     for i, track in enumerate(titles):
         input_fileBins.write('{0}\t'.format(track))
     input_fileBins.write('\n')
@@ -212,7 +222,7 @@ def heatmap(args):
             input_fileBins.write('\n')
         break
     input_fileBins.close()
-
+ 
     if not cluster_type == "k":
         labels = None
 

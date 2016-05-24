@@ -24,7 +24,7 @@ COLOR_MAP = {
 
 
 def is_pal(name):
-    return colorbrewer.__dict__.has_key(name)
+    return name in colorbrewer.__dict__
 
 
 def get_pal(name, n=None):
@@ -54,9 +54,9 @@ def parse_colors(colors):
     for c in colors:
         if type("") == type(c):
             # Named color
-            if COLOR_MAP.has_key(c):
+            if c in COLOR_MAP:
                 parsed.append(COLOR_MAP[c])
-            elif cnames.has_key(c):
+            elif c in cnames:
                 parsed.append(cnames[c])
             elif is_pal(c):
                 # c is a Colorbrewer palette name
