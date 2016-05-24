@@ -1,7 +1,7 @@
 __author__ = 'george'
 
 import os
-
+import sys
 import pysam
 
 ### My imports ###

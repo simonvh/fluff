@@ -168,7 +168,7 @@ def create_grid_figure(nrows, ncolumns, plotwidth=2.0, plotheight=2.0, pad=0.1, 
 
     return fig, axes
 
-def profile_screenshot(fname, interval, tracks, fontsize=None, colors=None, scalegroups=[], scale="auto", annotation=None, bgmode="color", fragmentsize=200,  dpi=600, rmdup=False, rmrepeats=False, reverse=False):
+def profile_screenshot(fname, interval, tracks, fontsize=None, colors=None, scalegroups=None, scale="auto", annotation=None, bgmode="color", fragmentsize=200,  dpi=600, rmdup=False, rmrepeats=False, reverse=False):
     """
     Plot a genome browser like profile
     
@@ -183,6 +183,8 @@ def profile_screenshot(fname, interval, tracks, fontsize=None, colors=None, scal
     tracks: list
         list of filenames
     """
+    if scalegroups is None:
+        scalegroups = []
 
     if not fontsize:
         fontsize = FONTSIZE
@@ -296,7 +298,9 @@ class ProfileFigure(object):
 
         self.font = FontProperties(size=fontsize / 1.25, family=["Nimbus Sans L", "Helvetica", "sans-serif"])
 
-    def plot(self, interval, scalegroups=[], reverse=False, **kwargs):
+    def plot(self, interval, scalegroups=None, reverse=False, **kwargs):
+        if scalegroups is None:
+            scalegroups = []
         
         for panel in self._panels:
             panel._load_data(interval)
