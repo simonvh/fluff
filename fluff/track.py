@@ -139,7 +139,8 @@ class Track(object):
         raise ValueError("can't guess type of file {}".format(fname))
 
 class BinnedMixin(object):
-    def binned_stats(self, in_fname, nbins, rpkm=False, split=False):
+    def binned_stats(self, in_fname, nbins, split=False, **args):
+        rpkm = args.get("rpkm", False)
         readlength = self.read_length()
         fragmentsize = self.fragmentsize
         if not fragmentsize:
@@ -671,7 +672,7 @@ class WigTrack(Track):
 
         return profile
 
-    def binned_stats(self, in_fname, nbins, statistic="mean", split=False):
+    def binned_stats(self, in_fname, nbins, split=False, **args):
         """
         Yields a binned statistic applied to the track values for
         every feature in in_fname.
@@ -690,6 +691,7 @@ class WigTrack(Track):
         
         in_track = pybedtools.BedTool(in_fname)
        
+        statistic = args.get("statistic", "mean")
         if statistic in ["min", "max", "std"]:
             statistic = eval(statistic)
 
@@ -750,7 +752,7 @@ class BigWigTrack(Track):
         chrom, start, end = self._get_interval(interval)
         return np.array(self.track.values(chrom, start, end)) 
 
-    def binned_stats(self, in_fname, nbins, statistic="mean", split=False):
+    def binned_stats(self, in_fname, nbins, split=False, **args):
         """
         Yields a binned statistic applied to the track values for
         every feature in in_fname.
@@ -767,6 +769,7 @@ class BigWigTrack(Track):
             Default is "mean", other options are "min", "max" and "std"
         """
  
+        statistic = args.get("statistic", "mean")
         in_track = SimpleBed(in_fname)
         for f in in_track:
             try: 
@@ -826,7 +829,7 @@ class TabixTrack(Track):
             profile[fstart - start: fend - end] = float(f[3])
         return profile
 
-    def binned_stats(self, in_fname, nbins, statistic="mean", split=False):
+    def binned_stats(self, in_fname, nbins, split=False, **args):
         """
         Yields a binned statistic applied to the track values for
         every feature in in_fname.
@@ -843,6 +846,7 @@ class TabixTrack(Track):
             Default is "mean", other options are "min", "max" and "std"
         """
         
+        statistic = args.get("statistic", "mean")
         in_track = SimpleBed(in_fname)
        
         if statistic in ["min", "max", "std"]:
