@@ -7,10 +7,8 @@ import os
 import sys
 import tempfile
 
-import HTSeq
 import numpy as np
 import pybedtools
-import pysam
 
 from fluff.track import Track
 
@@ -33,7 +31,7 @@ def _convert_value(v):
         try:
             v = int(v)
             return v
-        except:
+        except ValueError:
             return v
     return 0
 
@@ -218,16 +216,15 @@ def load_heatmap_data(featurefile, datafile, bins=100, up=5000, down=5000, rmdup
 
 def check_data(featurefile, up=5000, down=5000):
     guard = []
-    for i, line in enumerate(open(featurefile)):
+    for line in open(featurefile):
         if line.startswith("#") or line[:5] == "track":
             continue
         vals = line.strip().split("\t")
         strand = "+"
-        gene = ""
+        
         if len(vals) >= 6:
             strand = vals[5]
-        if len(vals) >= 4:
-            gene = vals[3]
+        
         middle = (int(vals[2]) + int(vals[1])) / 2
         start, end = middle, middle
         if strand == "+":

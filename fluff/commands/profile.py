@@ -36,7 +36,7 @@ def profile(args):
     elif scale:
         try:
             scale = [int(x) for x in scale.split(",")]
-        except:
+        except Exception:
             print "Error in scale argument"
             sys.exit(1)
 
