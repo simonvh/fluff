@@ -1,6 +1,7 @@
 #!/usr/bin/python
 __author__ = 'george'
 
+import os
 import sys
 
 ### External imports ###
@@ -8,11 +9,11 @@ import Pycluster
 from numpy import array, hstack, arange, zeros
 
 ### My imports ###
-from fluff.util import *
-from fluff.fluffio import *
+from fluff.util import normalize_data
+from fluff.fluffio import load_heatmap_data, check_data
 from fluff.color import parse_colors
 from fluff.plot import heatmap_plot
-from fluff.config import *
+import fluff.config as cfg
 
 def heatmap(args):
     datafiles = args.datafiles
@@ -138,7 +139,7 @@ def heatmap(args):
                                          fragmentsize, dynam, guard)
     
     # Normalize
-    norm_data = normalize_data(data, DEFAULT_PERCENTILE)
+    norm_data = normalize_data(data, cfg.DEFAULT_PERCENTILE)
 
     clus = hstack([norm_data[t] for i, t in enumerate(tracks) if (not pick or i in pick)])
 
