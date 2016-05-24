@@ -324,11 +324,11 @@ def parse_args(args):
                          action="help")
     p.set_defaults(func=commands.profile)
     
-    if len(sys.argv) == 1:
+    if len(args) == 0:
         parser.print_help()
-    else:
-        if len(sys.argv) == 2:
-            print "\033[93mtype `fluff {} -h` for more details\033[0m\n".format(sys.argv[-1])
-        args = parser.parse_args(args)
+        return
+    if len(args) == 1:
+        print "\033[93mtype `fluff {} -h` for more details\033[0m\n".format(sys.argv[-1])
+    args = parser.parse_args(args)
     
     return args
