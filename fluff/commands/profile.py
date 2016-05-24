@@ -14,7 +14,6 @@ def profile(args):
     annotation = args.annotation
     outfile = args.outfile
     colors = parse_colors(args.colors)
-
     for x in args.datafiles:
         if '.bam' in x and not os.path.isfile("{0}.bai".format(x)):
             print "Data file '{0}' does not have an index file. Creating an index file for {0}.".format(x)
@@ -61,5 +60,6 @@ def profile(args):
                        scale=scale,
                        rmdup=args.rmdup,
                        rmrepeats=args.rmrepeats,
-                       reverse=args.reverse
+                       reverse=args.reverse,
+                       adjscale=args.adjscale
                        )

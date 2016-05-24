@@ -271,6 +271,12 @@ dap_grp.add_argument("-t",
                      dest="trackgroups",
                      help="track groups",
                      metavar="GROUPS")
+
+dap_grp.add_argument("-n",
+                     dest="adjscale",
+                     help="adjust scale for number of mapped reads to produce coverage per fragment per million mapped reads",
+                     default=False,
+                     action="store_true")
 dap_grp.add_argument("-s",
                      dest="scalegroups",
                      help="scale groups",

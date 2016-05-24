@@ -164,7 +164,7 @@ def create_grid_figure(nrows, ncolumns, plotwidth=2.0, plotheight=2.0, pad=0.1, 
 
 
 def profile_screenshot(fname, intervals, tracks, fontsize, colors=None, scalegroups=[], annotation=None, bgmode="color",
-                       fragmentsize=200, scale=False, dpi=600, rmdup=False, rmrepeats=False, reverse=False):
+                       fragmentsize=200, scale=False, dpi=600, rmdup=False, rmrepeats=False, reverse=False, adjscale=False):
     # Colors
     if not colors:
         colors = DEFAULT_COLORS
@@ -293,8 +293,7 @@ def profile_screenshot(fname, intervals, tracks, fontsize, colors=None, scalegro
 
         # Load the actual data
         profiles = load_profile(interval, tracks, fragmentsize=fragmentsize, rmdup=rmdup, rmrepeats=rmrepeats,
-                                reverse=reverse)
-
+                                reverse=reverse, adjscale=adjscale)
         # Plot the profiles
         color_index = 0
         track_maxes = []
@@ -325,6 +324,7 @@ def profile_screenshot(fname, intervals, tracks, fontsize, colors=None, scalegro
         for i, profile_group in enumerate(profiles):
             # Get maximum for this track based on scalegroups
             ylim_max = track_maxes[i]
+
             if scalegroups and len(scalegroups) > 0:
                 for group in scalegroups:
                     if (i + 1) in group:
@@ -332,13 +332,13 @@ def profile_screenshot(fname, intervals, tracks, fontsize, colors=None, scalegro
                         break
 
             if ylim_max < PROFILE_MIN_Y:
-                ylim_max = PROFILE_MIN_Y
+                if adjscale == False:
+                    ylim_max = PROFILE_MIN_Y
 
             if type(scale) == type([]):
                 ylim_max = scale[i]
             # Set maximum
             all_axes[i + 1].set_ylim(0, ylim_max)
-
             # Label scale
             if scale:
                 all_axes[i + 1].text(0.005, 0.90, int(ylim_max + 0.5), horizontalalignment='left',

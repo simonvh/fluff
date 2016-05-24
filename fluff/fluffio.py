@@ -112,6 +112,7 @@ class TrackWrapper():
                 intervals.append(HTSeq.GenomicInterval(chrom, read.start, read.end, str(read.strand)))
         return intervals
 
+
     def count(self, rmdup=False, rmrepeats=False):
         if self.ftype == "bam":
             if (not rmdup and not rmrepeats):
@@ -201,7 +202,7 @@ class TrackWrapper():
         if self.ftype == "bam":
             self.track.close()
 
-    def get_profile(self, interval, fragmentsize=200, rmdup=False, rmrepeats=False):
+    def get_profile(self, interval, fragmentsize=200, rmdup=False, rmrepeats=False, scalefactor=1):
         chrom, start, end = interval
         profile = numpy.zeros(end - start, dtype="f")
         profile.fill(numpy.nan)
@@ -236,7 +237,8 @@ class TrackWrapper():
                         iv.end = end
 
                     profile[iv.start - start:iv.end - start] = float(f[3])
-
+        if self.ftype == "bam":
+            profile = profile * scalefactor
         return profile
 
 
@@ -303,21 +305,29 @@ def load_read_counts(readCounts):
     return titles, data
 
 
-def load_profile(interval, tracks, fragmentsize=200, rmdup=False, rmrepeats=False, reverse=False):
+def load_profile(interval, tracks, fragmentsize=200, rmdup=False, rmrepeats=False, reverse=False, adjscale=False):
     profiles = []
     for track_group in tracks:
         if type(track_group) == type([]):
             profile_group = []
             for track in track_group:
                 t = TrackWrapper(track)
-                profile = t.get_profile(interval, fragmentsize, rmdup, rmrepeats)
+                if adjscale == True:
+                    scalefactor = 1000000/float(t.count())
+                else:
+                    scalefactor = 1
+                profile = t.get_profile(interval, fragmentsize, rmdup, rmrepeats, scalefactor)
                 if reverse:
                     profile = profile[::-1]
                 profile_group.append(profile)
         else:
             track = track_group
             t = TrackWrapper(track)
-            profile_group = t.get_profile(interval, fragmentsize, rmdup, rmrepeats)
+            if adjscale == True:
+                scalefactor = 1000000 / float(t.count())
+            else:
+                scalefactor = 1
+            profile_group = t.get_profile(interval, fragmentsize, rmdup, rmrepeats, scalefactor)
             if reverse:
                 profile_group = profile_group[::-1]
         profiles.append(profile_group)
