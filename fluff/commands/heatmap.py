@@ -3,13 +3,15 @@ __author__ = 'george'
 
 import os
 import sys
+import pysam
 
 ### External imports ###
 import Pycluster
 from numpy import array, hstack, arange, zeros
 
 ### My imports ###
-from fluff.util import normalize_data
+from fluff.util import ( normalize_data, get_absolute_scale, split_ranges, 
+        mirror_clusters, sort_tree, get_absolute_scale )
 from fluff.fluffio import load_heatmap_data, check_data
 from fluff.color import parse_colors
 from fluff.plot import heatmap_plot
@@ -80,7 +82,7 @@ def heatmap(args):
         sys.exit(1)
     else:
         if distancefunction == "e":
-            METRIC = DEFAULT_METRIC
+            METRIC = cfg.DEFAULT_METRIC
             print "Euclidean distance method"
         else:
             METRIC = "c"
