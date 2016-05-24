@@ -10,12 +10,11 @@ from scipy.stats import scoreatpercentile
 import numpy as np
 
 from fluff.color import create_colormap
-from fluff.config import FONTSIZE
+from fluff.config import FONTSIZE, PROFILE_MIN_Y
 from fluff.track import Track
 from fluff.fluffio import load_annotation
 
 DEFAULT_COLORS = ["#e41a1c", "#4daf4a", "#377eb8"]
-PROFILE_MIN_Y = 75
 GENE_ARROW = "->"
 GENE_ARROW = ArrowStyle._Curve(beginarrow=False, endarrow=True, head_length=.4, head_width=.4)
 
@@ -519,11 +518,11 @@ class AnnotationPanel(ProfilePanel):
                                 color=self.color,
                         )
                         ax.add_patch(arr)
-                ax.text(gstart - 0.05, h_gene, genename, 
-                        horizontalalignment="right",
-                        verticalalignment="center",
-                        fontproperties=font)
-
+                if gstart > 0:
+                    ax.text(gstart - 0.01, h_gene, genename, 
+                            horizontalalignment="right",
+                            verticalalignment="center",
+                            fontproperties=font)
         
         self.hide_axes(ax)
 

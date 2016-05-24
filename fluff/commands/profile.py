@@ -9,8 +9,6 @@ from fluff.color import parse_colors
 from fluff.plot import profile_screenshot
 from fluff.util import process_groups
 
-
-
 def profile(args):
     interval = args.interval
     datafiles = [x.strip() for x in args.datafiles]

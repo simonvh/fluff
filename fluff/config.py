@@ -27,6 +27,7 @@ SCALAR = 99
 ######## PROFILE #############
 BACKGROUNDS = ["white", "stripes", "color"]
 FRAGMENTLENGTH = 200
+PROFILE_MIN_Y = 75
 
 ######## OTHER #############
 FONTSIZE = 8
