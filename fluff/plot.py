@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 from matplotlib.font_manager import FontProperties
 from matplotlib.patches import FancyArrowPatch, ArrowStyle, Polygon
 from matplotlib.ticker import NullFormatter, NullLocator
+from matplotlib.offsetbox import HPacker, TextArea, AnnotationBbox
 from scipy.stats import scoreatpercentile
 import numpy as np
 
@@ -17,6 +18,46 @@ from fluff.fluffio import load_annotation
 DEFAULT_COLORS = ["#e41a1c", "#4daf4a", "#377eb8"]
 GENE_ARROW = "->"
 GENE_ARROW = ArrowStyle._Curve(beginarrow=False, endarrow=True, head_length=.4, head_width=.4)
+
+def colortext(x, y, texts, colors, **kwargs):
+    pos = {
+            "right": 1,
+            "center": 0.5,
+            "left": 0,
+            "top": 0,
+            "bottom": 1
+            }
+    
+    ax = kwargs.get("ax")
+    verticalalignment = pos[kwargs.get("verticalalignment", "center")]
+    horizontalalignment = pos[kwargs.get("horizontalalignment", "center")]
+    annotation_clip = kwargs.get("clip_on", False)
+    fontproperties = kwargs.get("fontproperties", None)
+    textprops = {"fontproperties":fontproperties}
+    transform = kwargs.get("transform", None)
+
+    areas = []
+    for t,c in zip(texts, colors):
+        textprops["color"] = c    
+        text = TextArea(t, textprops=textprops)
+        areas.append(text)
+        
+    txt = HPacker(children=areas,
+                    align="baseline",
+                    pad=0, sep=0)
+    
+    bbox =  AnnotationBbox(txt, xy=(x, y),
+                            xycoords='data',
+                            annotation_clip=annotation_clip,
+                            frameon=False,
+                            boxcoords=("axes fraction"),
+                            box_alignment=(
+                                horizontalalignment, 
+                                verticalalignment), # alignment center, center
+                            #bboxprops={"bbox_transmuter":transform},
+                            )
+
+    ax.add_artist(bbox)
 
 def hide_axes(ax):
     for x in [ax.xaxis, ax.yaxis]:
@@ -78,7 +119,7 @@ def heatmap_plot(data, ind, outfile, tracks, titles, colors, bgcolors, scale, ts
                      verticalalignment="center",
                      horizontalalignment="center",
                      fontproperties=font)
-        hide_axes(ax)
+        
         ax.set_ylim(ylim)
 
     fig.subplots_adjust(wspace=btw_space, hspace=0)
@@ -203,8 +244,13 @@ def profile_screenshot(fname, interval, tracks, fontsize=None, colors=None, scal
     
     # adjust width for track names if they are to long
     # kind of a quick hack
-    names = [os.path.splitext(os.path.basename(t[0]))[0].strip() for t in tracks]
-    if max([len(n) for n in names]) > 27:
+    max_len = 0
+    for group in tracks:
+        names = [os.path.splitext(os.path.basename(t))[0].strip() for t in group]
+        l = sum([len(name) for name in names])
+        if l > max_len:
+            max_len = l
+    if max_len > 27:
         pad["left"] = 3
     
     # Genomic scale
@@ -243,7 +289,7 @@ def profile_screenshot(fname, interval, tracks, fontsize=None, colors=None, scal
     # add the signal tracks
     c = 0
     for group in tracks:
-        for track in group:
+        for i,track in enumerate(group):
             panel = pfig.add_panel(
                     BamProfilePanel(track,
                         color = colors[c % len(colors)], 
@@ -254,7 +300,9 @@ def profile_screenshot(fname, interval, tracks, fontsize=None, colors=None, scal
                         rmdup = rmdup,
                         adjscale = adjscale,
                         show_scale = show_scale,
-                        ))
+                        ),
+                    overlay= i != 0
+                    )
             panel.ymax = scale[c % len(scale)]
             c += 1
     
@@ -298,6 +346,30 @@ class ProfileFigure(object):
 
         self.font = FontProperties(size=fontsize / 1.25, family=["Nimbus Sans L", "Helvetica", "sans-serif"])
 
+    def _plot_panel_names(self, ax, panels):
+        names = [p.name for p in panels]
+        colors = ["black"]
+
+        if len(names) > 1:
+            tmp_names = []
+            colors = []
+            for name,color in zip(names, [p.color for p in panels]):
+                tmp_names.append("= ")
+                tmp_names.append(name + ", ")
+                colors += [color,"black"]
+            names = tmp_names
+            names[-1] = names[-1].strip(", ")
+
+        colortext(-0.01, 0.5,
+                names,
+                colors,
+                ax=ax,
+                horizontalalignment='right',
+                verticalalignment="center",
+#                    transform=ax.transAxes,
+                clip_on=False,
+                fontproperties=self.font)
+
     def plot(self, interval, scalegroups=None, reverse=False, **kwargs):
         if scalegroups is None:
             scalegroups = []
@@ -313,17 +385,36 @@ class ProfileFigure(object):
                 height_ratios=[max([p.height for p in panels]) for panels in self._panels]
         )
         
+        for panels in self._panels:
+            if isinstance(panels[-1], BamProfilePanel):
+                ymax = max([p.ymax for p in panels])
+                for panel in panels:
+                    panel.ymax = ymax
+        
         if scalegroups and len(scalegroups) > 0:
             for group in scalegroups:
-                ymax = max([self._panels[g].ymax for g in group])
+                ymax = max([self._panels[g][-1].ymax for g in group])
                 for g in group:
-                    self._panels[g].ymax = ymax
-
+                    for panel in self._panels[g]:
+                        panel.ymax = ymax
+        
+        # These are quick hacks to to get the track groups to work
+        for panels in self._panels:
+            if len(panels) > 1:
+                # Set the alpha for overlapping tracks
+                for panel in panels:
+                    panel.alpha = 0.5
+                
         for i, panels in enumerate(self._panels):
             ax = plt.Subplot(self.fig, gs0[i])
             plt.subplots_adjust(bottom=0, top=1, left=0, right=1, hspace=0)
+            
+            # add track labels
+            self._plot_panel_names(ax, panels)
+            
             for panel in panels:
                 panel._plot(ax, interval, fig=self.fig, reverse=reverse, odd=i % 2, font=self.font, **kwargs)
+            hide_axes(ax)
             self.fig.add_subplot(ax)
 
     def add_panel(self, panel, overlay=False):
@@ -334,10 +425,14 @@ class ProfileFigure(object):
         return panel
 
 class ProfilePanel(object):
+    name = ""
+    
     def hide_axes(self, axes):
         for ax in [axes.xaxis, axes.yaxis]:
             ax.set_major_formatter(NullFormatter())
+            ax.set_minor_formatter(NullFormatter())
             ax.set_major_locator(NullLocator())
+            ax.set_minor_locator(NullLocator())
 
         for s in axes.spines.values():
             s.set_color('none')
@@ -416,20 +511,9 @@ class BamProfilePanel(ProfilePanel):
                 clip_on=False,
                 fontproperties=font)
         
-        # add track label
-        if self.name:
-            ax.text(-0.01, 0.5,
-                    self.name,
-                    horizontalalignment='right',
-                    verticalalignment="center",
-                    transform=ax.transAxes,
-                    clip_on=False,
-                    fontproperties=font)
-
         ax.set_xlim(start, end)
 
         self.hide_axes(ax)
-
 
 class AnnotationPanel(ProfilePanel):
     def __init__(self, annofile, height=0.3, vis="stack", color="black"):
