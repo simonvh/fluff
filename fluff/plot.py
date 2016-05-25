@@ -91,7 +91,6 @@ def heatmap_plot(data, ind, outfile, tracks, titles, colors, bgcolors, scale, ts
     else:
         plt.savefig(outfile)
 
-
 def coverage_plot(ax, x, data, color="red", percs=None):
     """
     ax = matplotlib axes instance
@@ -303,14 +302,15 @@ class ProfileFigure(object):
         if scalegroups is None:
             scalegroups = []
         
-        for panel in self._panels:
-            panel._load_data(interval)
+        for panels in self._panels:
+            for panel in panels:
+                panel._load_data(interval)
 
         gs0 = gridspec.GridSpecFromSubplotSpec(
                 len(self._panels),
                 1,
                 subplot_spec=self.gs,
-                height_ratios=[p.height for p in self._panels]
+                height_ratios=[max([p.height for p in panels]) for panels in self._panels]
         )
         
         if scalegroups and len(scalegroups) > 0:
@@ -319,14 +319,18 @@ class ProfileFigure(object):
                 for g in group:
                     self._panels[g].ymax = ymax
 
-        for i, panel in enumerate(self._panels):
+        for i, panels in enumerate(self._panels):
             ax = plt.Subplot(self.fig, gs0[i])
             plt.subplots_adjust(bottom=0, top=1, left=0, right=1, hspace=0)
-            panel._plot(ax, interval, fig=self.fig, reverse=reverse, odd=i % 2, font=self.font, **kwargs)
+            for panel in panels:
+                panel._plot(ax, interval, fig=self.fig, reverse=reverse, odd=i % 2, font=self.font, **kwargs)
             self.fig.add_subplot(ax)
 
-    def add_panel(self, panel):
-        self._panels.append(panel)
+    def add_panel(self, panel, overlay=False):
+        if overlay and len(self._panels) > 0:
+            self._panels[-1].append(panel)
+        else:
+            self._panels.append([panel])
         return panel
 
 class ProfilePanel(object):
