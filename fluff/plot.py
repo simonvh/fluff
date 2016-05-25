@@ -18,14 +18,12 @@ DEFAULT_COLORS = ["#e41a1c", "#4daf4a", "#377eb8"]
 GENE_ARROW = "->"
 GENE_ARROW = ArrowStyle._Curve(beginarrow=False, endarrow=True, head_length=.4, head_width=.4)
 
-
 def hide_axes(ax):
     for x in [ax.xaxis, ax.yaxis]:
         x.set_major_formatter(NullFormatter())
         x.set_major_locator(NullLocator())
     for _, spine in ax.spines.iteritems():
         spine.set_color('none')
-
 
 def heatmap_plot(data, ind, outfile, tracks, titles, colors, bgcolors, scale, tscale, labels, fontsize):
     font = FontProperties(size=fontsize / 1.25, family=["Nimbus Sans L", "Helvetica", "sans-serif"])
@@ -167,7 +165,7 @@ def create_grid_figure(nrows, ncolumns, plotwidth=2.0, plotheight=2.0, pad=0.1, 
 
     return fig, axes
 
-def profile_screenshot(fname, interval, tracks, fontsize=None, colors=None, scalegroups=None, scale="auto", annotation=None, bgmode="color", fragmentsize=200,  dpi=600, rmdup=False, rmrepeats=False, reverse=False, adjscale=False):
+def profile_screenshot(fname, interval, tracks, fontsize=None, colors=None, scalegroups=None, scale=None, show_scale=True, annotation=None, bgmode="color", fragmentsize=200,  dpi=600, rmdup=False, rmrepeats=False, reverse=False, adjscale=False):
     """
     Plot a genome browser like profile
     
@@ -191,6 +189,7 @@ def profile_screenshot(fname, interval, tracks, fontsize=None, colors=None, scal
     if not colors:
         colors = DEFAULT_COLORS
   
+    
     # Plot size and padding definition
     plotwidth = 6
     plotheight = 0.3
@@ -238,7 +237,10 @@ def profile_screenshot(fname, interval, tracks, fontsize=None, colors=None, scal
 
     # add the genomic scale
     pfig.add_panel(ScalePanel())
-    
+   
+    if type(scale) != type([]):
+        scale = [scale]
+
     # add the signal tracks
     c = 0
     for group in tracks:
@@ -251,12 +253,11 @@ def profile_screenshot(fname, interval, tracks, fontsize=None, colors=None, scal
                         fragmentsize = fragmentsize,
                         rmrepeats = rmrepeats,
                         rmdup = rmdup,
-                        adjscale = adjscale
+                        adjscale = adjscale,
+                        show_scale = show_scale,
                         ))
+            panel.ymax = scale[c % len(scale)]
             c += 1
-        #if scales:
-        #    ## TODO ##
-        #    pass
     
     # add the annotation panel
     if annotation:
@@ -347,6 +348,7 @@ class BamProfilePanel(ProfilePanel):
         self.bgmode = bgmode
 
         self.scalepm = kwargs.get("adjscale", False)
+        self.show_scale = kwargs.get("show_scale", True)
 
         if color:
             self.color = color
@@ -401,7 +403,8 @@ class BamProfilePanel(ProfilePanel):
         ax.set_ylim(0, self.ymax)
 
         # add y-limit label
-        ax.text(0.005, 0.90,
+        if self.show_scale:
+            ax.text(0.005, 0.90,
                 int(ax.get_ylim()[-1] + 0.5),
                 horizontalalignment='left',
                 verticalalignment="top",
