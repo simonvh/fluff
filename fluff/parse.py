@@ -274,7 +274,7 @@ def parse_args(args):
                          metavar="GROUPS")
     dap_grp.add_argument("-n",
                         dest="adjscale",
-                        help="adjust scale to coverage per million mapped reads",
+                        help="normalize to per million mapped reads",
                         default=False,
                         action="store_true")
     dap_grp.add_argument("-s",
@@ -282,9 +282,10 @@ def parse_args(args):
                          help="scale groups",
                          metavar="GROUPS")
     dap_grp.add_argument("-S", dest="scale",
-                         help="scale: 'auto' (default), 'off' or int for each track",
-                         metavar="SCALE",
-                         default="auto")
+                         help="scale, one value or comma-separated values for each track",
+                         metavar="INT",
+                         default=None
+                         )
     dap_grp.add_argument("-f", dest="fragmentsize",
                          help="fragment length (default: %s)" % FRAGMENTLENGTH,
                          type=int,
@@ -317,6 +318,11 @@ def parse_args(args):
                          help="text font size(default: {0})".format(FONTSIZE),
                          type=int,
                          default=FONTSIZE)
+    vis_grp.add_argument("-H",
+                         dest="show_scale",
+                         help="hide track scale label",
+                         action="store_false",
+                         default=True)
     opt_grp = p.add_argument_group(title='Optional arguments')
     opt_grp.add_argument("-h", "--help",
                          dest="help",

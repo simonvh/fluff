@@ -26,11 +26,7 @@ def profile(args):
 
     scalegroups = process_groups(args.scalegroups)
     scale = args.scale
-    if scale == "auto":
-        scale = True
-    elif scale == "off":
-        scale = False
-    elif scale:
+    if scale:
         try:
             scale = [int(x) for x in scale.split(",")]
         except Exception:
@@ -56,6 +52,7 @@ def profile(args):
                        bgmode=args.background,
                        fragmentsize=args.fragmentsize,
                        scale=scale,
+                       show_scale=args.show_scale,
                        rmdup=args.rmdup,
                        rmrepeats=args.rmrepeats,
                        reverse=args.reverse,
