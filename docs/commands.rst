@@ -46,6 +46,9 @@ Pick specific data file(s) to use for clustering. You can select using its posit
 Data processing
 ~~~~~~~~~~~~~~~
 
+-  ``-r``
+normalize using RPKM instead of read counts
+
 -  ``-e`` INT
 extend (in bp. Default: 5000)
 
@@ -54,9 +57,6 @@ bin size (default 100)
 
 -  ``-F`` FRAGMENTSIZE
 Fragment length (default: read length)
-
--  ``-r``
-use RPKM instead of read counts
 
 -  ``-D``
 keep duplicate reads (removed by default)
@@ -121,6 +121,9 @@ output file (type determined by extension)
 Data processing:
 ~~~~~~~~~~~~~~~~
 
+-  ``-r``
+normalize using RPKM instead of read counts
+
 -  ``-S``
 create summary graphs
 
@@ -132,9 +135,6 @@ fragment length (default: read length)
 
 -  ``-D``
 keep duplicate reads (removed by default)
-
--  ``-r``
-use RPKM instead of read counts
 
 -  ``-R``
 keep repeats (removed by default, bwa only)
@@ -190,6 +190,9 @@ output file (type determined by extension)
 
 Data processing:
 ~~~~~~~~~~~~~~~~
+
+-  ``-n``
+normalize to per million mapped reads
 
 -  ``-a`` FILE
 annotation in BED12 format
