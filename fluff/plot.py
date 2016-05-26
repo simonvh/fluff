@@ -1,19 +1,20 @@
-import re
 import os
+import re
 import sys
+
 import matplotlib.gridspec as gridspec
 import matplotlib.pyplot as plt
+import numpy as np
 from matplotlib.font_manager import FontProperties
+from matplotlib.offsetbox import HPacker, TextArea, AnnotationBbox
 from matplotlib.patches import FancyArrowPatch, ArrowStyle, Polygon
 from matplotlib.ticker import NullFormatter, NullLocator
-from matplotlib.offsetbox import HPacker, TextArea, AnnotationBbox
 from scipy.stats import scoreatpercentile
-import numpy as np
 
 from fluff.color import create_colormap
-from fluff.config import FONTSIZE, PROFILE_MIN_Y
-from fluff.track import Track
+from fluff.config import FONTSIZE
 from fluff.fluffio import load_annotation
+from fluff.track import Track
 
 DEFAULT_COLORS = ["#e41a1c", "#4daf4a", "#377eb8"]
 GENE_ARROW = "->"
@@ -97,8 +98,10 @@ def heatmap_plot(data, ind, outfile, tracks, titles, colors, bgcolors, scale, ts
 
     if labels is not None and len(labels) == len(ind):
         ax = plt.subplot(gs[len(tracks)])
+        ax.axis('off')
         min_y, max_y = ylim
         s = 0
+
         plt.axhline(y=0,
                     color="grey",
                     linewidth=0.5,
