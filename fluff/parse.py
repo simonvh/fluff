@@ -82,6 +82,11 @@ def parse_args(args):
                          type=str)
     
     dap_grp = p.add_argument_group(title='Data processing')
+    dap_grp.add_argument("-r",
+                         dest="rpkm",
+                         help="normalize using RPKM instead of read counts",
+                         action="store_true",
+                         default=False)
     dap_grp.add_argument("-e",
                          dest="extend",
                          help="extend (in bp, default: {0})".format(DEFAULT_EXTEND),
@@ -99,11 +104,6 @@ def parse_args(args):
                          help="fragment length (default: read length)",
                          type=int,
                          default=None)
-    dap_grp.add_argument("-r",
-                         dest="rpkm",
-                         help="use RPKM instead of read counts",
-                         action="store_true",
-                         default=False)
     dap_grp.add_argument("-D",
                          dest="rmdup",
                          help="keep duplicate reads (removed by default)",
@@ -188,6 +188,10 @@ def parse_args(args):
     
     # bandplot Optional arguments
     dap_grp = p.add_argument_group(title='Data processing')
+    dap_grp.add_argument("-r", dest="rpkm",
+                         help="normalize using RPKM instead of read counts",
+                         action="store_true",
+                         default=False)
     dap_grp.add_argument("-S",
                          dest="summary",
                          help="create summary graphs",
@@ -202,10 +206,6 @@ def parse_args(args):
                          help="fragment length (default: read length)",
                          type=int,
                          default=None)
-    dap_grp.add_argument("-r", dest="rpkm",
-                         help="use RPKM instead of read counts",
-                         action="store_true",
-                         default=False)
     dap_grp.add_argument("-D", dest="rmdup",
                          help="keep duplicate reads (removed by default)",
                          default=True,
@@ -265,6 +265,11 @@ def parse_args(args):
                          default=None)
     # profile Optional arguments
     dap_grp = p.add_argument_group(title='Data processing')
+    dap_grp.add_argument("-n",
+                         dest="adjscale",
+                         help="normalize to per million mapped reads",
+                         default=False,
+                         action="store_true")
     dap_grp.add_argument("-a", dest="annotation",
                          help="annotation in BED12 format",
                          metavar="FILE")
@@ -272,11 +277,6 @@ def parse_args(args):
                          dest="trackgroups",
                          help="track groups",
                          metavar="GROUPS")
-    dap_grp.add_argument("-n",
-                        dest="adjscale",
-                        help="normalize to per million mapped reads",
-                        default=False,
-                        action="store_true")
     dap_grp.add_argument("-s",
                          dest="scalegroups",
                          help="scale groups",

@@ -1,15 +1,16 @@
 import os
+import pyBigWig
 import re
 import tempfile
 from collections import Counter
 from warnings import warn
 
-import numpy as np
-from scipy.stats import binned_statistic
 import HTSeq
+import numpy as np
 import pybedtools
 import pysam
-import pyBigWig
+from scipy.stats import binned_statistic
+
 
 class SimpleFeature(object):
     def __init__(self, chrom, start, end, value, strand):
@@ -392,7 +393,6 @@ class BamTrack(BinnedMixin, Track):
         profile.fill(np.nan)
 
         strand = {True: "-", False: "+"}
-
         for read in self.fetch(interval):
             iv = HTSeq.GenomicInterval(
                     chrom, 
@@ -401,10 +401,14 @@ class BamTrack(BinnedMixin, Track):
                     )
             if self.fragmentsize:
                 iv.length = self.fragmentsize
-            region = profile[iv.start - start:iv.end - start]
-            region[np.isnan(region)] = 0
-            region += 1
-        
+                region = profile[iv.start - start:iv.end - start]
+                region[np.isnan(region)] = 0
+                region += 1
+            else:
+                for blockstart, blockend in read.get_blocks():
+                    region = profile[blockstart - start:blockend - start]
+                    region[np.isnan(region)] = 0
+                    region += 1
         profile = profile * scalefactor
         return profile
 
