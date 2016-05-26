@@ -1,11 +1,11 @@
 #!/usr/bin/python
 __author__ = 'george'
 
+import multiprocessing
 import os
 import sys
-import pysam
-import multiprocessing
 
+import pysam
 ### External imports ###
 import Pycluster
 from numpy import array, hstack, arange, zeros
@@ -68,8 +68,13 @@ def heatmap(args):
     # Method of clustering
     if (args.pick != None):
         pick = [i - 1 for i in split_ranges(args.pick)]
+        if not all(i <= len(tracks) - 1 for i in pick):
+            sys.stderr.write("You picked a non-existent file for clustering.\n")
+            sys.exit(1)
     else:
         pick = range(len(datafiles))
+
+
     if not cluster_type in ["k", "h", "n"]:
         sys.stderr.write("Unknown clustering type!\n")
         sys.exit(1)
