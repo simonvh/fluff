@@ -19,7 +19,7 @@ Required arguments
 This need to be a BED file containing features. BED-fomatted files need to contain at least three tab-seperated columns describing chromosome name, start and end.
 
 -  ``-d`` [FILE [FILE ...]]
-This option is for the data files. They should be aligned sequence data in BAM or BED format.
+This option is for the data files. They can be aligned sequence data in BAM, BED, wig, bigWig, bedGraph, as well as tabix-indexed format.
 
 -  ``-o`` name
 This option defines the name of the output files (type determined by extension)
@@ -102,14 +102,14 @@ fluff bandplot
 Options
 ~~~~~~~
 
-Required arguments:
-~~~~~~~~~~~~~~~~~~~
+Required arguments
+~~~~~~~~~~~~~~~~~~
 
 -  ``-f`` FILE
 BED file with cluster in 5th column
 
 -  ``-d`` [FILE [FILE ...]]
-data files (reads in BAM or BED format)
+data files (They can be aligned sequence data in BAM, BED, wig, bigWig, bedGraph, as well as tabix-indexed format.)
 
 -  ``-counts`` FILE
 read counts table (instead of data files)
@@ -118,8 +118,8 @@ read counts table (instead of data files)
 output file (type determined by extension)
 
 
-Data processing:
-~~~~~~~~~~~~~~~~
+Data processing
+~~~~~~~~~~~~~~~
 
 -  ``-r``
 normalize using RPKM instead of read counts
@@ -149,15 +149,15 @@ range of percentiles (default 50,90)
 Percentile at which to extract score. Value should be in range [0,100] (default 90)
 
 
-Visualization:
-~~~~~~~~~~~~~~
+Visualization
+~~~~~~~~~~~~~
 
 -  ``-c`` NAME(S)
 color(s) (name, colorbrewer profile or hex code)
 
 
-Other:
-~~~~~~
+Other
+~~~~~
 
 -  ``-h``
 show help message
@@ -175,21 +175,21 @@ fluff profile
 Options
 ~~~~~~~
 
-Required arguments:
-~~~~~~~~~~~~~~~~~~~
+Required arguments
+~~~~~~~~~~~~~~~~~~
 
 -  ``-i`` INTERVAL(S)
 one or more genomic intervals (chrom:start-end)
 
 -  ``-d`` [FILE [FILE ...]]
-data files (reads in BAM or BED format)
+data files (They can be aligned sequence data in BAM, BED, wig, bigWig, bedGraph, as well as tabix-indexed format.)
 
 -  ``-o`` name
 output file (type determined by extension)
 
 
-Data processing:
-~~~~~~~~~~~~~~~~
+Data processing
+~~~~~~~~~~~~~~~
 
 -  ``-n``
 normalize to per million mapped reads
@@ -219,8 +219,8 @@ keep repeats (removed by default, bwa only)
 reverse
 
 
-Visualization:
-~~~~~~~~~~~~~~
+Visualization
+~~~~~~~~~~~~~
 
 -  ``-c`` NAME(S)
 color(s) (name, colorbrewer profile or hex code)
@@ -229,8 +229,8 @@ color(s) (name, colorbrewer profile or hex code)
 background color: white | color | stripes
 
 
-Other:
-~~~~~~
+Other
+~~~~~
 
 -  ``-h``
 show help message

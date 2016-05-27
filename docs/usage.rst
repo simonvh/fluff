@@ -57,7 +57,7 @@ As you can see in (a), there are not any dynamic clusters. Clusters seem to be t
 .. image:: img/norm_dynam_heatmaps.png
 
 
-
+You can use ``-r`` option to normalize using RPKM (Reads Per Kb per Million reads), instead of read counts.
 Quick fluff bandplot example
 ----------------------------
 
@@ -79,6 +79,7 @@ If case you want to use fluff bandplot on the same dataset as you run fluff heat
 
     $ fluff bandplot -f H3K27ac_kmeans5_clusters.bed -counts H3K27ac_kmeans5_readCounts.txt -o H3K27ac_kmeans5_bandplot
 
+Similarly to ``fluff heatmap``, you can use ``-r`` option to normalize using RPKM (Reads Per Kb per Million reads), instead of read counts.
 
 Quick fluff profile example
 ---------------------------
@@ -93,3 +94,21 @@ You give the feature(or features separated by ``,``) using the ``-i`` option, fo
 
 
 .. image:: img/profile_chr1_68602071_68612071.png
+
+
+With ``-n`` option, profiles can be normalized to "per million reads". Here the files are normalized and assigned to the same scale group.
+
+    $ ython fluff/scripts/fluff profile -i chr1:68602071-68612071 -d mesenchymal_H3K27ac.bam \
+    mesendoderm_H3K27ac.bam neuronal_progenitor_H3K27ac.bam trophoblast_H3K27ac.bam -n -s 1:4  -o fluff/docs/img/profile_chr1_68602071_68612071_normalized
+
+
+.. image:: img/profile_chr1_68602071_68612071_normalized.png
+
+
+For better comparison you can overlap tracks, by combining  track groups, ``-t``, and scale groups, ``-s``, options. In the following example we group Mesenchymal with Mesendoderm and  Neuronal Progenitor with Trophoblast.
+
+    $ fluff profile -i chr1:68602071-68612071 -d mesenchymal_H3K27ac.bam mesendoderm_H3K27ac.bam \
+    neuronal_progenitor_H3K27ac.bam trophoblast_H3K27ac.bam -t 1:2,3:4 -s 1:2 -o fluff/docs/img/profile_chr1_68602071_68612071_overlap
+
+
+.. image:: img/profile_chr1_68602071_68612071_overlap.png
