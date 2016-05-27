@@ -417,7 +417,7 @@ class ProfileFigure(object):
             
             for panel in panels:
                 panel._plot(ax, interval, fig=self.fig, reverse=reverse, odd=i % 2, font=self.font, **kwargs)
-            hide_axes(ax)
+            
             self.fig.add_subplot(ax)
 
     def add_panel(self, panel, overlay=False):
