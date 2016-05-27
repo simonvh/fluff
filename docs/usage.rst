@@ -22,6 +22,17 @@ Here we will compare H1 DNase and H1 H3K27ac:
 .. image:: img/H1.png
 
 
+As an alternative to read count, the ``-r`` provides with RPKM normalization.
+
+
+::
+
+    $ fluff heatmap -f example_peaks.bed -d H1_DNase.bam H1_H3K27ac.bam -r -o H1_RPKM
+
+
+.. image:: img/H1_RPKM.png
+
+
 **Clustering**
 
 If you want to cluster you features use the following command. With ``-C`` you can select which clustering method you want. In case you selected k-means you should use ``-k`` to declare how many clusters you want.
