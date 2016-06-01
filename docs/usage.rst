@@ -10,7 +10,7 @@ Quick fluff heatmap example
 **As is**
 
 This example produces a heatmap "as is", preserving the order in the input file.
-With ``-f`` option you specify the features file, which should a BED file. Then the data file(s) with ``-d`` option. This can be a BAM or BED file. With ``-o`` you define the name of the output file. fluff heatmap outputs three file. The heatmap image, a bed file with the features and the clusters and the read counts for each feature.
+With ``-f`` option you specify the features file, which should a BED file. Then the data file(s) with ``-d`` option. This can be a BAM, BED, wig, bigWig, bedGraph or tabix-indexed format file. With ``-o`` you define the name of the output file. fluff heatmap outputs three file. The heatmap image, a bed file with the features and the clusters and the read counts for each feature.
 Here we will compare H1 DNase and H1 H3K27ac:
 
 
@@ -69,6 +69,7 @@ As you can see in (a), there are not any dynamic clusters. Clusters seem to be t
 
 
 You can use ``-r`` option to normalize using RPKM (Reads Per Kb per Million reads), instead of read counts.
+
 Quick fluff bandplot example
 ----------------------------
 

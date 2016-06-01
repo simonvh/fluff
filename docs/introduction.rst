@@ -10,6 +10,9 @@ The package contains three command-line tools to generate publication-quality fi
 - *profile*: creating genome browser-like genomic profiles
 
 
+.. image:: img/main.png
+
+
 Quick Installation
 ------------------
 
