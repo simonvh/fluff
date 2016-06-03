@@ -2,7 +2,7 @@ Introduction
 ============
 
 *fluff* is a software package that allows for simple exploration, 
-clustering and visualization of high-throughput sequencing experiments. 
+clustering and visualization of high-throughput sequencing experiments mapped to a reference genome. 
 The package contains three command-line tools to generate publication-quality figures:
 
 - *heatmap*: clustering and visualization in a heatmap
@@ -17,7 +17,7 @@ Quick Installation
 ------------------
 
 The most straightforward way to install fluff is with conda_
-using the bioconda_ channel:
+using the bioconda_ channel (Python 2.7 only):
 
 ::
 

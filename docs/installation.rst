@@ -5,7 +5,7 @@ The straightforward way to install
 ----------------------------------
 
 The most straightforward way to install fluff is with conda_ 
-using the bioconda_ channel:
+using the bioconda_ channel (Python 2.7 only):
 
 ::
 
@@ -20,7 +20,7 @@ Alternative: using pip
 
 You can use pip to install fluff, 
 either as root user or in a `virtal environment
-<http://docs.python-guide.org/en/latest/dev/virtualenvs/>`_.
+<http://docs.python-guide.org/en/latest/dev/virtualenvs/>`_ (Python 2.7 only).
 
 :: 
 
