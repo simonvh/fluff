@@ -22,17 +22,6 @@ Here we will compare H1 DNase and H1 H3K27ac:
 .. image:: img/H1.png
 
 
-As an alternative to read count, the ``-r`` provides with RPKM normalization.
-
-
-::
-
-    $ fluff heatmap -f example_peaks.bed -d H1_DNase.bam H1_H3K27ac.bam -r -o H1_RPKM
-
-
-.. image:: img/H1_RPKM.png
-
-
 **Clustering**
 
 If you want to cluster you features use the following command. With ``-C`` you can select which clustering method you want. In case you selected k-means you should use ``-k`` to declare how many clusters you want.
@@ -68,7 +57,6 @@ As you can see in (a), there are not any dynamic clusters. Clusters seem to be t
 .. image:: img/norm_dynam_heatmaps.png
 
 
-You can use ``-r`` option to normalize using RPKM (Reads Per Kb per Million reads), instead of read counts.
 
 Quick fluff bandplot example
 ----------------------------
@@ -91,7 +79,6 @@ If case you want to use fluff bandplot on the same dataset as you run fluff heat
 
     $ fluff bandplot -f H3K27ac_kmeans5_clusters.bed -counts H3K27ac_kmeans5_readCounts.txt -o H3K27ac_kmeans5_bandplot
 
-Similarly to ``fluff heatmap``, you can use ``-r`` option to normalize using RPKM (Reads Per Kb per Million reads), instead of read counts.
 
 Quick fluff profile example
 ---------------------------
@@ -108,17 +95,6 @@ You give the feature(or features separated by ``,``) using the ``-i`` option, fo
 .. image:: img/profile_chr1_68602071_68612071.png
 
 
-With ``-n`` option, profiles can be normalized to "per million reads". Here the files are normalized and assigned to the same scale group.
-
-::
-
-    $ fluff  profile -i chr1:68602071-68612071 -d mesenchymal_H3K27ac.bam \
-    mesendoderm_H3K27ac.bam neuronal_progenitor_H3K27ac.bam trophoblast_H3K27ac.bam -n -s 1:4  -o profile_chr1_68602071_68612071_normalized
-
-
-.. image:: img/profile_chr1_68602071_68612071_normalized.png
-
-
 For better comparison you can overlap tracks, by combining  track groups, ``-t``, and scale groups, ``-s``, options. In the following example we group Mesenchymal with Mesendoderm and  Neuronal Progenitor with Trophoblast.
 
 ::
@@ -128,3 +104,58 @@ For better comparison you can overlap tracks, by combining  track groups, ``-t``
 
 
 .. image:: img/profile_chr1_68602071_68612071_overlap.png
+
+
+
+Normalization
+-------------
+
+Normalization of sequencing data is critical for downstream analysis and various methods have been proposed. For visualization, the most important factor is the sequencing read depth. Therefore fluff has the option to normalize to the total number of mapped reads.
+Alternatively, averaged signal files such as bigWig tracks that are processed or normalized by a different method can be used as input.
+
+For heatmaps you can use ``-r`` option to normalize using RPKM (Reads Per Kb per Million reads), instead of read counts.
+
+
+::
+
+    $ fluff heatmap -f example_peaks.bed -d H1_DNase.bam H1_H3K27ac.bam -r -o H1_RPKM
+
+
+.. image:: img/H1_RPKM.png
+
+
+
+Similarly to ``fluff heatmap``, for bandplots you can use ``-r`` option to normalize using RPKM (Reads Per Kb per Million reads), instead of read counts.
+
+::
+
+    $ fluff bandplot -f H1_RPKM_clusters.bed -d H1_DNase.bam H1_H3K27ac.bam -r -o H1_RPKM_bandplot
+
+
+
+.. image:: img/H1_RPKM_bandplot.png
+
+
+For profiles you can normalize to "per million reads" using ``-n`` option. Here the files are normalized and assigned to the same scale group.
+
+::
+
+    $ fluff  profile -i chr1:68602071-68612071 -d mesenchymal_H3K27ac.bam \
+    mesendoderm_H3K27ac.bam neuronal_progenitor_H3K27ac.bam trophoblast_H3K27ac.bam -n -s 1:4  -o profile_chr1_68602071_68612071_normalized
+
+
+
+.. image:: img/profile_chr1_68602071_68612071_normalized.png
+
+
+
+RNA-seq profiles
+----------------
+
+For RNA-seq the fragment length should be set to 0. In the following example, shown are the RNA­seq profiles at the TREML1 and TREML2 gene loci of Monocytes (red), Macrophages (blue), Macrophages pre­incubated with LPS (green) and Macrophages pre­incubated with β­glucan (purple). Read depth (per million reads) is normalized to the total number of mapped reads per sample.
+
+::
+
+    $ fluff profile -i chr6:41112015-41135714 -d RNAseq_Mo.bam RNAseq_Mf.bam RNAseq_LPS-Mf.bam \
+    RNAseq_BG-Mf.bam -a hg19_geneAnnotation.bed -f 0 -s 1:4 -n -o RNAseq_TREML_chr6_41112015_41135714_f0_normalized
+
