@@ -159,3 +159,6 @@ For RNA-seq the fragment length should be set to 0. In the following example, sh
     $ fluff profile -i chr6:41112015-41135714 -d RNAseq_Mo.bam RNAseq_Mf.bam RNAseq_LPS-Mf.bam \
     RNAseq_BG-Mf.bam -a hg19_geneAnnotation.bed -f 0 -s 1:4 -n -o RNAseq_TREML_chr6_41112015_41135714_f0_normalized
 
+
+
+.. image:: img/RNAseq_TREML_chr6_41112015_41135714_f0_normalized.png
