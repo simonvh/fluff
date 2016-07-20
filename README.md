@@ -18,6 +18,6 @@ See the quick examples in the [Usage](http://fluff.readthedocs.io/en/latest/usag
 
 ## Citing
 
-If you find fluff useful, please cite the bioRxiv preprint: 
+If you find fluff useful, please cite: 
 
-Georgiou G and van Heeringen SJ. 2016. fluff: exploratory analysis and visualization of high-throughput sequencing data. bioRxiv [doi: 10.1101/045526](http://dx.doi.org/10.1101/045526).
+Georgiou G, van Heeringen SJ. (2016) fluff: exploratory analysis and visualization of high-throughput sequencing data. PeerJ 4:e2209 [doi: 10.7717/peerj.2209] (https://doi.org/10.7717/peerj.2209).
