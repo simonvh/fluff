@@ -8,9 +8,19 @@ See [full fluff documentation](http://fluff.readthedocs.org/) for detailed insta
 
 ## Quick Installation
 
-The most straightforward way to install fluff is with [conda](https://docs.continuum.io/anaconda) using the [bioconda](https://bioconda.github.io/) channel (Python 2.7 only):
+The most straightforward way to install fluff is with [conda](https://docs.continuum.io/anaconda) using the [bioconda](https://bioconda.github.io/) channel (Python 2.7 only).
 
-`$ conda install biofluff -c bioconda`
+If you have not used bioconda yet, first set up the necessary channels (in this order):
+
+```
+$ conda config --add channels conda-forge
+$ conda config --add channels defaults
+$ conda config --add channels r
+```
+
+Now you can install fluff:
+
+`$ conda install biofluff`
 
 ## Quick Usage
 
