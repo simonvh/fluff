@@ -15,6 +15,10 @@ before_install:
   - ./miniconda.sh -b -p $HOME/miniconda -f
   - export PATH=$HOME/miniconda/bin:$PATH
   - conda update --yes conda
+  - conda config --add channels conda-forge                                     
+  - conda config --add channels defaults                                        
+  - conda config --add channels r                                               
+  - conda config --add channels bioconda   
   - conda info -a
   # Fix DISPLAY variable
   - "export DISPLAY=:99.0"
@@ -22,8 +26,7 @@ before_install:
 
 
 install:
-  - conda install --yes python=$TRAVIS_PYTHON_VERSION numpy scipy matplotlib pytest libgfortran=1 
-  - conda install --yes -c bioconda python=$TRAVIS_PYTHON_VERSION pysam htseq pybedtools bedtools colorbrewer Pycluster pyBigWig
+  - conda install --yes python=$TRAVIS_PYTHON_VERSION numpy scipy matplotlib pytest libgfortran=1 pysam htseq pybedtools bedtools colorbrewer Pycluster pyBigWig
   - pip install coverage
   - pip install coveralls
 
