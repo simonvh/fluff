@@ -16,6 +16,7 @@ If you have not used bioconda yet, first set up the necessary channels (in this 
 $ conda config --add channels conda-forge
 $ conda config --add channels defaults
 $ conda config --add channels r
+$ conda config --add channels bioconda
 ```
 
 Now you can install fluff:
