@@ -726,7 +726,8 @@ class WigTrack(Track):
         max_len = max(lens)
 
         profile = np.zeros((len(regions), max_len)) 
-        for f in self.track.intersect(in_track, wao=True):
+        for f in self.track.intersect(in_track, wo=True):
+            print f
             start, end = [int(x) for x in f.fields[5:7]]
             region = "{}:{}-{}".format(*f.fields[4:7])
             pos = order[region]
