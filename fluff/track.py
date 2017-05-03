@@ -727,7 +727,6 @@ class WigTrack(Track):
 
         profile = np.zeros((len(regions), max_len)) 
         for f in self.track.intersect(in_track, wo=True):
-            print f
             start, end = [int(x) for x in f.fields[5:7]]
             region = "{}:{}-{}".format(*f.fields[4:7])
             pos = order[region]
@@ -806,7 +805,7 @@ class BigWigTrack(Track):
                 vals = np.nan_to_num(vals)
                 yield [f.chrom, f.start, f.end] + list(vals)
             except:
-                yield [f.chrom, f.start, f.end] + [np.nan] * nbins
+                yield [f.chrom, f.start, f.end] + [0.0] * nbins
 
 class TabixTrack(Track):
     _filetypes = ["bg.gz", "wig.gz", "bed.gz"]
