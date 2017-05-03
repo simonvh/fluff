@@ -639,7 +639,7 @@ class BedTrack(BinnedMixin, Track):
         return profile
 
 class WigTrack(Track):
-    _filetypes = ["bg", "wig"]
+    _filetypes = ["bg", "wig", "bdg", "bedGraph"]
     
     def __init__(self, fname, **kwargs):
         self.fname = fname
@@ -743,7 +743,7 @@ class WigTrack(Track):
          
 
 class BigWigTrack(Track):
-    _filetypes = ["bw"]
+    _filetypes = ["bw", "bigWig"]
     
     def __init__(self, fname, **kwargs):
         if fname.endswith("bw"):
@@ -808,7 +808,8 @@ class BigWigTrack(Track):
                 yield [f.chrom, f.start, f.end] + [0.0] * nbins
 
 class TabixTrack(Track):
-    _filetypes = ["bg.gz", "wig.gz", "bed.gz"]
+    _filetypes = ["bg.gz", "wig.gz", "bed.gz", 
+                    "bedGraph.gz", "bigWig.gz", "bdg.gz"]
 
     def __init__(self, fname, **kwargs):
         if fname.endswith("gz"):
