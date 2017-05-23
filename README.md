@@ -1,4 +1,5 @@
 # fluff
+[![DOI](https://zenodo.org/badge/4346865.svg)](https://zenodo.org/badge/latestdoi/4346865)
 [![bioconda-badge](https://img.shields.io/badge/install%20with-bioconda-brightgreen.svg?style=flat)](http://bioconda.github.io)
 [![PyPI version](https://badge.fury.io/py/biofluff.svg)](https://badge.fury.io/py/biofluff)
 [![Build Status](https://travis-ci.org/simonvh/fluff.svg?branch=master)](https://travis-ci.org/simonvh/fluff)
