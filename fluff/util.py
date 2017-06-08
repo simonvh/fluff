@@ -167,7 +167,10 @@ def get_absolute_scale(scale, data, per_track=False):
                 # Set the scale to the minimum non-zero value, otherwise
                 # the plot will show nothing
                 if s == 0:
-                    s = min(d[d > 0])
+                    try:
+                        s = min(d[d > 0])
+                    except:
+                        s = 1.0
                 return s
 
 

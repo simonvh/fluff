@@ -730,12 +730,15 @@ class WigTrack(Track):
             start, end = [int(x) for x in f.fields[5:7]]
             region = "{}:{}-{}".format(*f.fields[4:7])
             pos = order[region]
+           
+            f_start, f_end = int(f[1]), int(f[2])
+
+            if f_start < start:
+                f_start = start
+            if f_end > end:
+                f_end = end
             
-            if f.start < start:
-                f.start = start
-            if f.end > end:
-                f.end = end
-            profile[pos][f.start - start: f.end - start] = float(f.name)
+            profile[pos][f_start - start: f_end - start] = float(f[3])
         
         for l,region,row in zip(lens, regions, profile):
             h,_,_ = binned_statistic(np.arange(l), row, bins=nbins, statistic=statistic)
@@ -796,6 +799,7 @@ class BigWigTrack(Track):
         """
  
         statistic = args.get("statistic", "mean")
+        use_strand = args.get("use_strand", False)
         in_track = SimpleBed(in_fname)
         for f in in_track:
             try: 
@@ -803,6 +807,8 @@ class BigWigTrack(Track):
                         type=statistic, nBins=nbins)
                 vals = np.array(vals, dtype="float")
                 vals = np.nan_to_num(vals)
+                if use_strand and f.strand == "-":
+                    vals = vals[::-1]
                 yield [f.chrom, f.start, f.end] + list(vals)
             except:
                 yield [f.chrom, f.start, f.end] + [0.0] * nbins
