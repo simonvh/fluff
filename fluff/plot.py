@@ -480,9 +480,9 @@ class BamProfilePanel(ProfilePanel):
         # Background of profile
         if self.bgmode == "stripes":
             bgcol = {0: "white", 1: (0.95, 0.95, 0.95)}[int(odd)]
-            ax.set_axis_bgcolor(bgcol)
+            ax.set_facecolor(bgcol)
         elif self.bgmode == "color":
-            ax.set_axis_bgcolor(self.color)
+            ax.set_facecolor(self.color)
             ax.patch.set_alpha(0.07)
 
         # get interval
