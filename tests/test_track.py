@@ -3,7 +3,7 @@ from fluff.track import Track
 
 @pytest.fixture
 def tracks():
-    ftypes = ["bam", "bed", "wig", "bg", "bw", "wig.gz", "bg.gz"]#, "bed.gz"]
+    ftypes = ["bam", "bed", "wig", "bg", "bw", "wig.gz", "bg.gz", "bigWig", "bedGraph"]#, "bed.gz"]
     my_tracks = []
     for ftype in ftypes:
         fname = "tests/data/profile." + ftype

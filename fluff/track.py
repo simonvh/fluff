@@ -231,7 +231,7 @@ class BamTrack(BinnedMixin, Track):
         self.rmrepeats = kwargs.get("rmrepeats", False)
         self.fragmentsize = kwargs.get("fragmentsize", None)
 
-        if fname.endswith("bam"):
+        if fname.split(".")[-1] in self._filetypes:
             self.track = pysam.AlignmentFile(fname, "rb")
             self.ftype = "bam"
             self.chroms = self.track.references
@@ -644,7 +644,7 @@ class WigTrack(Track):
     def __init__(self, fname, **kwargs):
         self.fname = fname
         
-        if fname.endswith("bg") or fname.endswith("wig"):
+        if fname.split(".")[-1] in self._filetypes:
             self.track = pybedtools.BedTool(fname)
             self.ftype = "wig"
         else:
@@ -749,7 +749,7 @@ class BigWigTrack(Track):
     _filetypes = ["bw", "bigWig"]
     
     def __init__(self, fname, **kwargs):
-        if fname.endswith("bw"):
+        if fname.split(".")[-1] in self._filetypes:
             self.track = pyBigWig.open(fname)
             self.ftype = "bw"
         else:
