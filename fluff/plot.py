@@ -594,7 +594,7 @@ class AnnotationPanel(ProfilePanel):
                     figwidth, figheight = bbox.width, bbox.height
 
                     # Scale with absolute width of figure
-                    step = 0.08 / figwidth
+                    step = 0.04 / figwidth
 
                     if reverse:
                         step = -step
@@ -610,7 +610,7 @@ class AnnotationPanel(ProfilePanel):
                                 astart,
                                 aend,
                                 arrowstyle=GENE_ARROW,
-                                mutation_scale=(figheight * fig.dpi) / 2 / self.max_tracks * 1.5,
+                                mutation_scale=(figheight * fig.dpi) / 8 / self.max_tracks * 1.5,
                                 linewidth=0.5,
                                 color=self.color,
                         )

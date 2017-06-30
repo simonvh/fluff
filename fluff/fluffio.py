@@ -84,17 +84,17 @@ def load_read_counts(readCounts):
     return titles, data
 
 def get_free_track(overlap, start, end, max_end, min_gap):
-    first = start - min_gap * max_end
+    first = int(start - min_gap * max_end)
     if first < 0:
         first = 0
 
     for i, track in enumerate(overlap):
         if max(track[start:end]) == 0:
-            track[first:end + min_gap * max_end] += 1
+            track[first:int(end + min_gap * max_end)] += 1
             return overlap, i
 
     overlap.append(np.zeros(max_end, dtype="i"))
-    overlap[-1][first:end + min_gap * max_end] += 1
+    overlap[-1][first:int(end + min_gap * max_end)] += 1
     # overlap[-1][start- min_gap * max_end:end + min_gap * max_end] += 1
     return overlap, len(overlap) - 1
 
