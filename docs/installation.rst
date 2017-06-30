@@ -9,7 +9,21 @@ using the bioconda_ channel (Python 2.7 only):
 
 ::
 
-    $ conda install biofluff -c bioconda
+    $ conda config --add channels r
+    $ conda config --add channels defaults
+    $ conda config --add channels conda-forge
+    $ conda config --add channels bioconda
+
+    $ conda install biofluff
+
+Or, in a seperate environment:
+
+::
+
+    $ conda create -n fluff python=2 biofluff
+    # Before using fluff activate the environment:
+    $ source activate fluff
+
 
 .. _conda: https://docs.continuum.io/anaconda
 .. _bioconda: https://bioconda.github.io/
