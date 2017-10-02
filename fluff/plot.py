@@ -8,7 +8,8 @@ import numpy as np
 from matplotlib.font_manager import FontProperties
 from matplotlib.offsetbox import HPacker, TextArea, AnnotationBbox
 from matplotlib.patches import FancyArrowPatch, ArrowStyle, Polygon
-from matplotlib.ticker import NullFormatter, NullLocator
+from matplotlib.ticker import NullFormatter, NullLocator, MaxNLocator
+from mpl_toolkits.axes_grid1 import make_axes_locatable
 from scipy.stats import scoreatpercentile
 
 from fluff.color import create_colormap
@@ -84,49 +85,51 @@ def heatmap_plot(data, ind, outfile, tracks, titles, colors, bgcolors, scale, ts
     # Create figure
     fig = plt.figure(figsize=(plot_width, plot_height))
     # Create subplot layout
-    gs = gridspec.GridSpec(1, numplots, width_ratios=width_ratios)
+    gs = gridspec.GridSpec(1, numplots, width_ratios=width_ratios, )
 
     axes = []
     for i, track in enumerate(tracks):
         c = create_colormap(bgcolors[i % len(bgcolors)], colors[i % len(colors)])
-        ax = plt.subplot(gs[i])
+        ax = fig.add_subplot(gs[i])
         ax.set_title(titles[i], fontproperties=font, y=1)
         axes.append(ax)
         cax_mat = ax.pcolormesh(data[track][ind], cmap=c, vmin=0, vmax=scale * tscale[i])
         hide_axes(ax)
         ylim = ax.get_ylim()
-        fig.colorbar(cax_mat, orientation="horizontal", pad=0.2)
+        #fig.colorbar(cax_mat, orientation="horizontal", pad=0.05)
+        divider = make_axes_locatable(ax)
+        ax_cb = divider.new_vertical(size="2%", pad=0.05, pack_start=True)
+        fig.add_axes(ax_cb)
+        fig.colorbar(cax_mat, cax=ax_cb,  orientation="horizontal")
+        ax_cb.set_major_locator(MaxNLocator(integer=True))
 
     if labels is not None and len(labels) == len(ind):
-        ax = plt.subplot(gs[len(tracks)])
-        ax.axis('off')
+        axcluster = fig.add_subplot(gs[len(tracks)])
+        axcluster.axis('off')
+        divider = make_axes_locatable(axcluster)
+        ax_cb = divider.new_vertical(size="2%", pad=0.05, pack_start=True)
+        axbl = fig.add_axes(ax_cb)
+        axbl.axis('off')
         min_y, max_y = ylim
         s = 0
-
-        plt.axhline(y=0,
-                    color="grey",
-                    linewidth=0.5,
-                    alpha=0.5
-                    )
+        axcluster.hlines(y=0, xmin=0, xmax=1, color="grey",
+                         linewidth=0.5, alpha=0.5, linestyle='solid')
         labels = np.array(labels)
         # Smaller cluster on the top ([::-1])
         for i in range(max(labels) + 1)[::-1]:
             prev = s
             s += sum(labels == i)
-            plt.axhline(y=s + 1 - 1,
-                        color="grey",
-                        linewidth=0.5,
-                        alpha=0.5
-                        )
-            plt.text(0.5, (prev + s) / 2,
+            axcluster.hlines(y=s + 1 - 1, xmin=0, xmax=1, color="grey",
+                            linewidth=0.5, alpha=0.5, linestyle='solid')
+            axcluster.text(0.5, (prev + s) / 2,
                      str(i + 1),
                      verticalalignment="center",
                      horizontalalignment="center",
                      fontproperties=font)
 
-        ax.set_ylim(ylim)
+        axcluster.set_ylim(ylim)
 
-    fig.subplots_adjust(wspace=btw_space, hspace=0)
+    fig.subplots_adjust(wspace=btw_space, hspace=0.01)
     ext = outfile.split(".")[-1]
     if ext not in ["png", "svg", "ps", "eps", "pdf"]:
         outfile += ".png"
