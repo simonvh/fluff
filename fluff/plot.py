@@ -28,7 +28,7 @@ def colortext(x, y, texts, colors, **kwargs):
             "top": 0,
             "bottom": 1
             }
-    
+
     ax = kwargs.get("ax")
     verticalalignment = pos[kwargs.get("verticalalignment", "center")]
     horizontalalignment = pos[kwargs.get("horizontalalignment", "center")]
@@ -39,21 +39,21 @@ def colortext(x, y, texts, colors, **kwargs):
 
     areas = []
     for t,c in zip(texts, colors):
-        textprops["color"] = c    
+        textprops["color"] = c
         text = TextArea(t, textprops=textprops)
         areas.append(text)
-        
+
     txt = HPacker(children=areas,
                     align="baseline",
                     pad=0, sep=0)
-    
+
     bbox =  AnnotationBbox(txt, xy=(x, y),
                             xycoords='data',
                             annotation_clip=annotation_clip,
                             frameon=False,
                             boxcoords=("axes fraction"),
                             box_alignment=(
-                                horizontalalignment, 
+                                horizontalalignment,
                                 verticalalignment), # alignment center, center
                             #bboxprops={"bbox_transmuter":transform},
                             )
@@ -92,9 +92,10 @@ def heatmap_plot(data, ind, outfile, tracks, titles, colors, bgcolors, scale, ts
         ax = plt.subplot(gs[i])
         ax.set_title(titles[i], fontproperties=font, y=1)
         axes.append(ax)
-        ax.pcolormesh(data[track][ind], cmap=c, vmin=0, vmax=scale * tscale[i])
+        cax_mat = ax.pcolormesh(data[track][ind], cmap=c, vmin=0, vmax=scale * tscale[i])
         hide_axes(ax)
         ylim = ax.get_ylim()
+        fig.colorbar(cax_mat, orientation="horizontal", pad=0.2)
 
     if labels is not None and len(labels) == len(ind):
         ax = plt.subplot(gs[len(tracks)])
@@ -122,7 +123,7 @@ def heatmap_plot(data, ind, outfile, tracks, titles, colors, bgcolors, scale, ts
                      verticalalignment="center",
                      horizontalalignment="center",
                      fontproperties=font)
-        
+
         ax.set_ylim(ylim)
 
     fig.subplots_adjust(wspace=btw_space, hspace=0)
@@ -211,15 +212,15 @@ def create_grid_figure(nrows, ncolumns, plotwidth=2.0, plotheight=2.0, pad=0.1, 
 def profile_screenshot(fname, interval, tracks, fontsize=None, colors=None, scalegroups=None, scale=None, show_scale=True, annotation=None, bgmode="color", fragmentsize=200,  dpi=600, rmdup=False, rmrepeats=False, reverse=False, adjscale=False):
     """
     Plot a genome browser like profile
-    
+
     Parameters
     ----------
     fname: string
         output file name
-    
+
     interval: string
         interval to plot in "chrom:start-end" format
-    
+
     tracks: list
         list of filenames
     """
@@ -231,8 +232,8 @@ def profile_screenshot(fname, interval, tracks, fontsize=None, colors=None, scal
 
     if not colors:
         colors = DEFAULT_COLORS
-  
-    
+
+
     # Plot size and padding definition
     plotwidth = 6
     plotheight = 0.3
@@ -244,7 +245,7 @@ def profile_screenshot(fname, interval, tracks, fontsize=None, colors=None, scal
             "row": 0,
             "column": 3,
             }
-    
+
     # adjust width for track names if they are to long
     # kind of a quick hack
     max_len = 0
@@ -255,37 +256,37 @@ def profile_screenshot(fname, interval, tracks, fontsize=None, colors=None, scal
             max_len = l
     if max_len > 27:
         pad["left"] = 3
-    
+
     # Genomic scale
     scale_height = 0.1
     # Annotation track height
     annotation_height = 0.01
-    
+
     chrom, start, end = re.split(r'[-:]', interval)
     start, end = int(start), int(end)
-    
+
     if annotation:
         ann = load_annotation([chrom,start,end], annotation)
         if ann:
             annotation_height = 0.2 * len(ann.keys())
         else:
             annotation = False
-    
+
     nrows = len(tracks)
 
     wsize = pad["left"] + plotwidth + pad["right"]
     hsize = pad["top"] + (nrows * plotheight) + (pad["row"] * (nrows - 1)) + pad["bottom"]
     hsize += scale_height + pad["row"] + annotation_height + pad["row"]
 
-    # initialize figure 
+    # initialize figure
     fig = plt.figure(figsize=(wsize, hsize))
- 
+
     # initialize profile figure
     pfig = ProfileFigure(fig=fig, fontsize=fontsize, pad=pad)
 
     # add the genomic scale
     pfig.add_panel(ScalePanel())
-   
+
     if type(scale) != type([]):
         scale = [scale]
 
@@ -295,7 +296,7 @@ def profile_screenshot(fname, interval, tracks, fontsize=None, colors=None, scal
         for i,track in enumerate(group):
             panel = pfig.add_panel(
                     BamProfilePanel(track,
-                        color = colors[c % len(colors)], 
+                        color = colors[c % len(colors)],
                         bgmode = bgmode,
                         name = os.path.splitext(os.path.split(track)[-1])[0],
                         fragmentsize = fragmentsize,
@@ -308,11 +309,11 @@ def profile_screenshot(fname, interval, tracks, fontsize=None, colors=None, scal
                     )
             panel.ymax = scale[c % len(scale)]
             c += 1
-    
+
     # add the annotation panel
     if annotation:
         pfig.add_panel(AnnotationPanel(annotation))
-    
+
     pfig.plot([chrom, start, end], scalegroups=scalegroups, reverse=reverse)
     plt.savefig(fname, dpi=dpi)
 
@@ -329,20 +330,20 @@ class ProfileFigure(object):
 
         relpad = {}
         for k in ["left", "right"]:
-            relpad[k] = float(self.pad.get(k,0)) / fig.get_figwidth()        
+            relpad[k] = float(self.pad.get(k,0)) / fig.get_figwidth()
         for k in ["top", "bottom"]:
-            relpad[k] = float(self.pad.get(k,0)) / fig.get_figheight()        
+            relpad[k] = float(self.pad.get(k,0)) / fig.get_figheight()
 
         if gs:
             self.gs = gs
         else:
             gs = gridspec.GridSpec(1, 1)
             gs.update(
-                    left=relpad["left"], 
-                    right=1 - relpad["right"], 
-                    top=1 - relpad["top"], 
-                    bottom=relpad["bottom"], 
-                    wspace=0, 
+                    left=relpad["left"],
+                    right=1 - relpad["right"],
+                    top=1 - relpad["top"],
+                    bottom=relpad["bottom"],
+                    wspace=0,
                     hspace=0
                     )
             self.gs = gs[0]
@@ -376,7 +377,7 @@ class ProfileFigure(object):
     def plot(self, interval, scalegroups=None, reverse=False, **kwargs):
         if scalegroups is None:
             scalegroups = []
-        
+
         for panels in self._panels:
             for panel in panels:
                 panel._load_data(interval)
@@ -387,37 +388,37 @@ class ProfileFigure(object):
                 subplot_spec=self.gs,
                 height_ratios=[max([p.height for p in panels]) for panels in self._panels]
         )
-        
+
         for panels in self._panels:
             if isinstance(panels[-1], BamProfilePanel):
                 ymax = max([p.ymax for p in panels])
                 for panel in panels:
                     panel.ymax = ymax
-        
+
         if scalegroups and len(scalegroups) > 0:
             for group in scalegroups:
                 ymax = max([self._panels[g][-1].ymax for g in group])
                 for g in group:
                     for panel in self._panels[g]:
                         panel.ymax = ymax
-        
+
         # These are quick hacks to to get the track groups to work
         for panels in self._panels:
             if len(panels) > 1:
                 # Set the alpha for overlapping tracks
                 for panel in panels:
                     panel.alpha = 0.5
-                
+
         for i, panels in enumerate(self._panels):
             ax = plt.Subplot(self.fig, gs0[i])
             plt.subplots_adjust(bottom=0, top=1, left=0, right=1, hspace=0)
-            
+
             # add track labels
             self._plot_panel_names(ax, panels)
-            
+
             for panel in panels:
                 panel._plot(ax, interval, fig=self.fig, reverse=reverse, odd=i % 2, font=self.font, **kwargs)
-            
+
             self.fig.add_subplot(ax)
 
     def add_panel(self, panel, overlay=False):
@@ -429,7 +430,7 @@ class ProfileFigure(object):
 
 class ProfilePanel(object):
     name = ""
-    
+
     def hide_axes(self, axes):
         for ax in [axes.xaxis, axes.yaxis]:
             ax.set_major_formatter(NullFormatter())
@@ -469,7 +470,7 @@ class BamProfilePanel(ProfilePanel):
         self.name = kwargs.get('name')
 
     def _load_data(self, interval):
-        self.profile = self.track.get_profile(interval, 
+        self.profile = self.track.get_profile(interval,
                 scalepm=self.scalepm)
 
         if not self.ymax:
@@ -500,7 +501,7 @@ class BamProfilePanel(ProfilePanel):
                 facecolor=self.color,
                 linewidth=0.5,
                 alpha=self.alpha)
-        
+
         # set the y-limit
         ax.set_ylim(0, self.ymax)
 
@@ -513,7 +514,7 @@ class BamProfilePanel(ProfilePanel):
                 transform=ax.transAxes,
                 clip_on=False,
                 fontproperties=font)
-        
+
         ax.set_xlim(start, end)
 
         self.hide_axes(ax)
@@ -531,7 +532,7 @@ class AnnotationPanel(ProfilePanel):
         self.height *= self.max_tracks
 
     def _plot(self, ax, interval, reverse=False, fig=None, odd=False, font=None, **kwargs):
-        
+
         chrom, start, end = interval
         ax.set_ylim(- 1 * self.max_tracks, 0)
         for track_id, genes in self.gene_track.items():
@@ -541,7 +542,7 @@ class AnnotationPanel(ProfilePanel):
                 genestart = gene[1]
                 geneend = gene[2]
                 genename = gene[3]
-                
+
                 if len(gene) >= 6:
                     genestrand = gene[5]
                 else:
@@ -572,7 +573,7 @@ class AnnotationPanel(ProfilePanel):
                            color=self.color,
                            solid_capstyle="butt",
                            )
-                # Exons 
+                # Exons
                 for exonstart, exonsize in zip(exonstarts, exonsizes):
                     estart = (genestart + exonstart - start)
                     eend = (genestart + exonstart + exonsize - start)
@@ -616,11 +617,11 @@ class AnnotationPanel(ProfilePanel):
                         )
                         ax.add_patch(arr)
                 if gstart > 0:
-                    ax.text(gstart - 0.01, h_gene, genename, 
+                    ax.text(gstart - 0.01, h_gene, genename,
                             horizontalalignment="right",
                             verticalalignment="center",
                             fontproperties=font)
-        
+
         self.hide_axes(ax)
 
 
