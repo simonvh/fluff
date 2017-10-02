@@ -129,7 +129,7 @@ def heatmap_plot(data, ind, outfile, tracks, titles, colors, bgcolors, scale, ts
 
         axcluster.set_ylim(ylim)
 
-    fig.subplots_adjust(wspace=btw_space, hspace=0.01)
+    fig.subplots_adjust(wspace=btw_space, hspace=0.02)
     ext = outfile.split(".")[-1]
     if ext not in ["png", "svg", "ps", "eps", "pdf"]:
         outfile += ".png"
