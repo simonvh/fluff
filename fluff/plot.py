@@ -101,7 +101,7 @@ def heatmap_plot(data, ind, outfile, tracks, titles, colors, bgcolors, scale, ts
         ax_cb = divider.new_vertical(size="2%", pad=0.05, pack_start=True)
         fig.add_axes(ax_cb)
         fig.colorbar(cax_mat, cax=ax_cb,  orientation="horizontal")
-        ax_cb.set_major_locator(MaxNLocator(integer=True))
+        #ax_cb.get_xaxis().set_major_locator(MaxNLocator(integer=True))
 
     if labels is not None and len(labels) == len(ind):
         axcluster = fig.add_subplot(gs[len(tracks)])

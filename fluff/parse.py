@@ -11,18 +11,18 @@ def parse_args(args):
     description = """
     fluff v{0}
     """.format(FL_VERSION)
-    
+
     epilog = """
     commands:
         heatmap      Produce a heatmap
         bandplot     Show the profiles as bandplots
         profile      Genome Browser screenshot
-    
+
     type `fluff <command> -h` for more details
     """
-    
+
     usage = "%(prog)s [-h] [options]"
-    
+
     parser = argparse.ArgumentParser(
             usage=usage,
             description=description,
@@ -80,7 +80,7 @@ def parse_args(args):
                          help="pick specific data files to use for clustering",
                          default=None,
                          type=str)
-    
+
     dap_grp = p.add_argument_group(title='Data processing')
     dap_grp.add_argument("-r",
                          dest="rpkm",
@@ -124,11 +124,11 @@ def parse_args(args):
                          help="scale (absolute or percentage)",
                          type=str,
                          default=DEFAULT_SCALE)
-    
+
     vis_grp = p.add_argument_group(title='Visualization')
     vis_grp.add_argument("-c",
                          dest="colors",
-                         help="color(s) (name, colorbrewer profile or hex code)",
+                         help="color(s) (name, colorbrewer profile or hex code), seprate each color name by comma",
                          metavar="NAME(S)",
                          default=DEFAULT_COLORS)
     vis_grp.add_argument("-b",
@@ -141,7 +141,7 @@ def parse_args(args):
                          help="text font size(default: {0})".format(FONTSIZE),
                          type=int,
                          default=FONTSIZE)
-    
+
     opt_grp = p.add_argument_group(title='Other')
     opt_grp.add_argument("-P",
                          dest="cpus",
@@ -153,9 +153,9 @@ def parse_args(args):
                          dest="help",
                          help="show this help message and exit",
                          action="help")
-    
+
     p.set_defaults(func=commands.heatmap)
-    
+
     # bandplot subparser
     p = subparsers.add_parser('bandplot', add_help=False)
     # bandplot Required arguments
@@ -172,20 +172,20 @@ def parse_args(args):
                          metavar="FILE",
                          nargs='*',
                          default=None)
-    
+
     req_grp.add_argument("-counts",
                          dest="readCount",
                          help="read counts table (instead of data files)",
                          metavar="FILE",
                          default=None)
-    
+
     req_grp.add_argument("-o",
                          required=True,
                          dest="outfile",
                          help="output file (type determined by extension)",
                          metavar="name",
                          default=None)
-    
+
     # bandplot Optional arguments
     dap_grp = p.add_argument_group(title='Data processing')
     dap_grp.add_argument("-r", dest="rpkm",
@@ -227,7 +227,7 @@ def parse_args(args):
                          type=float)
     vis_grp = p.add_argument_group(title='Visualization')
     vis_grp.add_argument("-c", dest="colors",
-                         help="color(s) (name, colorbrewer profile or hex code)",
+                         help="color(s) (name, colorbrewer profile or hex code), seprate each color name by comma",
                          metavar="NAME(S)",
                          default=DEFAULT_COLORS)
     vis_grp.add_argument("-T",
@@ -240,9 +240,9 @@ def parse_args(args):
                          dest="help",
                          help="show this help message and exit",
                          action="help")
-    
+
     p.set_defaults(func=commands.bandplot)
-    
+
     # profile subparser
     p = subparsers.add_parser('profile', add_help=False)
     # profile Required arguments
@@ -307,7 +307,7 @@ def parse_args(args):
                          default=False)
     vis_grp = p.add_argument_group(title='Visualization')
     vis_grp.add_argument("-c", dest="colors",
-                         help="color(s) (name, colorbrewer profile or hex code)",
+                         help="color(s) (name, colorbrewer profile or hex code), seprate each color name by comma",
                          metavar="NAME(S)",
                          default=DEFAULT_COLORS)
     vis_grp.add_argument("-b", dest="background",
@@ -329,12 +329,12 @@ def parse_args(args):
                          help="show this help message and exit",
                          action="help")
     p.set_defaults(func=commands.profile)
-    
+
     if len(args) == 0:
         parser.print_help()
         return
     if len(args) == 1:
         print "\033[93mtype `fluff {} -h` for more details\033[0m\n".format(sys.argv[-1])
     args = parser.parse_args(args)
-    
+
     return args
