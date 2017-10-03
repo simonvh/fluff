@@ -100,8 +100,21 @@ def heatmap_plot(data, ind, outfile, tracks, titles, colors, bgcolors, scale, ts
         divider = make_axes_locatable(ax)
         ax_cb = divider.new_vertical(size="2%", pad=0.05, pack_start=True)
         fig.add_axes(ax_cb)
-        fig.colorbar(cax_mat, cax=ax_cb,  orientation="horizontal")
-        #ax_cb.get_xaxis().set_major_locator(MaxNLocator(integer=True))
+        tick_locator = MaxNLocator(nbins=3)
+        cbar = fig.colorbar(cax_mat, cax=ax_cb,  orientation="horizontal", ticks=tick_locator)
+        cbar_labels = cbar.ax.get_xticklabels()
+        cbar_ticks = cbar.ax.get_xticks()
+        if cbar_ticks[0] == 0:
+            # if the label is at the start of the colobar
+            # move it a bit inside to avoid overlapping
+            # with other labels
+            cbar_labels[0].set_horizontalalignment('left')
+        if cbar_ticks[-1] == 1:
+            # if the label is at the end of the colobar
+            # move it a bit inside to avoid overlapping
+            # with other labels
+            cbar_labels[-1].set_horizontalalignment('right')
+        # cbar.ax.set_xticklabels(labels, rotation=90)
 
     if labels is not None and len(labels) == len(ind):
         axcluster = fig.add_subplot(gs[len(tracks)])
@@ -129,7 +142,7 @@ def heatmap_plot(data, ind, outfile, tracks, titles, colors, bgcolors, scale, ts
 
         axcluster.set_ylim(ylim)
 
-    fig.subplots_adjust(wspace=btw_space, hspace=0.02)
+    fig.subplots_adjust(wspace=btw_space, hspace=0.01)
     ext = outfile.split(".")[-1]
     if ext not in ["png", "svg", "ps", "eps", "pdf"]:
         outfile += ".png"
