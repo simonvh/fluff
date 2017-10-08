@@ -147,10 +147,8 @@ def heatmap_plot(data, ind, outfile, tracks, titles, colors, bgcolors, scale, ts
     if ext not in ["png", "svg", "ps", "eps", "pdf"]:
         outfile += ".png"
     sys.stderr.write("Saving figure\n")
-    if outfile.endswith("png"):
-        plt.savefig(outfile, dpi=600, bbox_inches='tight')
-    else:
-        plt.savefig(outfile, dpi=600, bbox_inches='tight')
+    # Object orientated pyplot
+    fig.savefig(outfile, dpi=600, bbox_inches='tight')
 
 def coverage_plot(ax, x, data, color="red", percs=None):
     """
