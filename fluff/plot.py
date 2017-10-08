@@ -103,6 +103,8 @@ def heatmap_plot(data, ind, outfile, tracks, titles, colors, bgcolors, scale, ts
         tick_locator = MaxNLocator(nbins=3)
         cbar = fig.colorbar(cax_mat, cax=ax_cb,  orientation="horizontal", ticks=tick_locator)
         cbar_labels = cbar.ax.get_xticklabels()
+        for lab in cbar_labels:
+            lab.set_fontsize(fontsize / 1.25)
         cbar_ticks = cbar.ax.get_xticks()
         if cbar_ticks[0] == 0:
             # if the label is at the start of the colobar
