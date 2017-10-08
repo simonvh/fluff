@@ -93,12 +93,12 @@ def heatmap_plot(data, ind, outfile, tracks, titles, colors, bgcolors, scale, ts
         ax = fig.add_subplot(gs[i])
         ax.set_title(titles[i], fontproperties=font, y=1)
         axes.append(ax)
-        cax_mat = ax.pcolormesh(data[track][ind], cmap=c, vmin=0, vmax=scale * tscale[i])
+        cax_mat = ax.pcolormesh(data[track][ind], cmap=c, vmin=0, vmax=scale * tscale[i], rasterized=True)
         hide_axes(ax)
         ylim = ax.get_ylim()
         #fig.colorbar(cax_mat, orientation="horizontal", pad=0.05)
         divider = make_axes_locatable(ax)
-        ax_cb = divider.new_vertical(size="2%", pad=0.05, pack_start=True)
+        ax_cb = divider.new_vertical(size="2%", pad=0.1, pack_start=True)
         fig.add_axes(ax_cb)
         tick_locator = MaxNLocator(nbins=3)
         cbar = fig.colorbar(cax_mat, cax=ax_cb,  orientation="horizontal", ticks=tick_locator)
@@ -120,7 +120,7 @@ def heatmap_plot(data, ind, outfile, tracks, titles, colors, bgcolors, scale, ts
         axcluster = fig.add_subplot(gs[len(tracks)])
         axcluster.axis('off')
         divider = make_axes_locatable(axcluster)
-        ax_cb = divider.new_vertical(size="2%", pad=0.05, pack_start=True)
+        ax_cb = divider.new_vertical(size="2%", pad=0.1, pack_start=True)
         axbl = fig.add_axes(ax_cb)
         axbl.axis('off')
         min_y, max_y = ylim
@@ -142,7 +142,7 @@ def heatmap_plot(data, ind, outfile, tracks, titles, colors, bgcolors, scale, ts
 
         axcluster.set_ylim(ylim)
 
-    fig.subplots_adjust(wspace=btw_space, hspace=0.01)
+    fig.subplots_adjust(wspace=btw_space, hspace=0)
     ext = outfile.split(".")[-1]
     if ext not in ["png", "svg", "ps", "eps", "pdf"]:
         outfile += ".png"
@@ -150,7 +150,7 @@ def heatmap_plot(data, ind, outfile, tracks, titles, colors, bgcolors, scale, ts
     if outfile.endswith("png"):
         plt.savefig(outfile, dpi=600, bbox_inches='tight')
     else:
-        plt.savefig(outfile)
+        plt.savefig(outfile, dpi=600, bbox_inches='tight')
 
 def coverage_plot(ax, x, data, color="red", percs=None):
     """
