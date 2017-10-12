@@ -68,7 +68,7 @@ def hide_axes(ax):
     for _, spine in ax.spines.iteritems():
         spine.set_color('none')
 
-def heatmap_plot(data, ind, outfile, tracks, titles, colors, bgcolors, scale, tscale, labels, fontsize):
+def heatmap_plot(data, ind, outfile, tracks, titles, colors, bgcolors, scale, tscale, labels, fontsize, colorbar=True):
     font = FontProperties(size=fontsize / 1.25, family=["Nimbus Sans L", "Helvetica", "sans-serif"])
     label_ratio = 4.0
     # space between heatmaps
@@ -97,34 +97,36 @@ def heatmap_plot(data, ind, outfile, tracks, titles, colors, bgcolors, scale, ts
         hide_axes(ax)
         ylim = ax.get_ylim()
         #fig.colorbar(cax_mat, orientation="horizontal", pad=0.05)
-        divider = make_axes_locatable(ax)
-        ax_cb = divider.new_vertical(size="2%", pad=0.1, pack_start=True)
-        fig.add_axes(ax_cb)
-        tick_locator = MaxNLocator(nbins=3)
-        cbar = fig.colorbar(cax_mat, cax=ax_cb,  orientation="horizontal", ticks=tick_locator)
-        cbar_labels = cbar.ax.get_xticklabels()
-        for lab in cbar_labels:
-            lab.set_fontsize(fontsize / 1.25)
-        cbar_ticks = cbar.ax.get_xticks()
-        if cbar_ticks[0] == 0:
-            # if the label is at the start of the colobar
-            # move it a bit inside to avoid overlapping
-            # with other labels
-            cbar_labels[0].set_horizontalalignment('left')
-        if cbar_ticks[-1] == 1:
-            # if the label is at the end of the colobar
-            # move it a bit inside to avoid overlapping
-            # with other labels
-            cbar_labels[-1].set_horizontalalignment('right')
-        # cbar.ax.set_xticklabels(labels, rotation=90)
+        if colorbar:
+            divider = make_axes_locatable(ax)
+            ax_cb = divider.new_vertical(size="2%", pad=0.1, pack_start=True)
+            fig.add_axes(ax_cb)
+            tick_locator = MaxNLocator(nbins=3)
+            cbar = fig.colorbar(cax_mat, cax=ax_cb,  orientation="horizontal", ticks=tick_locator)
+            cbar_labels = cbar.ax.get_xticklabels()
+            for lab in cbar_labels:
+                lab.set_fontsize(fontsize / 1.25)
+            cbar_ticks = cbar.ax.get_xticks()
+            if cbar_ticks[0] == 0:
+                # if the label is at the start of the colobar
+                # move it a bit inside to avoid overlapping
+                # with other labels
+                cbar_labels[0].set_horizontalalignment('left')
+            if cbar_ticks[-1] == 1:
+                # if the label is at the end of the colobar
+                # move it a bit inside to avoid overlapping
+                # with other labels
+                cbar_labels[-1].set_horizontalalignment('right')
+
 
     if labels is not None and len(labels) == len(ind):
         axcluster = fig.add_subplot(gs[len(tracks)])
         axcluster.axis('off')
-        divider = make_axes_locatable(axcluster)
-        ax_cb = divider.new_vertical(size="2%", pad=0.1, pack_start=True)
-        axbl = fig.add_axes(ax_cb)
-        axbl.axis('off')
+        if colorbar:
+            divider = make_axes_locatable(axcluster)
+            ax_cb = divider.new_vertical(size="2%", pad=0.1, pack_start=True)
+            axbl = fig.add_axes(ax_cb)
+            axbl.axis('off')
         min_y, max_y = ylim
         s = 0
         axcluster.hlines(y=0, xmin=0, xmax=1, color="grey",

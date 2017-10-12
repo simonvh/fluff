@@ -141,6 +141,11 @@ def parse_args(args):
                          help="text font size(default: {0})".format(FONTSIZE),
                          type=int,
                          default=FONTSIZE)
+    vis_grp.add_argument("--no-colorbar",
+                         dest="colorbar",
+                         help="don't show colorbars of each heatmap",
+                         action="store_false",
+                         default=True)
 
     opt_grp = p.add_argument_group(title='Other')
     opt_grp.add_argument("-P",

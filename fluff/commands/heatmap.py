@@ -11,7 +11,7 @@ import Pycluster
 from numpy import array, hstack, arange, zeros
 
 ### My imports ###
-from fluff.util import ( normalize_data, get_absolute_scale, split_ranges, 
+from fluff.util import ( normalize_data, get_absolute_scale, split_ranges,
         mirror_clusters, sort_tree )
 from fluff.fluffio import load_heatmap_data, check_data
 from fluff.color import parse_colors
@@ -50,6 +50,7 @@ def heatmap(args):
     distancefunction = args.distancefunction[0].lower()
     dynam = args.graphdynamics
     fontsize = args.textfontsize
+    colorbar = args.colorbar
 
     # Check for mutually exclusive parameters
     if dynam:
@@ -64,7 +65,7 @@ def heatmap(args):
     # Warning about too much files
     if (len(tracks) > 4):
         print "Warning: Running fluff with too many files might make you system use enormous amount of memory!"
-    
+
     # Method of clustering
     if (args.pick != None):
         pick = [i - 1 for i in split_ranges(args.pick)]
@@ -145,7 +146,7 @@ def heatmap(args):
     data, regions, guard = load_data(featurefile, amount_bins, extend_dyn_up, extend_dyn_down, rmdup, rpkm,
                                          rmrepeats,
                                          fragmentsize, dynam, guard)
-    
+
     # Normalize
     norm_data = normalize_data(data, cfg.DEFAULT_PERCENTILE)
 
@@ -213,7 +214,7 @@ def heatmap(args):
                 else:
                     bins = '{0};{1}'.format(bins, b)
             readcounts[track]['bins'].append(bins)
-    
+
     input_fileBins = open('{0}_readCounts.txt'.format(outfile), 'w')
     input_fileBins.write('Regions\t')
     for i, track in enumerate(titles):
@@ -227,9 +228,9 @@ def heatmap(args):
             input_fileBins.write('\n')
         break
     input_fileBins.close()
- 
+
     if not cluster_type == "k":
         labels = None
 
     scale = get_absolute_scale(args.scale, [data[track] for track in tracks])
-    heatmap_plot(data, ind[::-1], outfile, tracks, titles, colors, bgcolors, scale, tscale, labels, fontsize)
+    heatmap_plot(data, ind[::-1], outfile, tracks, titles, colors, bgcolors, scale, tscale, labels, fontsize, colorbar)
