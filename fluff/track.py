@@ -852,9 +852,14 @@ class TabixTrack(Track):
         scalefactor = kwargs.get("scalefactor", 1.0)
  
         chrom, start, end = self._get_interval(interval) 
-
         profile = np.zeros(end - start)
+        
+        # Chromosome not in index
+        if chrom not in self.tabix_track.contigs:
+            return profile
+        
         profile.fill(np.nan)
+        
         for f in self.tabix_track.fetch(chrom, start, end):
             f = f.split()
             fstart = int(f[1])
@@ -893,15 +898,16 @@ class TabixTrack(Track):
 
         for r in in_track: 
             profile = np.zeros(r.end - r.start)
-            for f in self.tabix_track.fetch(r.chrom, r.start, r.end):
-                f = f.split()
-                start = int(f[1])
-                end = int(f[2])
-                if start < r.start:
-                    start = r.start
-                if end > r.end:
-                    end = r.end
-                profile[start - r.start: end - r.end] = float(f[3])
+            if r.chrom in self.tabix_track.contigs:
+                for f in self.tabix_track.fetch(r.chrom, r.start, r.end):
+                    f = f.split()
+                    start = int(f[1])
+                    end = int(f[2])
+                    if start < r.start:
+                        start = r.start
+                    if end > r.end:
+                        end = r.end
+                    profile[start - r.start: end - r.end] = float(f[3])
             h,_,_ = binned_statistic(
                     np.arange(r.end - r.start), 
                     profile, 

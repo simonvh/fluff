@@ -1,5 +1,6 @@
 import pytest
 from fluff.track import Track
+from pytest import approx
 
 @pytest.fixture
 def tracks():
@@ -66,18 +67,31 @@ def test_profile(tracks, interval):
 
 def test_binned_stats(tracks, interval, region):
     bins = {
-        "feature": [2,0,0,0,1,1,2,4,3,3],
-        "profile": [2,0,0,0,1,1,2,2,2,2],
-        }
+        "feature": [
+             ['scaffold_1', 44749422, 44750067, 2,0,0,0,1,1,2,4,3,3],
+             ['scaffold_2', 44749422, 44750067, 0,0,0,0,0,0,0,0,0,0],
+             ],
+        "profile": [
+             ['scaffold_1', 44749422, 44750067,2,0,0,0,1,1,2,2,2,2],
+             ['scaffold_2', 44749422, 44750067, 0,0,0,0,0,0,0,0,0,0],
+        ]
+    }
 
     for t in tracks:
         print t
-        bla = [list(interval) + bins[t.track_type]]
+        expect = bins[t.track_type]
         if t.track_type == "profile":
-            assert bla == [x for x in t.binned_stats(region, 10, split=True, statistic="max")]
+            for expect_row, result_row in zip(expect, t.binned_stats(region, 10, split=True, statistic="max")):
+                assert expect_row[:3] == result_row[:3]
+                assert expect_row[4:] == approx(result_row[4:])
+                print(expect_row)
+                print(result_row)
+                print "***"
         else:
-            assert bla == [x for x in t.binned_stats(region, 10, split=True)]
-
+            print(expect)
+            print([x for x in t.binned_stats(region, 10, split=True)])
+            assert expect == [x for x in t.binned_stats(region, 10, split=True)]
+            
 def test_fetch(tracks, interval, region):
     
     for t in tracks:
