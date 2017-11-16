@@ -58,7 +58,6 @@ def test_count(tracks):
 
 def test_profile(tracks, interval):
     for track in tracks:
-        print track
         profile = track.get_profile(interval)
         assert interval[2] - interval[1] == len(profile)
         assert 103 == sum(profile == 2)
@@ -82,11 +81,11 @@ def test_binned_stats(tracks, interval, region):
         expect = bins[t.track_type]
         if t.track_type == "profile":
             for expect_row, result_row in zip(expect, t.binned_stats(region, 10, split=True, statistic="max")):
-                assert expect_row[:3] == result_row[:3]
-                assert expect_row[4:] == approx(result_row[4:])
                 print(expect_row)
                 print(result_row)
                 print "***"
+                assert expect_row[:3] == result_row[:3]
+                assert expect_row[4:] == approx(result_row[4:])
         else:
             print(expect)
             print([x for x in t.binned_stats(region, 10, split=True)])

@@ -913,4 +913,4 @@ class TabixTrack(Track):
                     profile, 
                     bins=nbins, 
                     statistic=statistic)
-            yield [f[0], r.start, r.end] + list(h)
+            yield [r.chrom, r.start, r.end] + list(h)
