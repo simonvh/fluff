@@ -128,7 +128,7 @@ def parse_args(args):
     vis_grp = p.add_argument_group(title='Visualization')
     vis_grp.add_argument("-c",
                          dest="colors",
-                         help="color(s) (name, colorbrewer profile or hex code), seprate each color name by comma",
+                         help="color(s) (name, colorbrewer profile or hex code), separate each color name by comma",
                          metavar="NAME(S)",
                          default=DEFAULT_COLORS)
     vis_grp.add_argument("-b",
@@ -232,7 +232,7 @@ def parse_args(args):
                          type=float)
     vis_grp = p.add_argument_group(title='Visualization')
     vis_grp.add_argument("-c", dest="colors",
-                         help="color(s) (name, colorbrewer profile or hex code), seprate each color name by comma",
+                         help="color(s) (name, colorbrewer profile or hex code), separate each color name by comma",
                          metavar="NAME(S)",
                          default=DEFAULT_COLORS)
     vis_grp.add_argument("-T",
@@ -312,7 +312,7 @@ def parse_args(args):
                          default=False)
     vis_grp = p.add_argument_group(title='Visualization')
     vis_grp.add_argument("-c", dest="colors",
-                         help="color(s) (name, colorbrewer profile or hex code), seprate each color name by comma",
+                         help="color(s) (name, colorbrewer profile or hex code), separate each color name by comma",
                          metavar="NAME(S)",
                          default=DEFAULT_COLORS)
     vis_grp.add_argument("-b", dest="background",
