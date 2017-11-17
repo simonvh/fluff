@@ -1,5 +1,5 @@
 ### CONSTANTS ###
-FL_VERSION = "2.1.3"
+FL_VERSION = "2.1.4"
 
 ######## HEATMAP #############
 DEFAULT_BINSIZE = 100
