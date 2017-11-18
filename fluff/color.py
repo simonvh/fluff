@@ -2,10 +2,13 @@
 #
 # Copyright (c) 2012-2013 Simon van Heeringen <s.vanheeringen@ncmls.ru.nl>
 #
-# This script is free software. You can redistribute it and/or modify it under 
+# This script is free software. You can redistribute it and/or modify it under
 # the terms of the MIT License
 
-import colorbrewer
+# use pallettable to use colorbrewer
+
+from functools import reduce
+from palettable import colorbrewer
 from matplotlib.colors import colorConverter, LinearSegmentedColormap, cnames
 
 COLOR_MAP = {
@@ -22,21 +25,37 @@ COLOR_MAP = {
     "black": "#000000",
 }
 
+def brewer_pal_all():
+    palnames = []
+    for coltype in ['Sequential', 'Diverging', 'Qualitative']:
+        palnames.append(list(colorbrewer.COLOR_MAPS[coltype].keys()))
+    return palnames
 
 def is_pal(name):
-    return name in colorbrewer.__dict__
+    pals = brewer_pal_all()
+    pals = reduce(lambda x,y : x+y, pals, [])
+    return name in pals
 
 
 def get_pal(name, n=None):
-    ns = colorbrewer.__dict__[name].keys()
-    if n > max(ns) or not n:
+    pals = brewer_pal_all()
+    for t, hit in zip(['Sequential', 'Diverging', 'Qualitative'], pals):
+        if name in hit:
+            ns = list(colorbrewer.COLOR_MAPS[t][name].keys())
+            pa = colorbrewer.COLOR_MAPS[t][name]
+
+    ns = [ int(s) for s in ns ]
+
+    if n is None:
+        n_index = max(ns)
+    elif n > max(ns):
         n_index = max(ns)
     elif n < min(ns):
         n_index = min(ns)
     else:
         n_index = n
 
-    pal = colorbrewer.__dict__[name][n_index][:n]
+    pal = pa[str(n_index)]['Colors']
     for i in range(len(pal)):
         pal[i] = [x / 255.0 for x in pal[i]]
 
@@ -84,13 +103,13 @@ def parse_colors(colors):
 
 def create_colormap(*args):
     col = [colorConverter.to_rgb(c) for c in args]
-    
+
     step = 1.0 / (len(col) - 1)
-    
+
     cdict = {
             'red': [[i * step, col[i][0], col[i][0]] for i in range(len(col))],
             'green': [[i * step, col[i][1], col[i][1]] for i in range(len(col))],
             'blue': [[i * step, col[i][2], col[i][2]] for i in range(len(col))]
             }
-    
+
     return LinearSegmentedColormap('custom', cdict, 256)

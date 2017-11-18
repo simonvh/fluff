@@ -65,7 +65,7 @@ def hide_axes(ax):
     for x in [ax.xaxis, ax.yaxis]:
         x.set_major_formatter(NullFormatter())
         x.set_major_locator(NullLocator())
-    for _, spine in ax.spines.iteritems():
+    for _, spine in ax.spines.items():
         spine.set_color('none')
 
 def heatmap_plot(data, ind, outfile, tracks, titles, colors, bgcolors, scale, tscale, labels, fontsize, colorbar=True):
@@ -136,7 +136,7 @@ def heatmap_plot(data, ind, outfile, tracks, titles, colors, bgcolors, scale, ts
         for i in range(max(labels) + 1)[::-1]:
             prev = s
             s += sum(labels == i)
-            axcluster.hlines(y=s + 1 - 1, xmin=0, xmax=1, color="grey",
+            axcluster.hlines(y=s, xmin=0, xmax=1, color="grey",
                             linewidth=0.5, alpha=0.5, linestyle='solid')
             axcluster.text(0.5, (prev + s) / 2,
                      str(i + 1),
@@ -222,7 +222,7 @@ def create_grid_figure(nrows, ncolumns, plotwidth=2.0, plotheight=2.0, pad=0.1, 
             coords = [x0, y0, x1, y1]
             axes[row][col].set_position(coords)
 
-            for s in axes[row][col].spines.values():
+            for s in list(axes[row][col].spines.values()):
                 s.set_linewidth(0.8)
 
     return fig, axes
@@ -286,7 +286,7 @@ def profile_screenshot(fname, interval, tracks, fontsize=None, colors=None, scal
     if annotation:
         ann = load_annotation([chrom,start,end], annotation)
         if ann:
-            annotation_height = 0.2 * len(ann.keys())
+            annotation_height = 0.2 * len(list(ann.keys()))
         else:
             annotation = False
 
@@ -388,7 +388,7 @@ class ProfileFigure(object):
                 ax=ax,
                 horizontalalignment='right',
                 verticalalignment="center",
-#                    transform=ax.transAxes,
+                #transform=ax.transAxes,
                 clip_on=False,
                 fontproperties=self.font)
 
@@ -446,6 +446,7 @@ class ProfileFigure(object):
             self._panels.append([panel])
         return panel
 
+
 class ProfilePanel(object):
     name = ""
 
@@ -456,7 +457,7 @@ class ProfilePanel(object):
             ax.set_major_locator(NullLocator())
             ax.set_minor_locator(NullLocator())
 
-        for s in axes.spines.values():
+        for s in list(axes.spines.values()):
             s.set_color('none')
 
 class BamProfilePanel(ProfilePanel):
@@ -512,7 +513,7 @@ class BamProfilePanel(ProfilePanel):
 
         # plot data
         ax.fill_between(
-                range(start, end),
+                list(range(start, end)),
                 np.zeros(len(profile)),
                 profile,
                 edgecolor='face',
@@ -537,6 +538,7 @@ class BamProfilePanel(ProfilePanel):
 
         self.hide_axes(ax)
 
+
 class AnnotationPanel(ProfilePanel):
     def __init__(self, annofile, height=0.3, vis="stack", color="black"):
         self.annofile = annofile
@@ -546,14 +548,14 @@ class AnnotationPanel(ProfilePanel):
 
     def _load_data(self, interval):
         self.gene_track = load_annotation(interval, self.annofile, vis=self.vis)
-        self.max_tracks = len(self.gene_track.keys())
+        self.max_tracks = len(list(self.gene_track.keys()))
         self.height *= self.max_tracks
 
     def _plot(self, ax, interval, reverse=False, fig=None, odd=False, font=None, **kwargs):
 
         chrom, start, end = interval
         ax.set_ylim(- 1 * self.max_tracks, 0)
-        for track_id, genes in self.gene_track.items():
+        for track_id, genes in list(self.gene_track.items()):
             for gene in genes:
                 h_gene = -1 * track_id - 0.5
 
@@ -665,7 +667,7 @@ class ScalePanel(ProfilePanel):
         chrom, start, end = interval
 
         # Formatting
-        for s in ax.spines.values():
+        for s in list(ax.spines.values()):
             s.set_color('none')
 
         ax.yaxis.set_major_formatter(NullFormatter())
