@@ -7,9 +7,15 @@
 
 See [full fluff documentation](http://fluff.readthedocs.org/) for detailed installation instructions and usage examples.
 
-## Quick Installation
 
-**Note: this branch is only works in python 3, and its not been released yet!**
+
+**Note:**
+* this fork only works in python 3, and its not been released yet!
+* all commands are the same as python 2 version of fluff
+
+
+
+## Quick Installation
 
 The most straightforward way to install fluff is with [conda](https://docs.continuum.io/anaconda) using the [bioconda](https://bioconda.github.io/) channel.
 
