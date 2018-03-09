@@ -1,12 +1,14 @@
 # __author__ = 'george'
-import argparse
+import argparse, sys
 
-from fluff import commands
+from fluff.commands.heatmap import heatmap
+from fluff.commands.bandplot import bandplot
+from fluff.commands.profile import profile
 from fluff.color import DEFAULT_COLORS
 from fluff.config import *
 from fluff.fluffio import *
 
-def parse_args(args):
+def parse_cmds():
 
     description = """
     fluff v{0}
@@ -29,7 +31,7 @@ def parse_args(args):
             epilog=epilog,
             formatter_class=argparse.RawDescriptionHelpFormatter
     )
-    subparsers = parser.add_subparsers()
+    subparsers = parser.add_subparsers(dest='subcommand_name')
     # heatmap subparser
     p = subparsers.add_parser('heatmap', add_help=False)
     # heatmap Required arguments
@@ -146,7 +148,7 @@ def parse_args(args):
                          help="don't show colorbars of each heatmap",
                          action="store_false",
                          default=True)
-
+                         
     opt_grp = p.add_argument_group(title='Other')
     opt_grp.add_argument("-P",
                          dest="cpus",
@@ -159,7 +161,7 @@ def parse_args(args):
                          help="show this help message and exit",
                          action="help")
 
-    p.set_defaults(func=commands.heatmap)
+    p.set_defaults(func=heatmap)
 
     # bandplot subparser
     p = subparsers.add_parser('bandplot', add_help=False)
@@ -246,7 +248,7 @@ def parse_args(args):
                          help="show this help message and exit",
                          action="help")
 
-    p.set_defaults(func=commands.bandplot)
+    p.set_defaults(func=bandplot)
 
     # profile subparser
     p = subparsers.add_parser('profile', add_help=False)
@@ -333,13 +335,31 @@ def parse_args(args):
                          dest="help",
                          help="show this help message and exit",
                          action="help")
-    p.set_defaults(func=commands.profile)
+    p.set_defaults(func=profile)
 
-    if len(args) == 0:
+    return parser
+
+def main():
+    """entry point"""
+    parser = parse_cmds()
+    args = parser.parse_args()
+
+    subcommand = args.subcommand_name
+    if subcommand == 'heatmap':
+        heatmap(args)
+    elif subcommand == 'bandplot':
+        bandplot(args)
+    elif subcommand == 'profile':
+        profile(args)
+    else:
         parser.print_help()
-        return
-    if len(args) == 1:
-        print "\033[93mtype `fluff {} -h` for more details\033[0m\n".format(sys.argv[-1])
-    args = parser.parse_args(args)
 
-    return args
+    return
+
+
+if __name__ == '__main__':
+    try:
+        main()
+    except KeyboardInterrupt:
+        sys.stderr.write("User interrupted me! ;-) Bye!\n")
+        sys.exit(0)

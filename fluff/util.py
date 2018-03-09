@@ -5,6 +5,9 @@ import numpy
 import pysam
 from scipy.stats import scoreatpercentile, chisquare
 
+# note: scoreatpercentile  become obsolete in the future.
+# For Numpy 1.9 and higher, numpy.percentile provides all the functionality
+# that scoreatpercentile provides. And it’s significantly faster.
 
 def split_ranges(r):
     if not r:
@@ -25,7 +28,7 @@ def process_groups(groups):
     for group in groups.split(","):
         ids = [int(x) for x in group.split(":")]
         if len(ids) == 2:
-            pg.append(range(ids[0], ids[1] + 1))
+            pg.append(list(range(ids[0], ids[1] + 1)))
         else:
             pg.append(ids)
     return pg
@@ -132,7 +135,7 @@ def sort_tree(tree, order):
 
 def normalize_data(data, percentile=75):
     norm_data = {}
-    for track, ar in data.items():
+    for track, ar in list(data.items()):
         flat = ar.flatten()
         s = scoreatpercentile(flat[~numpy.isnan(flat)], percentile)
         if s == 0:
@@ -157,9 +160,9 @@ def get_absolute_scale(scale, data, per_track=False):
             rel_scale = float(scale[:-1])
 
             if per_track:
-                print "Hoe"
+                print("Hoe")
                 s = [scoreatpercentile(d, rel_scale) for d in data]
-                print s
+                print(s)
                 return s
             else:
                 d = numpy.array(data).flatten()
@@ -173,6 +176,14 @@ def get_absolute_scale(scale, data, per_track=False):
                         s = 1.0
                 return s
 
+def mycmp(a,b):
+    """Wrap function of cmp in py2"""
+    if a < b:
+        return -1
+    elif a > b:
+        return 1
+    else:
+        return 0
 
 def mirror_clusters(data, labels, cutoff=0.01):
     """
@@ -182,11 +193,13 @@ def mirror_clusters(data, labels, cutoff=0.01):
     greater than the cutoff.
     If not, return (None, None)
     """
+    from functools import cmp_to_key
+
     n = len(set(labels))
     if n == 1:
         return (None, None)
     mirror = dict([(i, {}) for i in range(n)])
-    for track in data.keys():
+    for track in list(data.keys()):
         profiles = []
         for i in range(n):
             profiles.append(numpy.mean(data[track][labels == i], 0) + 1e-10)
@@ -195,11 +208,14 @@ def mirror_clusters(data, labels, cutoff=0.01):
                 p = chisquare(profiles[i], profiles[j][::-1])[1]
                 mirror[i].setdefault(j, []).append(p)
     result = []
-    for i in mirror.keys():
-        for j in mirror[i].keys():
+    for i in list(mirror.keys()):
+        for j in list(mirror[i].keys()):
             result.append([(i, j), mirror[i][j]])
-    for (i, j), ps in sorted(result, cmp=lambda a, b: cmp(numpy.mean(a[1]), numpy.mean(b[1])))[::-1]:
+    ### fixed for python 3 only
+    key = cmp_to_key(lambda a, b:mycmp(numpy.mean(a[1]), numpy.mean(b[1])))
+    for (i, j), ps in sorted(result, key=key)[::-1]:
         # print (i,j), ps, numpy.array(ps), cutoff
         if (numpy.array(ps) >= cutoff).all():
             return (i, j)
     return (None, None)
+

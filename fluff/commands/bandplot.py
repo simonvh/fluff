@@ -19,16 +19,16 @@ import fluff.config as cfg
 
 def bandplot(args):
     if (0 > args.scalar) or (args.scalar > 100):
-      print "ERROR: -P value has to be between 0 and 100"
+      print("ERROR: -P value has to be between 0 and 100")
       sys.exit(1)
     else:
       scalar = args.scalar
 
     if not args.datafiles and not args.readCount:
-        print 'You should provide data file(s) or the read counts file.'
+        print('You should provide data file(s) or the read counts file.')
         sys.exit()
     if args.datafiles and args.readCount:
-        print 'You should choose only ONE option. Either data file(s) or the read counts file.'
+        print('You should choose only ONE option. Either data file(s) or the read counts file.')
         sys.exit()
 
 
@@ -37,7 +37,7 @@ def bandplot(args):
     if args.datafiles:
         for x in args.datafiles:
           if '.bam' in x and not os.path.isfile("{0}.bai".format(x)):
-              print "Data file '{0}' does not have an index file. Creating an index file for {0}.".format(x)
+              print("Data file '{0}' does not have an index file. Creating an index file for {0}.".format(x))
               pysam.index(x)
         datafiles = [x.strip() for x in args.datafiles]
 
@@ -69,7 +69,7 @@ def bandplot(args):
 
     # Get cluster information
     cluster_data = load_bed_clusters(clust_file)
-    clusters = cluster_data.keys()
+    clusters = list(cluster_data.keys())
     #Init x-axis
     t = np.arange(bins)
     rows = len(tracks)
@@ -149,5 +149,5 @@ def bandplot(args):
         ax.set_frame_on(False)
         ax.axes.get_yaxis().set_visible(False)
         ax.axes.get_xaxis().set_visible(False)
-    print "Saving figure"
+    print("Saving figure")
     plt.savefig(args.outfile, dpi=600)

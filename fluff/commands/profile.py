@@ -17,7 +17,7 @@ def profile(args):
     colors = parse_colors(args.colors)
     for x in args.datafiles:
         if '.bam' in x and not os.path.isfile("{0}.bai".format(x)):
-            print "Data file '{0}' does not have an index file. Creating an index file for {0}.".format(x)
+            print("Data file '{0}' does not have an index file. Creating an index file for {0}.".format(x))
             pysam.index(x)
 
     trackgroups = process_groups(args.trackgroups)
@@ -30,7 +30,7 @@ def profile(args):
         try:
             scale = [int(x) for x in scale.split(",")]
         except Exception:
-            print "Error in scale argument"
+            print("Error in scale argument")
             sys.exit(1)
 
     if trackgroups and scalegroups:

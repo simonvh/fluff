@@ -125,7 +125,7 @@ def load_annotation(interval, fname, min_gap=0.05, vis="stack"):
             i = 0
         else:
             sys.stderr.write("Unknown visualization")
-        if gene_tracks.has_key(i):
+        if i in gene_tracks:
             gene_tracks[i].append(gene)
         else:
             gene_tracks[i] = [gene]
@@ -134,8 +134,8 @@ def load_annotation(interval, fname, min_gap=0.05, vis="stack"):
 def load_heatmap_data(featurefile, datafile, bins=100, up=5000, down=5000, rmdup=True, rpkm=False, rmrepeats=True,fragmentsize=None, dynam=False, guard=None):
     if guard is None:
         guard = []
-    
-    tmp = tempfile.NamedTemporaryFile(delete=False, prefix="fluff")
+    #try mode='w' to make py2 and py3 work
+    tmp = tempfile.NamedTemporaryFile(mode='w+', encoding='utf-8', delete=False, prefix="fluff")
     regions = []
     order = {}
     count = 0
@@ -155,7 +155,8 @@ def load_heatmap_data(featurefile, datafile, bins=100, up=5000, down=5000, rmdup
             strand = vals[5]
         if len(vals) >= 4:
             gene = vals[3]
-        middle = (int(vals[2]) + int(vals[1])) / 2
+
+        middle = int((int(vals[2]) + int(vals[1])) / 2)
         start, end = middle, middle
         if strand == "+":
             start -= up
@@ -173,6 +174,7 @@ def load_heatmap_data(featurefile, datafile, bins=100, up=5000, down=5000, rmdup
                 regions.append([vals[0], start, end, gene, strand])
                 order["{0}:{1}-{2}".format(vals[0], start, end)] = count
                 count += 1
+                #add encode() to make py3 work
                 tmp.write("{0}\t{1}\t{2}\t{3}\t0\t{4}\n".format(vals[0], start, end, gene, strand))
     tmp.flush()
     track = Track.load(datafile,
@@ -197,7 +199,7 @@ def check_data(featurefile, up=5000, down=5000):
         if len(vals) >= 6:
             strand = vals[5]
         
-        middle = (int(vals[2]) + int(vals[1])) / 2
+        middle = int((int(vals[2]) + int(vals[1])) / 2)
         start, end = middle, middle
         if strand == "+":
             start -= up

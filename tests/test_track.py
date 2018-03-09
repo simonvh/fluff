@@ -77,22 +77,22 @@ def test_binned_stats(tracks, interval, region):
     }
 
     for t in tracks:
-        print t
+        print(t)
         expect = bins[t.track_type]
         if t.track_type == "profile":
             for expect_row, result_row in zip(expect, t.binned_stats(region, 10, split=True, statistic="max")):
                 print(expect_row)
                 print(result_row)
-                print "***"
+                print("***")
                 assert expect_row[:3] == result_row[:3]
                 assert expect_row[4:] == approx(result_row[4:])
         else:
             print(expect)
             print([x for x in t.binned_stats(region, 10, split=True)])
             assert expect == [x for x in t.binned_stats(region, 10, split=True)]
-            
+
 def test_fetch(tracks, interval, region):
-    
+
     for t in tracks:
         if t.track_type == "feature":
             assert 10 == len([i for i in t.fetch(interval)])
@@ -100,7 +100,7 @@ def test_fetch(tracks, interval, region):
             assert 4 == len([i for i in t.fetch(interval, strand="-")])
 
 def test_fragmentsize(region_fs, fragments):
-    
+
     track = Track.load(fragments)
     result = track.binned_stats(region_fs, 4)
     assert 1 == len(result)
