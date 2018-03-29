@@ -20,8 +20,8 @@ DESCRIPTION = "fluff : exploratory analysis and visualization of high-throughput
 setup(name='biofluff',
       version=FL_VERSION,
       description=DESCRIPTION,
-      author='Georgios Georgiou',
-      author_email='g.georgiou@science.ru.nl',
+      author='Simon van Heeringen',
+      author_email='simon.vanheeringen@gmail.com',
       url = 'https://github.com/simonvh/fluff/',
       license='MIT',
       packages=[
@@ -42,4 +42,16 @@ setup(name='biofluff',
                         ],
         tests_require=['pytest'],
         cmdclass = {'test': PyTest},
+		classifiers=[
+            'Development Status :: 4 - Beta',
+            'Intended Audience :: Science/Research',
+            'License :: OSI Approved :: MIT License',
+            'Operating System :: MacOS :: MacOS X',
+            'Operating System :: POSIX :: Linux',
+            'Programming Language :: Python :: 3.6',
+            'Programming Language :: Python :: 3.7',
+			'Programming Language :: Python :: 3 :: Only',
+            'Topic :: Scientific/Engineering :: Bio-Informatics',
+            ],
+
     )
