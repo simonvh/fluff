@@ -7,22 +7,17 @@
 
 See [full fluff documentation](http://fluff.readthedocs.org/) for detailed installation instructions and usage examples.
 
-
-
-**Note:**
-* this fork only works in python 3, and its not been released yet!
-* all commands are the same as python 2 version of fluff
-
-
-
 ## Quick Installation
+
+**Please note**: from version 3.0 on, fluff only works on Python 3.6+ and Python 2.x will no longer be supported. 
+For a Python 2 version you can install fluff 2.1.4. 
+Keep in mind that most scientific Python software will stop supporting Python 2 in 2020: https://python3statement.org/.
 
 The most straightforward way to install fluff is with [conda](https://docs.continuum.io/anaconda) using the [bioconda](https://bioconda.github.io/) channel.
 
 If you have not used bioconda yet, first set up the necessary channels (in this order):
 
 ```
-$ conda config --add channels r
 $ conda config --add channels defaults
 $ conda config --add channels conda-forge
 $ conda config --add channels bioconda
