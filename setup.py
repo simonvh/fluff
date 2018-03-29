@@ -15,11 +15,17 @@ class PyTest(TestCommand):
         errno = pytest.main(self.test_args)
         sys.exit(errno)
 
+def readme():
+    with open('README.md') as f:
+        return f.read()
+
 DESCRIPTION = "fluff : exploratory analysis and visualization of high-throughput sequencing data"
 
 setup(name='biofluff',
       version=FL_VERSION,
       description=DESCRIPTION,
+      long_description=readme(),
+      long_description_content_type='text/markdown',
       author='Simon van Heeringen',
       author_email='simon.vanheeringen@gmail.com',
       url = 'https://github.com/simonvh/fluff/',
@@ -40,9 +46,10 @@ setup(name='biofluff',
                         "pybedtools",
                         "pyBigWig",
                         ],
-        tests_require=['pytest'],
-        cmdclass = {'test': PyTest},
-		classifiers=[
+      setup_requires=['setuptools>=38.6.0'], 
+      tests_require=['pytest'],
+      cmdclass = {'test': PyTest},
+	  classifiers=[
             'Development Status :: 4 - Beta',
             'Intended Audience :: Science/Research',
             'License :: OSI Approved :: MIT License',
