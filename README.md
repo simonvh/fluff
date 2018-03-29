@@ -7,6 +7,11 @@
 
 See [full fluff documentation](http://fluff.readthedocs.org/) for detailed installation instructions and usage examples. 
 
+## PLEASE NOTE
+
+This is the Python 2 branch. There will be no further development on this
+version and this branch will only be used for bugfixes. 
+
 ## Quick Installation
 
 The most straightforward way to install fluff is with [conda](https://docs.continuum.io/anaconda) using the [bioconda](https://bioconda.github.io/) channel (Python 2.7 only).
