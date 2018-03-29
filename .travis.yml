@@ -27,11 +27,11 @@ install:
   - conda config --add channels conda-forge
   - conda config --add channels bioconda
   - conda info -a
-  - conda install --yes python=$TRAVIS_PYTHON_VERSION numpy scipy matplotlib pytest libgfortran pysam htseq pybedtools bedtools palettable pybigwig coverage coveralls scikit-learn
+  - conda install --yes python=$TRAVIS_PYTHON_VERSION numpy scipy matplotlib pytest libgfortran pysam htseq pybedtools bedtools palettable pybigwig coverage coveralls python-coveralls scikit-learn
 
-# # command to run tests, e.g. python setup.py test
+    # # command to run tests, e.g. python setup.py test
 script:
   - coverage run setup.py test
 
 after_sucess:
-  coveralls
+  - coveralls
