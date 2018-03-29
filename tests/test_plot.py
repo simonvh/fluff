@@ -11,6 +11,5 @@ def bamfile():
     return "tests/data/H3K4me3.bam"
 
 def test_profile(region, bamfile):
-    tmp = NamedTemporaryFile(suffix=".png")
-    
-    profile_screenshot(tmp.name, region, [[bamfile]])
+    with NamedTemporaryFile(suffix=".png") as tmp:
+        profile_screenshot(tmp.name, region, [[bamfile]])
