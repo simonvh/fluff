@@ -1,5 +1,5 @@
 import pytest
-
+import numpy as np
 
 @pytest.fixture
 def track_data():
@@ -22,6 +22,17 @@ def track_data_low():
 
     return d
 
+@pytest.fixture
+def cluster_data():
+    return (np.array([
+            [1,1,1,1,1,100,1,1,1,1,1],
+            [2,2,2,2,2,200,2,2,2,2,2],
+            [400,300,200,100,0,0,0,100,200,300,400],
+            [500,400, 300, 200, 100, 100, 100, 200, 300, 400, 500],
+            [1,1,1,1,1,1,1,1,1,1,1],
+            [390, 220, 200, 80, -1, 10, 0, 110, 180, 301, 420],
+            ], dtype="float"),
+            [0,0,1,1,2,1])
 
 def test_get_absolute_scale(track_data):
     from fluff.util import get_absolute_scale
@@ -39,3 +50,32 @@ def test_get_absolute_scale_low(track_data_low):
     from fluff.util import get_absolute_scale
     assert 5.0 == get_absolute_scale("10%", track_data_low)
     assert 5.0 == get_absolute_scale("50%", track_data_low)
+
+def test_cluster_profile(cluster_data):
+    from fluff.util import cluster_profile
+    cluster_input, cluster_labels = cluster_data
+    
+    # Test k-means
+    ind, labels = cluster_profile(cluster_input, numclusters=3, dist="pearson")
+    cluster_labels = np.array(cluster_labels)
+    labels = np.array(labels)
+    assert len(np.unique(labels)) == len(np.unique(cluster_labels))
+    for label in np.unique(cluster_labels):
+        l = len(np.unique(labels[np.where(cluster_labels == label)]))
+        assert 1 == l
+
+    # Test hierarchical
+    results = [
+            ("euclidean",  [1,0,4,3,2,5]),
+            ("pearson", [5, 2, 3, 4, 0, 1]),
+            ]
+    
+    for dist, result in results:
+        ind, labels = cluster_profile(
+            cluster_input, 
+            cluster_type="h", 
+            numclusters=3, 
+            dist=dist)
+    
+        assert result == ind
+
