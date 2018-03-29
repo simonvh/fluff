@@ -4,12 +4,15 @@ Installation
 The straightforward way to install
 ----------------------------------
 
+**Please note**: from version 3.0 on, fluff only works on Python 3.6+ and Python 2.x will no longer be supported.
+For a Python 2 version you can install fluff 2.1.4.
+Keep in mind that most scientific Python software will stop supporting Python 2 in 2020: python3_.
+
 The most straightforward way to install fluff is with conda_ 
-using the bioconda_ channel (Python 2.7 only):
+using the bioconda_ channel:
 
 ::
 
-    $ conda config --add channels r
     $ conda config --add channels defaults
     $ conda config --add channels conda-forge
     $ conda config --add channels bioconda
@@ -20,21 +23,21 @@ Or, in a seperate environment:
 
 ::
 
-    $ conda create -n fluff python=2 biofluff
+    $ conda create -n fluff python=3 biofluff
     # Before using fluff activate the environment:
     $ source activate fluff
 
 
 .. _conda: https://docs.continuum.io/anaconda
 .. _bioconda: https://bioconda.github.io/
-
+.. _python3: https://python3statement.org/
 
 Alternative: using pip
 ----------------------
 
 You can use pip to install fluff, 
 either as root user or in a `virtal environment
-<http://docs.python-guide.org/en/latest/dev/virtualenvs/>`_ (Python 2.7 only).
+<http://docs.python-guide.org/en/latest/dev/virtualenvs/>`_ .
 
 :: 
 

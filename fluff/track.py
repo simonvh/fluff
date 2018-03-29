@@ -24,14 +24,14 @@ class SimpleBed(object):
     """
     BED file as a simple iterator
     """
-    
+
     def __init__(self, fname):
         self.f = open(fname)
 
     def __iter__(self):
         return self
 
-    def next(self):
+    def __next__(self):
         line = self.f.readline()
         while line and (line[0] == "#" or line.startswith("track")):
             line = self.f.readline()
@@ -58,20 +58,47 @@ class SimpleBed(object):
             self.f.close()
             raise StopIteration
 
-class Track(object):
+
+class TrackMeta(type):
+    """ Keep track of "plugin" classes. We use of a metaclass is to
+        automatically register all subclasses derived from a given base class.
+
+        we use __init__ rather than __new__ here because we want
+        to modify attributes of the class *after* they have been created
+
+        def __init__(cls, name, bases, dct):
+            if not hasattr(cls, '_registry'):
+                # this is the base class.  Create an empty registry
+                cls._registry = []
+            else:
+                # this is a derived class.  Add cls to the registry
+                cls._registry.append((name, cls))
+
+            super(TrackMeta, cls).__init__(name, bases, dct)
+
+        see here: https://jakevdp.github.io/blog/2012/12/01/a-primer-on-python-metaclasses/
+    """
     _registry = []
     _filetypes = []
 
+    def __init__(cls, name, bases, attrs):
+        cls._registry.append((name, cls))
+
+
+# import six
+# @six.add_metaclass(MetaTrack)
+#class Track(object):
+class Track(object, metaclass=TrackMeta):
+    _registry = []
+    _filetypes = []
     track_type = "profile"
-    
-    class __metaclass__(type):
-        """ Keep track of "plugin" classes
-        """
-        def __init__(cls, name, bases, attrs):
-            cls._registry.append((name,cls))
 
     def __init__(self, fname):
         """
+           Instance  Track class is not a good choice,
+           once we have created registry subclass. We use metaclass
+           to provide different interface for these following files tyes:
+           bam, bed, wig, bg, bw, tabix (bed.gz, bg.gz, wig.gz)
         """
 
         raise NotImplementedError("please instantiate subclass")
@@ -80,31 +107,31 @@ class Track(object):
     def filetypes(cls):
         """
         Return all supported filetypes of the subclasses of Track
-        
+
         Returns
         -------
         list
             List of supported filetypes
         """
-        
+
         return list(set([ftype for _,t in cls._registry for ftype in t._filetypes]))
 
     def _get_interval(self, interval):
         """
         Translate interval to tuple of (chrom, start, end)
-        
+
         Params
         ------
         interval : list, tuple or str
-            If interval is a list or tuple, it should contain chromosome (str), 
+            If interval is a list or tuple, it should contain chromosome (str),
             start (int), end (int). If it is a string, it should be of the
             format chrom:start-end
-        
+
         Returns
         -------
         tuple
             (chrom, start, end)
-        
+
         """
         try:
             chrom, start, end = interval
@@ -130,7 +157,7 @@ class Track(object):
         -------
         Track object of the specified type
         """
-        
+
         _, ftype = os.path.splitext(fname)
         ftype = ftype.strip(".")
         for _, cls in self._registry:
@@ -157,7 +184,7 @@ class BinnedMixin(object):
             in_track = SimpleBed(in_fname)
         else:
             in_track = pybedtools.BedTool(in_fname)
-        
+
         #extend = fragmentsize - readlength
         for feature, min_strand, plus_strand in self.fetch_to_counts(in_track):
             binsize = (feature.end - feature.start) / float(nbins)
@@ -174,7 +201,7 @@ class BinnedMixin(object):
                     num_reads += 1
                     i += 1
                 min_strand = min_strand[c:]
-    
+
                 i = 0
                 c = 0
                 while i < len(plus_strand) and plus_strand[i] <= int(bin_start + binsize + 0.5):
@@ -183,7 +210,7 @@ class BinnedMixin(object):
                     num_reads += 1
                     i += 1
                 plus_strand = plus_strand[c:]
-    
+
                 if rpkm:
                     per_kb = num_reads * (1000.0 / binsize)
                     row.append(per_kb / total_reads)
@@ -194,7 +221,7 @@ class BinnedMixin(object):
                 row = row[::-1]
             ret.append([feature.chrom, feature.start, feature.end] + row)
             count += 1
-        
+
         del in_track
         if split:
             return ret
@@ -202,7 +229,7 @@ class BinnedMixin(object):
             return ["\t".join([str(x) for x in r]) for r in ret]
 
 class BamTrack(BinnedMixin, Track):
-    _filetypes = ["bam"] 
+    _filetypes = ["bam"]
     track_type = "feature"
 
     def __init__(self, fname, **kwargs):
@@ -213,20 +240,20 @@ class BamTrack(BinnedMixin, Track):
         ----------
         fname: str
             filename of BAM file
-        
+
         fragmentsize : int, optional
             Reads are extended to fragmentsize before summarizing the profile.
             If fragmentsize is None, the read length is used.
-        
+
         rmdup : bool, optional
             Ignore duplicate reads if True, default False
 
         rmrepeats : bool, optional
-            Ignore reads with mapping quality 0 (multi-mapped reads) if 
+            Ignore reads with mapping quality 0 (multi-mapped reads) if
             True, default False
 
         """
-        
+
         self.rmdup = kwargs.get("rmdup", False)
         self.rmrepeats = kwargs.get("rmrepeats", False)
         self.fragmentsize = kwargs.get("fragmentsize", None)
@@ -247,7 +274,7 @@ class BamTrack(BinnedMixin, Track):
         int
             Number of reads
         """
-        
+
         if (not self.rmdup and not self.rmrepeats):
             try:
                 return self.track.mapped
@@ -262,7 +289,7 @@ class BamTrack(BinnedMixin, Track):
                 if (not self.rmrepeats) or read.mapq > 0:
                     c += 1
         return c
-      
+
     def read_length(self):
         """
         Return the read length
@@ -279,7 +306,7 @@ class BamTrack(BinnedMixin, Track):
         return Counter(lengths).most_common(1)[0][0]
 
     def fetch_to_counts(self, track):
-        """ 
+        """
         Yields the number of reads for each feature in track
 
         Parameters
@@ -316,21 +343,21 @@ class BamTrack(BinnedMixin, Track):
                     min_strand = sorted(min_strand)
                     plus_strand = sorted(plus_strand)
             yield (feature, min_strand, plus_strand)
-     
+
     def fetch_reads(self, args, **kwargs):
-        warn("fetch_reads is deprecated, please use fetch", DeprecationWarning)    
+        warn("fetch_reads is deprecated, please use fetch", DeprecationWarning)
 
     def fetch(self, interval, strand=None):
-        """ 
+        """
         Retrieve all reads within a given window
-        
+
         Parameters
         ----------
         window : list, tuple or str
-            If window is a list or tuple, it should contain chromosome (str), 
+            If window is a list or tuple, it should contain chromosome (str),
             start (int), end (int). If it is a string, it should be of the
             format chrom:start-end
-        
+
         strand : str, optional
             Either '+' or '-'. By default all reads are returned.
 
@@ -347,7 +374,7 @@ class BamTrack(BinnedMixin, Track):
                 # duplicate reads
                 if self.rmdup and (read.flag & 1024):
                     continue
-                # multimappers / low mapping quality 
+                # multimappers / low mapping quality
                 if self.rmrepeats and read.mapping_quality < 10:
                     continue
                 if strand:
@@ -363,31 +390,31 @@ class BamTrack(BinnedMixin, Track):
     def get_profile(self, interval, **kwargs):
         """
         Return summary profile in a given window
-        
+
         Parameters
         ----------
         interval : list, tuple or str
-            If interval is a list or tuple, it should contain chromosome (str), 
+            If interval is a list or tuple, it should contain chromosome (str),
             start (int), end (int). If it is a string, it should be of the
             format chrom:start-end
-        
+
         scalepm : bool, optional
             Scale profile to per million reads
-        
+
         scalefactor : float, optional
             Scale profile by this factor, default 1.0
-        
+
         Returns
         -------
         numpy array
             A summarized profile as a numpy array
 
         """
-        scalefactor = kwargs.get("scalefactor", 1.0) 
+        scalefactor = kwargs.get("scalefactor", 1.0)
         scalepm = kwargs.get("scalepm", False)
         if scalepm:
             scalefactor = scalefactor * 1e6 / float(self.count())
-        
+
         chrom, start, end = self._get_interval(interval)
         profile = np.zeros(end - start, dtype="f")
         profile.fill(np.nan)
@@ -395,8 +422,8 @@ class BamTrack(BinnedMixin, Track):
         strand = {True: "-", False: "+"}
         for read in self.fetch(interval):
             iv = HTSeq.GenomicInterval(
-                    chrom, 
-                    read.reference_start, 
+                    chrom,
+                    read.reference_start,
                     read.reference_end, strand[read.is_reverse]
                     )
             if self.fragmentsize:
@@ -415,17 +442,17 @@ class BamTrack(BinnedMixin, Track):
 class BedTrack(BinnedMixin, Track):
     _filetypes = ["bed"]
     track_type = "feature"
-    
+
     def __init__(self, fname, **kwargs):
         """
         Parameters
         ----------
-        
+
         fragmentsize : int, optional
             Reads are extended to fragmentsize before summarizing the profile.
             If fragmentsize is None, the read length is used.
-        """ 
-        
+        """
+
         self.fragmentsize = kwargs.get("fragmentsize", None)
 
         self.track = pybedtools.BedTool(fname)
@@ -440,7 +467,7 @@ class BedTrack(BinnedMixin, Track):
         int
             Number of features
         """
-        
+
         return self.track.count()
 
     def read_length(self):
@@ -449,7 +476,7 @@ class BedTrack(BinnedMixin, Track):
                 return read.end - read.start
 
     def fetch_to_counts(self, track):
-        """ 
+        """
         Yields the number of features for each feature in track
 
         Parameters
@@ -478,16 +505,16 @@ class BedTrack(BinnedMixin, Track):
             yield (feature, min_strand, plus_strand)
 
     def fetch_reads(self, *args, **kwargs):
-        warn("fetch_reads is deprecated, please use fetch", DeprecationWarning)    
-  
+        warn("fetch_reads is deprecated, please use fetch", DeprecationWarning)
+
     def _get_features_by_feature(self, track_a):
         """
-        Return overlapping features 
-        
+        Return overlapping features
+
         Parameters
         ----------
-        
-        track_a : BedTrack object 
+
+        track_a : BedTrack object
         """
 
         track_b = self.track
@@ -497,7 +524,7 @@ class BedTrack(BinnedMixin, Track):
             field_len_a = len(f.fields)
             break
         i = track_a.intersect(track_b, wao=True, stream=False)
-        tmp = tempfile.NamedTemporaryFile(delete=False, prefix="fluff")
+        tmp = tempfile.NamedTemporaryFile(mode='w+', encoding='utf-8', delete=False, prefix="fluff")
         _ = i.saveas(tmp.name)
         tmp.flush()
         last = None
@@ -522,7 +549,7 @@ class BedTrack(BinnedMixin, Track):
         else:
             yield feature, features
         tmp.close()
-    
+
     def _interval_bedtool(self, interval, strand=None):
         """
         Convert an interval to a BedTool
@@ -530,62 +557,62 @@ class BedTrack(BinnedMixin, Track):
         Parameters
         ----------
         interval : list, tuple or str
-            If interval is a list or tuple, it should contain chromosome (str), 
+            If interval is a list or tuple, it should contain chromosome (str),
             start (int), end (int). If it is a string, it should be of the
             format chrom:start-end
-        
+
         strand : str, optional
             Either '+' or '-'. Default is no strand.
-        
+
         Returns
         -------
         BedTool object
         """
 
         chrom, start, end = self._get_interval(interval)
-        
+
         if strand is None:
             strand = "."
-        
+
         if strand == ".":
             feature = pybedtools.BedTool(
                     "{0} {1} {2}".format(
-                        chrom, start, end), 
+                        chrom, start, end),
                     from_string=True)
         else:
             feature = pybedtools.BedTool(
                     "{0} {1} {2} 0 0 {3}".format(
-                        chrom, start, end, strand), 
+                        chrom, start, end, strand),
                     from_string=True)
         return feature
 
     def fetch(self, interval, strand=None):
-        """ 
+        """
         Retrieve all reads within a given window
-        
+
         Parameters
         ----------
         interval : list, tuple or str
-            If interval is a list or tuple, it should contain chromosome (str), 
+            If interval is a list or tuple, it should contain chromosome (str),
             start (int), end (int). If it is a string, it should be of the
             format chrom:start-end
-        
+
         strand : str, optional
             Either '+' or '-'. By default all reads are returned.
-        
+
         Yields
         ------
         GenomicInterval
             Yields HTSeq GenomicInterval objects.
         """
-        
+
         feature = self._interval_bedtool(interval, strand=strand)
         chrom, start, end = self._get_interval(interval)
         for read in self.track.intersect(feature, u=True, stream=True, s=strand in ["+", "-"]):
             yield HTSeq.GenomicInterval(
-                    chrom, 
-                    read.start, 
-                    read.end, 
+                    chrom,
+                    read.start,
+                    read.end,
                     str(read.strand))
 
     def close(self):
@@ -594,20 +621,20 @@ class BedTrack(BinnedMixin, Track):
     def get_profile(self, interval, **kwargs):
         """
         Return summary profile in a given window
-        
+
         Parameters
         ----------
         interval : list, tuple or str
-            If interval is a list or tuple, it should contain chromosome (str), 
+            If interval is a list or tuple, it should contain chromosome (str),
             start (int), end (int). If it is a string, it should be of the
             format chrom:start-end
-        
+
         scalepm : bool, optional
             Scale profile to per million reads
-        
+
         scalefactor : float, optional
             Scale profile by this factor, default 1.0
-        
+
         Returns
         -------
         numpy array
@@ -625,8 +652,8 @@ class BedTrack(BinnedMixin, Track):
 
         for f in self.fetch(interval):
             iv = HTSeq.GenomicInterval(
-                    chrom, 
-                    f.start, 
+                    chrom,
+                    f.start,
                     f.end,
                     f.strand
                     )
@@ -640,10 +667,10 @@ class BedTrack(BinnedMixin, Track):
 
 class WigTrack(Track):
     _filetypes = ["bg", "wig", "bdg", "bedGraph"]
-    
+
     def __init__(self, fname, **kwargs):
         self.fname = fname
-        
+
         if fname.split(".")[-1] in self._filetypes:
             self.track = pybedtools.BedTool(fname)
             self.ftype = "wig"
@@ -653,29 +680,29 @@ class WigTrack(Track):
     def get_profile(self, interval, **kwargs):
         """
         Return summary profile in a given window
-        
+
         Parameters
         ----------
         interval : list, tuple or str
-            If interval is a list or tuple, it should contain chromosome (str), 
+            If interval is a list or tuple, it should contain chromosome (str),
             start (int), end (int). If it is a string, it should be of the
             format chrom:start-end
-        
+
         scalefactor : float, optional
             Scale profile by this factor, default 1.0
-        
+
         Returns
         -------
         numpy array
             A summarized profile as a numpy array
         """
         scalefactor = kwargs.get("scalefactor", 1.0)
-        
+
         chrom, start, end = self._get_interval(interval)
         int_bed = pybedtools.BedTool(
-                "{} {} {}".format(chrom, start, end), 
+                "{} {} {}".format(chrom, start, end),
                 from_string=True)
-        
+
         profile = np.zeros(end - start, dtype="f")
         profile.fill(np.nan)
 
@@ -688,7 +715,7 @@ class WigTrack(Track):
                         f.end = end
                 # in a wig file, 4th column is score
                 profile[f.start - start:f.end - start] = float(f.name)
-        
+
         profile = profile * scalefactor
         return profile
 
@@ -708,9 +735,9 @@ class WigTrack(Track):
         statistic : str, optional
             Default is "mean", other options are "min", "max" and "std"
         """
-        
+
         in_track = pybedtools.BedTool(in_fname)
-       
+
         statistic = args.get("statistic", "mean")
         if statistic in ["min", "max", "std"]:
             statistic = eval(statistic)
@@ -725,29 +752,29 @@ class WigTrack(Track):
             lens.append(f.end - f.start)
         max_len = max(lens)
 
-        profile = np.zeros((len(regions), max_len)) 
+        profile = np.zeros((len(regions), max_len))
         for f in self.track.intersect(in_track, wo=True):
             start, end = [int(x) for x in f.fields[5:7]]
             region = "{}:{}-{}".format(*f.fields[4:7])
             pos = order[region]
-           
+
             f_start, f_end = int(f[1]), int(f[2])
 
             if f_start < start:
                 f_start = start
             if f_end > end:
                 f_end = end
-            
+
             profile[pos][f_start - start: f_end - start] = float(f[3])
-        
+
         for l,region,row in zip(lens, regions, profile):
             h,_,_ = binned_statistic(np.arange(l), row, bins=nbins, statistic=statistic)
             yield region + list(h)
-         
+
 
 class BigWigTrack(Track):
     _filetypes = ["bw", "bigWig"]
-    
+
     def __init__(self, fname, **kwargs):
         if fname.split(".")[-1] in self._filetypes:
             self.track = pyBigWig.open(fname)
@@ -758,24 +785,24 @@ class BigWigTrack(Track):
     def get_profile(self, interval, **kwargs):
         """
         Return summary profile in a given window
-        
+
         Parameters
         ----------
         interval : list, tuple or str
-            If interval is a list or tuple, it should contain chromosome (str), 
+            If interval is a list or tuple, it should contain chromosome (str),
             start (int), end (int). If it is a string, it should be of the
             format chrom:start-end
-        
+
         scalefactor : float, optional
             Scale profile by this factor, default 1.0
-        
+
         Returns
         -------
         numpy array
             A summarized profile as a numpy array
         """
         scalefactor = kwargs.get("scalefactor", 1.0)
-        
+
         chrom, start, end = self._get_interval(interval)
         profile = np.array(self.track.values(chrom, start, end))
         profile = profile * scalefactor
@@ -797,13 +824,15 @@ class BigWigTrack(Track):
         statistic : str, optional
             Default is "mean", other options are "min", "max" and "std"
         """
- 
+         #qiuck hack
+        # fixed nbins is not int type, need to find where is the problem
+        nbins = int(nbins)
         statistic = args.get("statistic", "mean")
         use_strand = args.get("use_strand", False)
         in_track = SimpleBed(in_fname)
         for f in in_track:
-            try: 
-                vals = self.track.stats(f.chrom, f.start, f.end, 
+            try:
+                vals = self.track.stats(f.chrom, f.start, f.end,
                         type=statistic, nBins=nbins)
                 vals = np.array(vals, dtype="float")
                 vals = np.nan_to_num(vals)
@@ -814,7 +843,7 @@ class BigWigTrack(Track):
                 yield [f.chrom, f.start, f.end] + [0.0] * nbins
 
 class TabixTrack(Track):
-    _filetypes = ["bg.gz", "wig.gz", "bed.gz", 
+    _filetypes = ["bg.gz", "wig.gz", "bed.gz",
                     "bedGraph.gz", "bigWig.gz", "bdg.gz"]
 
     def __init__(self, fname, **kwargs):
@@ -833,33 +862,33 @@ class TabixTrack(Track):
     def get_profile(self, interval, **kwargs):
         """
         Return summary profile in a given window
-        
+
         Parameters
         ----------
         interval : list, tuple or str
-            If interval is a list or tuple, it should contain chromosome (str), 
+            If interval is a list or tuple, it should contain chromosome (str),
             start (int), end (int). If it is a string, it should be of the
             format chrom:start-end
-        
+
         scalefactor : float, optional
             Scale profile by this factor, default 1.0
-        
+
         Returns
         -------
         numpy array
             A summarized profile as a numpy array
         """
         scalefactor = kwargs.get("scalefactor", 1.0)
- 
-        chrom, start, end = self._get_interval(interval) 
+
+        chrom, start, end = self._get_interval(interval)
         profile = np.zeros(end - start)
-        
+
         # Chromosome not in index
         if chrom not in self.tabix_track.contigs:
             return profile
-        
+
         profile.fill(np.nan)
-        
+
         for f in self.tabix_track.fetch(chrom, start, end):
             f = f.split()
             fstart = int(f[1])
@@ -869,8 +898,8 @@ class TabixTrack(Track):
             if fend > end:
                 fend = end
             profile[fstart - start: fend - end] = float(f[3])
-        
-        profile = profile * scalefactor 
+
+        profile = profile * scalefactor
         return profile
 
     def binned_stats(self, in_fname, nbins, split=False, **args):
@@ -889,14 +918,14 @@ class TabixTrack(Track):
         statistic : str, optional
             Default is "mean", other options are "min", "max" and "std"
         """
-        
+
         statistic = args.get("statistic", "mean")
         in_track = SimpleBed(in_fname)
-       
+
         if statistic in ["min", "max", "std"]:
             statistic = eval(statistic)
 
-        for r in in_track: 
+        for r in in_track:
             profile = np.zeros(r.end - r.start)
             if r.chrom in self.tabix_track.contigs:
                 for f in self.tabix_track.fetch(r.chrom, r.start, r.end):
@@ -909,8 +938,8 @@ class TabixTrack(Track):
                         end = r.end
                     profile[start - r.start: end - r.end] = float(f[3])
             h,_,_ = binned_statistic(
-                    np.arange(r.end - r.start), 
-                    profile, 
-                    bins=nbins, 
+                    np.arange(r.end - r.start),
+                    profile,
+                    bins=nbins,
                     statistic=statistic)
             yield [r.chrom, r.start, r.end] + list(h)

@@ -1,10 +1,15 @@
 import re
 import sys
 
-import numpy
+import numpy as np
 import pysam
 from scipy.stats import scoreatpercentile, chisquare
+from sklearn.cluster import KMeans, AgglomerativeClustering
+from sklearn.preprocessing import scale
 
+# note: scoreatpercentile  become obsolete in the future.
+# For Numpy 1.9 and higher, numpy.percentile provides all the functionality
+# that scoreatpercentile provides. And it’s significantly faster.
 
 def split_ranges(r):
     if not r:
@@ -25,7 +30,7 @@ def process_groups(groups):
     for group in groups.split(","):
         ids = [int(x) for x in group.split(":")]
         if len(ids) == 2:
-            pg.append(range(ids[0], ids[1] + 1))
+            pg.append(list(range(ids[0], ids[1] + 1)))
         else:
             pg.append(ids)
     return pg
@@ -39,7 +44,7 @@ def split_interval(interval):
 
 def bam2numreads(bamfile):
     result = pysam.idxstats(bamfile)
-    return numpy.sum([int(row.strip().split("\t")[2]) for row in result])
+    return np.sum([int(row.strip().split("\t")[2]) for row in result])
 
 
 def _treesort(order, nodeorder, nodecounts, tree):
@@ -48,8 +53,8 @@ def _treesort(order, nodeorder, nodecounts, tree):
     # tree, taking into account the preferred order of nodes.
     nNodes = len(tree)
     nElements = nNodes + 1
-    neworder = numpy.zeros(nElements)
-    clusterids = numpy.arange(nElements)
+    neworder = np.zeros(nElements)
+    clusterids = np.arange(nElements)
     for i in range(nNodes):
         i1 = tree[i].left
         i2 = tree[i].right
@@ -93,48 +98,13 @@ def _treesort(order, nodeorder, nodecounts, tree):
                     neworder[j] += increase
                 if clusterid == i1 or clusterid == i2:
                     clusterids[j] = -i - 1
-    return numpy.argsort(neworder)
-
-
-def sort_tree(tree, order):
-    # Adapted from the Pycluster library, Michiel de Hoon
-    nnodes = len(tree)
-    nodeindex = 0
-    nodecounts = numpy.zeros(nnodes, int)
-    nodeorder = numpy.zeros(nnodes)
-    nodedist = numpy.array([node.distance for node in tree])
-    for nodeindex in range(nnodes):
-        min1 = tree[nodeindex].left
-        min2 = tree[nodeindex].right
-        if min1 < 0:
-            index1 = -min1 - 1
-            order1 = nodeorder[index1]
-            counts1 = nodecounts[index1]
-            nodedist[nodeindex] = max(nodedist[nodeindex], nodedist[index1])
-        else:
-            order1 = order[min1]
-            counts1 = 1
-        if min2 < 0:
-            index2 = -min2 - 1
-            order2 = nodeorder[index2]
-            counts2 = nodecounts[index2]
-            nodedist[nodeindex] = max(nodedist[nodeindex], nodedist[index2])
-        else:
-            order2 = order[min2]
-            counts2 = 1
-        counts = counts1 + counts2
-        nodecounts[nodeindex] = counts
-        nodeorder[nodeindex] = (counts1 * order1 + counts2 * order2) / counts
-    # Now set up order based on the tree structure
-    index = _treesort(order, nodeorder, nodecounts, tree)
-    return index
-
+    return np.argsort(neworder)
 
 def normalize_data(data, percentile=75):
     norm_data = {}
-    for track, ar in data.items():
+    for track, ar in list(data.items()):
         flat = ar.flatten()
-        s = scoreatpercentile(flat[~numpy.isnan(flat)], percentile)
+        s = scoreatpercentile(flat[~np.isnan(flat)], percentile)
         if s == 0:
             sys.stderr.write(
                 "Error normalizing track {0} as score at percentile {1} is 0, normalizing to maximum value instead\n".format(
@@ -157,12 +127,12 @@ def get_absolute_scale(scale, data, per_track=False):
             rel_scale = float(scale[:-1])
 
             if per_track:
-                print "Hoe"
+                print("Hoe")
                 s = [scoreatpercentile(d, rel_scale) for d in data]
-                print s
+                print(s)
                 return s
             else:
-                d = numpy.array(data).flatten()
+                d = np.array(data).flatten()
                 s = scoreatpercentile(d, rel_scale)
                 # Set the scale to the minimum non-zero value, otherwise
                 # the plot will show nothing
@@ -173,6 +143,14 @@ def get_absolute_scale(scale, data, per_track=False):
                         s = 1.0
                 return s
 
+def mycmp(a,b):
+    """Wrap function of cmp in py2"""
+    if a < b:
+        return -1
+    elif a > b:
+        return 1
+    else:
+        return 0
 
 def mirror_clusters(data, labels, cutoff=0.01):
     """
@@ -182,24 +160,99 @@ def mirror_clusters(data, labels, cutoff=0.01):
     greater than the cutoff.
     If not, return (None, None)
     """
+    from functools import cmp_to_key
+
     n = len(set(labels))
     if n == 1:
         return (None, None)
     mirror = dict([(i, {}) for i in range(n)])
-    for track in data.keys():
+    for track in list(data.keys()):
         profiles = []
         for i in range(n):
-            profiles.append(numpy.mean(data[track][labels == i], 0) + 1e-10)
+            profiles.append(np.mean(data[track][labels == i], 0) + 1e-10)
         for i in range(n - 1):
             for j in range(i + 1, n):
                 p = chisquare(profiles[i], profiles[j][::-1])[1]
                 mirror[i].setdefault(j, []).append(p)
     result = []
-    for i in mirror.keys():
-        for j in mirror[i].keys():
+    for i in list(mirror.keys()):
+        for j in list(mirror[i].keys()):
             result.append([(i, j), mirror[i][j]])
-    for (i, j), ps in sorted(result, cmp=lambda a, b: cmp(numpy.mean(a[1]), numpy.mean(b[1])))[::-1]:
+    ### fixed for python 3 only
+    key = cmp_to_key(lambda a, b:mycmp(np.mean(a[1]), np.mean(b[1])))
+    for (i, j), ps in sorted(result, key=key)[::-1]:
         # print (i,j), ps, numpy.array(ps), cutoff
-        if (numpy.array(ps) >= cutoff).all():
+        if (np.array(ps) >= cutoff).all():
             return (i, j)
     return (None, None)
+
+
+def cluster_profile(cluster_data, cluster_type="k", numclusters=3, dist="euclidean"):
+    """Cluster profiles for heatmap
+
+    Takes a matrix and clusters either with kmeans or hierarchical clustering.
+    Distance can be either euclidean or pearson. 
+
+    Parameters
+    ----------
+    cluster_data :  array_like
+        Data to cluster.
+
+    cluster_type : str, optional
+        Either 'k' for kmeans, 'h' for hierarchical or 'n' for no clustering.
+        If cluster_type equals None, data is also not clustered.
+
+    numclusters : int, optional
+        Number of clusters.
+
+    dist : str, optional
+        Distance metric, either 'euclidean' or 'pearson'.
+
+    Returns
+    -------
+
+    ind : array
+        Indices of sorted input.
+
+    labels : array 
+        Cluster labels.
+    """
+    if dist not in ["euclidean", "pearson"]:
+        raise ValueError("distance can be either 'euclidean' or 'pearson'")
+    # Clustering
+    if dist == "pearson":
+        cluster_data = np.apply_along_axis(scale, 1, cluster_data)
+    
+    if cluster_type == "k":
+        print("K-means clustering")
+        ## K-means clustering
+       
+        k = KMeans(n_clusters=numclusters)
+        labels = k.fit(cluster_data).labels_
+        ind = labels.argsort()
+
+        # Hierarchical clustering
+    elif cluster_type == "h":
+        print("Hierarchical clustering")
+        a = AgglomerativeClustering(
+                n_clusters=numclusters, 
+                linkage="complete"
+                )
+        a.fit(cluster_data)
+        labels = a.labels_
+        c = a.n_leaves_
+        t = {x:[x] for x in range(a.n_leaves_)}
+        for x in a.children_:
+            t[c] = t[x[0]] + t[x[1]]
+            c += 1  
+        ind = t[c - 1]
+    # No clustering
+    elif cluster_type in ["n", None]:
+        ind = np.arange(len(cluster_data))
+        labels = np.zeros(len(cluster_data))
+    else:
+        raise ValueError("Invalid value for cluster_type")
+
+    return ind, labels
+
+

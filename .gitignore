@@ -25,3 +25,7 @@ tests/data/test.png*
 .*swp
 
 docs/_build
+
+tests/data/big/*bam*
+tests/data/big/peaks.bed
+

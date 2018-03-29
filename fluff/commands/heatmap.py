@@ -7,12 +7,11 @@ import sys
 
 import pysam
 ### External imports ###
-import Pycluster
 from numpy import array, hstack, arange, zeros
 
 ### My imports ###
 from fluff.util import ( normalize_data, get_absolute_scale, split_ranges,
-        mirror_clusters, sort_tree )
+        mirror_clusters, cluster_profile )
 from fluff.fluffio import load_heatmap_data, check_data
 from fluff.color import parse_colors
 from fluff.plot import heatmap_plot
@@ -22,11 +21,11 @@ def heatmap(args):
     datafiles = args.datafiles
     for x in args.datafiles:
         if not os.path.isfile(x):
-            print "ERROR: Data file '{0}' does not exist".format(x)
+            print("ERROR: Data file '{0}' does not exist".format(x))
             sys.exit(1)
     for x in args.datafiles:
         if '.bam' in x and not os.path.isfile("{0}.bai".format(x)):
-            print "Data file '{0}' does not have an index file. Creating an index file for {0}.".format(x)
+            print("Data file '{0}' does not have an index file. Creating an index file for {0}.".format(x))
             pysam.index(x)
 
     # Options Parser
@@ -47,24 +46,20 @@ def heatmap(args):
     rpkm = args.rpkm
     rmrepeats = args.rmrepeats
     ncpus = args.cpus
-    distancefunction = args.distancefunction[0].lower()
+    distancefunction = args.distancefunction.lower()
     dynam = args.graphdynamics
     fontsize = args.textfontsize
     colorbar = args.colorbar
-
+    
     # Check for mutually exclusive parameters
     if dynam:
         if merge_mirrored:
-            print "ERROR: -m and -g option CANNOT be used together"
+            print("ERROR: -m and -g option CANNOT be used together")
             sys.exit(1)
         if distancefunction == 'e':
-            print 'Dynamics can only be identified using Pearson correlation as metric.'
-            print 'Assigning metric to Pearson correlation'
+            print('Dynamics can only be identified using Pearson correlation as metric.')
+            print('Assigning metric to Pearson correlation')
             distancefunction = 'p'
-
-    # Warning about too much files
-    if (len(tracks) > 4):
-        print "Warning: Running fluff with too many files might make you system use enormous amount of memory!"
 
     # Method of clustering
     if (args.pick != None):
@@ -73,7 +68,7 @@ def heatmap(args):
             sys.stderr.write("You picked a non-existent file for clustering.\n")
             sys.exit(1)
     else:
-        pick = range(len(datafiles))
+        pick = list(range(len(datafiles)))
 
 
     if not cluster_type in ["k", "h", "n"]:
@@ -84,16 +79,12 @@ def heatmap(args):
         sys.stderr.write("Please provide number of clusters!\n")
         sys.exit(1)
     # Distance function
-    if not distancefunction in ["e", "p"]:
+    if not distancefunction in ["euclidean", "pearson"]:
         sys.stderr.write("Unknown distance function!\n")
         sys.exit(1)
     else:
-        if distancefunction == "e":
-            METRIC = cfg.DEFAULT_METRIC
-            print "Euclidean distance method"
-        else:
-            METRIC = "c"
-            print "Pearson distance method"
+        METRIC = distancefunction
+        print("{} distance method".format(METRIC))
     ## Get scale for each track
     tscale = [1.0 for track in datafiles]
 
@@ -105,7 +96,7 @@ def heatmap(args):
         # Calculate the profile data
         data = {}
         regions = []
-        print "Loading data"
+        print("Loading data")
         try:
             # Load data in parallel
             pool = multiprocessing.Pool(processes=ncpus)
@@ -152,16 +143,17 @@ def heatmap(args):
 
     clus = hstack([norm_data[t] for i, t in enumerate(tracks) if (not pick or i in pick)])
 
-    # Clustering
+    ind, labels = cluster_profile(
+            clus, 
+            cluster_type=cluster_type, 
+            numclusters = args.numclusters, 
+            dist=METRIC)
+    
     if cluster_type == "k":
-        print "K-means clustering"
-        ## K-means clustering
-        # PyCluster
-        labels, _, nfound = Pycluster.kcluster(clus, args.numclusters, dist=METRIC)
-        if not dynam and merge_mirrored:
+       if not dynam and merge_mirrored:
             (i, j) = mirror_clusters(data, labels)
             while j:
-                for track in data.keys():
+                for track in list(data.keys()):
                     data[track][labels == j] = [row[::-1] for row in data[track][labels == j]]
                 for k in range(len(regions)):
                     if labels[k] == j:
@@ -176,18 +168,6 @@ def heatmap(args):
                 for k in range(j + 1, n):
                     labels[labels == k] = k - 1
                 (i, j) = mirror_clusters(data, labels)
-
-        ind = labels.argsort()
-
-        # Hierarchical clustering
-    elif cluster_type == "h":
-        print "Hierarchical clustering"
-        tree = Pycluster.treecluster(clus, method="m", dist=METRIC)
-        labels = tree.cut(args.numclusters)
-        ind = sort_tree(tree, arange(len(regions)))
-    else:
-        ind = arange(len(regions))
-        labels = zeros(len(regions))
 
     # Load data for visualization if -g option was used
     if dynam:

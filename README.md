@@ -5,16 +5,19 @@
 [![Build Status](https://travis-ci.org/simonvh/fluff.svg?branch=master)](https://travis-ci.org/simonvh/fluff)
 [![Code Health](https://landscape.io/github/simonvh/fluff/master/landscape.svg?style=flat)](https://landscape.io/github/simonvh/fluff/master)
 
-See [full fluff documentation](http://fluff.readthedocs.org/) for detailed installation instructions and usage examples. 
+See [full fluff documentation](http://fluff.readthedocs.org/) for detailed installation instructions and usage examples.
 
 ## Quick Installation
 
-The most straightforward way to install fluff is with [conda](https://docs.continuum.io/anaconda) using the [bioconda](https://bioconda.github.io/) channel (Python 2.7 only).
+**Please note**: from version 3.0 on, fluff only works on Python 3.6+ and Python 2.x will no longer be supported. 
+For a Python 2 version you can install fluff 2.1.4. 
+Keep in mind that most scientific Python software will stop supporting Python 2 in 2020: https://python3statement.org/.
+
+The most straightforward way to install fluff is with [conda](https://docs.continuum.io/anaconda) using the [bioconda](https://bioconda.github.io/) channel.
 
 If you have not used bioconda yet, first set up the necessary channels (in this order):
 
 ```
-$ conda config --add channels r
 $ conda config --add channels defaults
 $ conda config --add channels conda-forge
 $ conda config --add channels bioconda
@@ -30,7 +33,7 @@ See the quick examples in the [Usage](http://fluff.readthedocs.io/en/latest/usag
 
 ## Citing
 
-If you find fluff useful, please cite: 
+If you find fluff useful, please cite:
 
 Georgiou G, van Heeringen SJ. (2016) fluff: exploratory analysis and visualization of high-throughput sequencing data. PeerJ 4:e2209 [doi: 10.7717/peerj.2209] (https://doi.org/10.7717/peerj.2209).
 
@@ -53,4 +56,3 @@ Georgiou G, van Heeringen SJ. (2016) fluff: exploratory analysis and visualizati
 
 This module is licensed under the terms of the [MIT
 license](https://opensource.org/licenses/MIT).
-

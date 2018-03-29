@@ -1,9 +1,9 @@
 ### CONSTANTS ###
-FL_VERSION = "2.1.4"
+FL_VERSION = "3.0.0"
 
 ######## HEATMAP #############
-DEFAULT_BINSIZE = 100
-DEFAULT_METRIC = "e"  # Euclidian, PyCluster
+DEFAULT_BINSIZE = 25 
+DEFAULT_METRIC = "euclidean"  # Euclidian, PyCluster
 
 DEFAULT_SCALE = "90%"
 DEFAULT_EXTEND = 5000
@@ -30,4 +30,4 @@ FRAGMENTLENGTH = 200
 PROFILE_MIN_Y = 75
 
 ######## OTHER #############
-FONTSIZE = 8
+FONTSIZE = 10
