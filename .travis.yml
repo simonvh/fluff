@@ -8,13 +8,6 @@ cache:
   directories:
     - $HOME/miniconda
 
-notifications:
-    email:
-        recipients:
-            - fztsing@126.com
-        on_success: always
-        on_failure: always
-
 # See http://docs.travis-ci.com/user/gui-and-headless-browsers/#Using-xvfb-to-Run-Tests-That-Require-GUI-(e.g.-a-Web-browser)
 before_install:
   # Fix DISPLAY variable
@@ -30,13 +23,11 @@ install:
   - hash -r
   - conda config --set always_yes yes --set changeps1 no
   - conda update -q conda
-  - conda config --add channels conda-forge
   - conda config --add channels defaults
-  - conda config --add channels r
+  - conda config --add channels conda-forge
   - conda config --add channels bioconda
   - conda info -a
-  - conda install --yes python=$TRAVIS_PYTHON_VERSION numpy scipy matplotlib pytest libgfortran pysam htseq pybedtools bedtools palettable pybigwig coverage coveralls pycluster
-
+  - conda install --yes python=$TRAVIS_PYTHON_VERSION numpy scipy matplotlib pytest libgfortran pysam htseq pybedtools bedtools palettable pybigwig coverage coveralls scikit-learn
 
 # # command to run tests, e.g. python setup.py test
 script:
