@@ -35,7 +35,7 @@ See the quick examples in the [Usage](http://fluff.readthedocs.io/en/latest/usag
 
 If you find fluff useful, please cite:
 
-Georgiou G, van Heeringen SJ. (2016) fluff: exploratory analysis and visualization of high-throughput sequencing data. PeerJ 4:e2209 [doi: 10.7717/peerj.2209] (https://doi.org/10.7717/peerj.2209).
+Georgiou G, van Heeringen SJ. (2016) fluff: exploratory analysis and visualization of high-throughput sequencing data. PeerJ 4:e2209 [doi: 10.7717/peerj.2209](https://doi.org/10.7717/peerj.2209).
 
 ## Help
 
