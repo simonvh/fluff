@@ -82,7 +82,11 @@ def parse_cmds():
                          help="pick specific data files to use for clustering",
                          default=None,
                          type=str)
-
+    clu_grp.add_argument("-S",
+                         dest="seed",
+                         help="random seed (int) to use for K-means clustering",
+                         default=None,
+                         type=int)
     dap_grp = p.add_argument_group(title='Data processing')
     dap_grp.add_argument("-r",
                          dest="rpkm",
