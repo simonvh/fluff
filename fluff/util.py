@@ -187,7 +187,7 @@ def mirror_clusters(data, labels, cutoff=0.01):
     return (None, None)
 
 
-def cluster_profile(cluster_data, cluster_type="k", numclusters=3, dist="euclidean"):
+def cluster_profile(cluster_data, cluster_type="k", numclusters=3, dist="euclidean", random_state=None):
     """Cluster profiles for heatmap
 
     Takes a matrix and clusters either with kmeans or hierarchical clustering.
@@ -227,7 +227,7 @@ def cluster_profile(cluster_data, cluster_type="k", numclusters=3, dist="euclide
         print("K-means clustering")
         ## K-means clustering
        
-        k = KMeans(n_clusters=numclusters)
+        k = KMeans(n_clusters=numclusters, random_state=random_state)
         labels = k.fit(cluster_data).labels_
         ind = labels.argsort()
 

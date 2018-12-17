@@ -50,7 +50,8 @@ def heatmap(args):
     dynam = args.graphdynamics
     fontsize = args.textfontsize
     colorbar = args.colorbar
-    
+    seed = args.seed
+
     # Check for mutually exclusive parameters
     if dynam:
         if merge_mirrored:
@@ -147,7 +148,8 @@ def heatmap(args):
             clus, 
             cluster_type=cluster_type, 
             numclusters = args.numclusters, 
-            dist=METRIC)
+            dist=METRIC,
+            random_state=seed)
     
     if cluster_type == "k":
        if not dynam and merge_mirrored:
