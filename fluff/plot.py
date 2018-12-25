@@ -227,7 +227,7 @@ def create_grid_figure(nrows, ncolumns, plotwidth=2.0, plotheight=2.0, pad=0.1, 
 
     return fig, axes
 
-def profile_screenshot(fname, interval, tracks, fontsize=None, colors=None, scalegroups=None, scale=None, show_scale=True, annotation=None, bgmode="color", fragmentsize=200,  dpi=600, rmdup=False, rmrepeats=False, reverse=False, adjscale=False):
+def profile_screenshot(fname, interval, tracks, fontsize=None, colors=None, scalegroups=None, scale=None, show_scale=True, annotation=None, bgmode="color", fragmentsize=200,  dpi=600, rmdup=False, rmrepeats=False, reverse=False, adjscale=False, labels=None):
     """
     Plot a genome browser like profile
 
@@ -312,11 +312,16 @@ def profile_screenshot(fname, interval, tracks, fontsize=None, colors=None, scal
     c = 0
     for group in tracks:
         for i,track in enumerate(group):
+            if labels is not None:
+                name = labels[i]
+            else:
+                name = os.path.splitext(os.path.split(track)[-1])[0]
+                
             panel = pfig.add_panel(
                     BamProfilePanel(track,
                         color = colors[c % len(colors)],
                         bgmode = bgmode,
-                        name = os.path.splitext(os.path.split(track)[-1])[0],
+                        name = name,
                         fragmentsize = fragmentsize,
                         rmrepeats = rmrepeats,
                         rmdup = rmdup,
