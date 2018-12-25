@@ -634,13 +634,13 @@ class AnnotationPanel(ProfilePanel):
                                 color=self.color,
                         )
                         ax.add_patch(arr)
-                if gstart > 0:
-		    labX = gstart - 0.01
-		    horizontalalignment = 'right'
-		else:
-		    labX = gend + 0.01
-		    horizontalalignment = 'left'
-                ax.text(labX, h_gene, genename,
+        if gstart > 0:
+            labX = gstart - 0.01
+            horizontalalignment = 'right'
+        else:
+            labX = gend + 0.01
+            horizontalalignment = 'left'
+        ax.text(labX, h_gene, genename,
                             horizontalalignment= horizontalalignment,
                             verticalalignment="center",
                             fontproperties=font)
