@@ -60,7 +60,7 @@ def colortext(x, y, texts, colors, **kwargs):
                             )
 
     ax.add_artist(bbox)
-
+4
 def hide_axes(ax):
     for x in [ax.xaxis, ax.yaxis]:
         x.set_major_formatter(NullFormatter())
@@ -635,8 +635,13 @@ class AnnotationPanel(ProfilePanel):
                         )
                         ax.add_patch(arr)
                 if gstart > 0:
-                    ax.text(gstart - 0.01, h_gene, genename,
-                            horizontalalignment="right",
+		    labX = gstart - 0.01
+		    horizontalalignment = 'right'
+		else:
+		    labX = gend + 0.01
+		    horizontalalignment = 'left'
+                ax.text(labX, h_gene, genename,
+                            horizontalalignment= horizontalalignment,
                             verticalalignment="center",
                             fontproperties=font)
 
