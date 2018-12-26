@@ -315,6 +315,11 @@ def parse_args(args):
                          help="color(s) (name, colorbrewer profile or hex code), separate each color name by comma",
                          metavar="NAME(S)",
                          default=DEFAULT_COLORS)
+    vis_grp.add_argument("-l", dest="labels",
+                         help="color(s) (name, colorbrewer profile or hex code), separate each color name by comma",
+                         metavar="TRACK_LABEL(S)",
+                         default=None,
+                         nargs='+')
     vis_grp.add_argument("-b", dest="background",
                          help="background color: stripes | white | color",
                          default="stripes")

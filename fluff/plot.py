@@ -60,7 +60,7 @@ def colortext(x, y, texts, colors, **kwargs):
                             )
 
     ax.add_artist(bbox)
-
+4
 def hide_axes(ax):
     for x in [ax.xaxis, ax.yaxis]:
         x.set_major_formatter(NullFormatter())
@@ -227,7 +227,7 @@ def create_grid_figure(nrows, ncolumns, plotwidth=2.0, plotheight=2.0, pad=0.1, 
 
     return fig, axes
 
-def profile_screenshot(fname, interval, tracks, fontsize=None, colors=None, scalegroups=None, scale=None, show_scale=True, annotation=None, bgmode="color", fragmentsize=200,  dpi=600, rmdup=False, rmrepeats=False, reverse=False, adjscale=False):
+def profile_screenshot(fname, interval, tracks, fontsize=None, colors=None, scalegroups=None, scale=None, show_scale=True, annotation=None, bgmode="color", fragmentsize=200,  dpi=600, rmdup=False, rmrepeats=False, reverse=False, adjscale=False, labels=None):
     """
     Plot a genome browser like profile
 
@@ -241,6 +241,9 @@ def profile_screenshot(fname, interval, tracks, fontsize=None, colors=None, scal
 
     tracks: list
         list of filenames
+        
+    labels: list
+        list of tracknames
     """
     if scalegroups is None:
         scalegroups = []
@@ -310,13 +313,20 @@ def profile_screenshot(fname, interval, tracks, fontsize=None, colors=None, scal
 
     # add the signal tracks
     c = 0
+    yi = -1
     for group in tracks:
         for i,track in enumerate(group):
+            yi += 1
+            if labels is not None:
+                name = labels[yi]
+            else:
+                name = os.path.splitext(os.path.split(track)[-1])[0]
+                
             panel = pfig.add_panel(
                     BamProfilePanel(track,
                         color = colors[c % len(colors)],
                         bgmode = bgmode,
-                        name = os.path.splitext(os.path.split(track)[-1])[0],
+                        name = name,
                         fragmentsize = fragmentsize,
                         rmrepeats = rmrepeats,
                         rmdup = rmdup,
@@ -634,11 +644,16 @@ class AnnotationPanel(ProfilePanel):
                                 color=self.color,
                         )
                         ax.add_patch(arr)
-                if gstart > 0:
-                    ax.text(gstart - 0.01, h_gene, genename,
-                            horizontalalignment="right",
-                            verticalalignment="center",
-                            fontproperties=font)
+                    if gstart > 0:
+                        labX = gstart - 0.01
+                        horizontalalignment = 'right'
+                    else:
+                        labX = gend + 0.01
+                        horizontalalignment = 'left'
+                    ax.text(labX, h_gene, genename,
+                                        horizontalalignment= horizontalalignment,
+                                        verticalalignment="center",
+                                        fontproperties=font)
 
         self.hide_axes(ax)
 
