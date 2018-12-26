@@ -241,6 +241,9 @@ def profile_screenshot(fname, interval, tracks, fontsize=None, colors=None, scal
 
     tracks: list
         list of filenames
+        
+    labels: list
+        list of tracknames
     """
     if scalegroups is None:
         scalegroups = []
@@ -310,10 +313,12 @@ def profile_screenshot(fname, interval, tracks, fontsize=None, colors=None, scal
 
     # add the signal tracks
     c = 0
+    yi = -1
     for group in tracks:
         for i,track in enumerate(group):
+            yi += 1
             if labels is not None:
-                name = labels[i]
+                name = labels[yi]
             else:
                 name = os.path.splitext(os.path.split(track)[-1])[0]
                 
