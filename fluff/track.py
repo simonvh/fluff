@@ -524,31 +524,30 @@ class BedTrack(BinnedMixin, Track):
             field_len_a = len(f.fields)
             break
         i = track_a.intersect(track_b, wao=True, stream=False)
-        tmp = tempfile.NamedTemporaryFile(mode='w+', encoding='utf-8', delete=False, prefix="fluff")
-        _ = i.saveas(tmp.name)
-        tmp.flush()
-        last = None
-        features = []
-        for line in tmp.readlines():
-            vals = line.strip().split("\t")
-            if field_len_a >= 6:
-                feature = pybedtools.Interval(vals[0], int(vals[1]), int(vals[2]), strand=vals[5])
+        with tempfile.NamedTemporaryFile(mode='w+', encoding='utf-8', delete=False, prefix="fluff") as tmp:
+            _ = i.saveas(tmp.name)
+            tmp.flush()
+            last = None
+            features = []
+            for line in tmp.readlines():
+                vals = line.strip().split("\t")
+                if field_len_a >= 6:
+                    feature = pybedtools.Interval(vals[0], int(vals[1]), int(vals[2]), strand=vals[5])
+                else:
+                    feature = pybedtools.Interval(vals[0], int(vals[1]), int(vals[2]))
+                if str(feature) != str(last):
+                    if len(features) > 0:
+                        if len(features) == 1 and features[0][1:3] == ['-1', '-1']:
+                            yield last, []
+                        else:
+                            yield last, features
+                    features = []
+                    last = feature
+                features.append(vals[field_len_a:])
+            if len(features) == 1 and features[0][1:3] == ['-1', '-1']:
+                yield feature, []
             else:
-                feature = pybedtools.Interval(vals[0], int(vals[1]), int(vals[2]))
-            if str(feature) != str(last):
-                if len(features) > 0:
-                    if len(features) == 1 and features[0][1:3] == ['-1', '-1']:
-                        yield last, []
-                    else:
-                        yield last, features
-                features = []
-                last = feature
-            features.append(vals[field_len_a:])
-        if len(features) == 1 and features[0][1:3] == ['-1', '-1']:
-            yield feature, []
-        else:
-            yield feature, features
-        tmp.close()
+                yield feature, features
 
     def _interval_bedtool(self, interval, strand=None):
         """

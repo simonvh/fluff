@@ -135,54 +135,54 @@ def load_heatmap_data(featurefile, datafile, bins=100, up=5000, down=5000, rmdup
     if guard is None:
         guard = []
     #try mode='w' to make py2 and py3 work
-    tmp = tempfile.NamedTemporaryFile(mode='w+', encoding='utf-8', delete=False, prefix="fluff")
-    regions = []
-    order = {}
-    count = 0
-    hashcounter = 0
-    if not guard and dynam:
-        filt = True
-    else:
-        filt = False
-    for i, line in enumerate(open(featurefile)):
-        if line.startswith("#") or line[:5] == "track":
-            hashcounter += 1
-            continue
-        vals = line.strip().split("\t")
-        strand = "+"
-        gene = ""
-        if len(vals) >= 6:
-            strand = vals[5]
-        if len(vals) >= 4:
-            gene = vals[3]
-
-        middle = int((int(vals[2]) + int(vals[1])) / 2)
-        start, end = middle, middle
-        if strand == "+":
-            start -= up
-            end += down
+    with tempfile.NamedTemporaryFile(mode='w+', encoding='utf-8', delete=False, prefix="fluff") as tmp:
+        regions = []
+        order = {}
+        count = 0
+        hashcounter = 0
+        if not guard and dynam:
+            filt = True
         else:
-            start -= down
-            end += up
-        if filt:
-            if start >= 0:
-                guard.append(True)
-            else:
-                guard.append(False)
-        if not filt and start >= 0:
-            if not dynam or guard[i - hashcounter]:
-                regions.append([vals[0], start, end, gene, strand])
-                order["{0}:{1}-{2}".format(vals[0], start, end)] = count
-                count += 1
-                #add encode() to make py3 work
-                tmp.write("{0}\t{1}\t{2}\t{3}\t0\t{4}\n".format(vals[0], start, end, gene, strand))
-    tmp.flush()
-    track = Track.load(datafile,
-            rmdup=rmdup,
-            rmrepeats=rmrepeats,
-            fragmentsize=fragmentsize)
+            filt = False
+        for i, line in enumerate(open(featurefile)):
+            if line.startswith("#") or line[:5] == "track":
+                hashcounter += 1
+                continue
+            vals = line.strip().split("\t")
+            strand = "+"
+            gene = ""
+            if len(vals) >= 6:
+                strand = vals[5]
+            if len(vals) >= 4:
+                gene = vals[3]
 
-    result = track.binned_stats(tmp.name, bins, split=True, rpkm=rpkm)
+            middle = int((int(vals[2]) + int(vals[1])) / 2)
+            start, end = middle, middle
+            if strand == "+":
+                start -= up
+                end += down
+            else:
+                start -= down
+                end += up
+            if filt:
+                if start >= 0:
+                    guard.append(True)
+                else:
+                    guard.append(False)
+            if not filt and start >= 0:
+                if not dynam or guard[i - hashcounter]:
+                    regions.append([vals[0], start, end, gene, strand])
+                    order["{0}:{1}-{2}".format(vals[0], start, end)] = count
+                    count += 1
+                    #add encode() to make py3 work
+                    tmp.write("{0}\t{1}\t{2}\t{3}\t0\t{4}\n".format(vals[0], start, end, gene, strand))
+        tmp.flush()
+        track = Track.load(datafile,
+                rmdup=rmdup,
+                rmrepeats=rmrepeats,
+                fragmentsize=fragmentsize)
+
+        result = track.binned_stats(tmp.name, bins, split=True, rpkm=rpkm)
     # Retrieve original order
     r_data = np.array([[float(x) for x in row[3:]] for row in result])
     return os.path.basename(datafile), regions, r_data, guard  # [r_order]
