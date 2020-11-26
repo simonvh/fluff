@@ -1,7 +1,7 @@
 language: python
 
 python:
-  - "3.6"
+  - "3.8"
 
 cache:
   apt: true
@@ -25,7 +25,8 @@ install:
   - conda config --add channels conda-forge
   - conda config --add channels bioconda
   - conda info -a
-  - conda install --yes python=$TRAVIS_PYTHON_VERSION numpy scipy matplotlib pytest libgfortran pysam htseq pybedtools bedtools palettable pybigwig coverage coveralls python-coveralls scikit-learn
+  - conda install --yes python=$TRAVIS_PYTHON_VERSION pytest scipy "matplotlib-base>=2" "pysam>=0.15.0" htseq pybedtools palettable scikit-learn pybigwig coverage coveralls python-coveralls
+
 
     # # command to run tests, e.g. python setup.py test
 script:
