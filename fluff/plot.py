@@ -19,7 +19,7 @@ from fluff.track import Track
 
 DEFAULT_COLORS = ["#e41a1c", "#4daf4a", "#377eb8"]
 GENE_ARROW = "->"
-GENE_ARROW = ArrowStyle._Curve(beginarrow=False, endarrow=True, head_length=.4, head_width=.4)
+GENE_ARROW = ArrowStyle._Curve(head_length=.4, head_width=.4)
 
 def colortext(x, y, texts, colors, **kwargs):
     pos = {
